@@ -10,6 +10,7 @@
 #from devsup.db import IOScanListBlock
 #from devsup.util import StoppableThread
 import threading
+import time
 from subprocess import check_output
 
 _frus = {}
@@ -25,10 +26,10 @@ def get_fru(id):
 		FRUScanner object
 	"""
 	try:
-		return _frus[host]
+		return _frus[id]
 	except KeyError:
 		fru = FRUScanner(id)
-		_frus[host] = fru
+		_frus[id] = fru
 		return fru
 
 class Sensor():
@@ -63,7 +64,7 @@ class Sensor():
 		Returns:
 			String representation of FRU
 		"""
-		return "Name: {}".format(self.name)
+		return "Name: {}, Value: {}".format(self.name, self.value)
 
 #class FRUScanner(StoppableThread)
 # TODO: work out if this should be a thread or just processed from EPICS
@@ -85,6 +86,9 @@ class FRUScanner(threading.Thread):
 		"""
 
 		self.id = id
+		self.host = None
+		self.user = None
+		self.password = None
 
 		#self.scan_list = IOScanListBlock()
 		
@@ -92,6 +96,8 @@ class FRUScanner(threading.Thread):
 		
 		# Initialize list of FRUs
 		self.sensors = {}
+
+		self.should_run = True
 
 	def populate_sensors(self):
 		""" 
@@ -118,13 +124,10 @@ class FRUScanner(threading.Thread):
 
 		result = check_output(command)
 		
-		print result
-
 		for line in result.splitlines():
 			try:
-				print line
 				name, sensor_id, status, fru_id, val = line.split('|')
-				value, egu = val.split(' ', 1)
+				value, egu = val.strip().split(' ', 1)
 				if name in self.sensors.keys():
 					self.sensors[name].value = value
 					self.sensors[name].status = status
@@ -136,17 +139,42 @@ class FRUScanner(threading.Thread):
 					self.sensors[name].egu = egu
 					self.sensors[name].status = status
 			except ValueError:
-				print "Couldn't parse {}".format(line)
+				pass
 
-		for sensor in self.sensors:
-			print(sensor)
+		for key in self.sensors:
+			print(self.sensors[key])
 
+	def run(self):
+		"""
+		Thread run function
+		
+		Args:
+			None
+
+		Returns:
+			Nothing
+		"""
+
+		while (self.should_run == True):
+			self.populate_sensors()
+			time.sleep(2)
 
 def main():
 	fru_fgpdb = get_fru("193.102")
-	crate1.user = "root"
-	crate1.password = "ctsFree4All"
-	crate1.populate_sensors()
+	fru_fgpdb.host = "mtcamch04"
+	fru_fgpdb.user = "root"
+	fru_fgpdb.password = "ctsFree4All"
+	fru_fgpdb.should_run = True
+	fru_fgpdb.start()
+	
+	try:
+		while True:
+			time.sleep(0.5)
+	except KeyboardInterrupt:
+		print "exiting"
+		fru_fgpdb.should_run = False
+		fru_fgpdb.join()
+		print "exited thread"
 
 if __name__ == "__main__":
 	main()
