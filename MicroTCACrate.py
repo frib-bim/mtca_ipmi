@@ -1,13 +1,11 @@
 #!/usr/bin/env python
-# File: FRU.py
+# File: MicroTCACrate.py
 # Date: 2017-06-15
 # Author: Wayne Lewis
 #
 # Description: Get FRU information for microTCA crate.
 # FRU = Field Replaceable Unit
 #
-# Macros:
-# P: Device prefix
 
 #from devsup.db import IOScanListBlock
 #from devsup.util import StoppableThread
