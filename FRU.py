@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-# File: FRU_FGPDB.py
+# File: FRU.py
 # Date: 2017-06-15
 # Author: Wayne Lewis
 #
-# Description: Get sensor information for FGPDB FRU
+# Description: Get sensor information for FRU
 # FRU = Field Replaceable Unit
-# FGPDB = FRIB General Purpose Digital Board
-# FRIB = Facility for Rare Isotope Beams
 #
 
 #from devsup.db import IOScanListBlock
