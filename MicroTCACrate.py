@@ -24,12 +24,12 @@ def get_crate(host):
 		host: host name of crate MCH
 
 	Returns: 
-		MicroTCACrate object
+		MicroTCACrateScanner object
 	"""
 	try:
 		return _crates[host]
 	except KeyError:
-		crate = MicroTCACrate(host)
+		crate = MicroTCACrateScanner(host)
 		_crates[host] = crate
 		return crate
 
@@ -64,17 +64,17 @@ class FRU():
 		"""
 		return "ID: {}, Name: {}".format(self.id, self.name)
 
-#class MicroTCACrate(StoppableThread)
+#class MicroTCACrateScanner(StoppableThread)
 # TODO: work out if this should be a thread or just processed from EPICS
 
-class MicroTCACrate(threading.Thread):
+class MicroTCACrateScanner(threading.Thread):
 	"""
 	Class for identifying FRUs in microTCA crate.
 	"""
 	
 	def __init__(self, host):
 		"""
-		Initializer for  MicroTCACrate object.
+		Initializer for MicroTCACrateScanner object.
 
 		Args:
 			host: host name of MCH in crate
@@ -89,7 +89,7 @@ class MicroTCACrate(threading.Thread):
 
 		#self.scan_list = IOScanListBlock()
 		
-		super(MicroTCACrate, self).__init__()
+		super(MicroTCACrateScanner, self).__init__()
 		
 		# Initialize list of FRUs
 		self.frus = []
