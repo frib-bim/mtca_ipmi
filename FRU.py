@@ -6,12 +6,18 @@
 # Description: Get sensor information for FRU
 # FRU = Field Replaceable Unit
 #
+# Assumes the following environment variables are set:
+# MTCA_HOST
+# MTCA_USER
+# MTCA_PASSWORD
 
 #from devsup.db import IOScanListBlock
 #from devsup.util import StoppableThread
 import threading
 import time
 from subprocess import check_output
+import os
+
 
 _frus = {}
 
@@ -31,6 +37,22 @@ def get_fru(id):
 		fru = FRUScanner(id)
 		_frus[id] = fru
 		return fru
+
+class MTCACrate():
+	"""
+	Class to hold crate information
+	"""
+
+	def __init__(self):
+		""" 
+		Crate class initializer
+		"""
+
+		self.host = None
+		self.user = None
+		self.password = None
+
+_crate = MTCACrate()
 
 class Sensor():
 	"""
@@ -90,7 +112,7 @@ class FRUScanner(threading.Thread):
 		self.user = None
 		self.password = None
 
-		#self.scan_list = IOScanListBlock()
+		self.scan_list = IOScanListBlock()
 		
 		super(FRUScanner, self).__init__()
 		
@@ -99,7 +121,7 @@ class FRUScanner(threading.Thread):
 
 		self.should_run = True
 
-	def populate_sensors(self):
+	def read_sensors(self):
 		""" 
 		Call MCH and get sensors for this FRU
 
@@ -141,8 +163,8 @@ class FRUScanner(threading.Thread):
 			except ValueError:
 				pass
 
-		for key in self.sensors:
-			print(self.sensors[key])
+		#for key in self.sensors:
+			#print(self.sensors[key])
 
 	def run(self):
 		"""
@@ -156,26 +178,81 @@ class FRUScanner(threading.Thread):
 		"""
 
 		while (self.should_run == True):
-			self.populate_sensors()
+			self.read_sensors()
 			time.sleep(2)
 
-def main():
-	fru_fgpdb = get_fru("193.102")
-	fru_fgpdb.host = "mtcamch04"
-	fru_fgpdb.user = "root"
-	fru_fgpdb.password = "ctsFree4All"
-	fru_fgpdb.should_run = True
-	fru_fgpdb.start()
+class FRUReader:
+	"""
+	Main class for reading FRU sensor values from EPICS
+	"""
+	# raw = True
+
+	def __init__(self, rec, args):
+		"""
+		Initializer function
+
+		Args:
+			rec: pyDevSup record object
+			args: arguments from the EPICS record INP field, consisting of
+				fru_id: e.g., 192.101
+				sensor_name: e.g., Current 1.2 V
+				fn: function to be called for this record
 	
-	try:
-		while True:
-			time.sleep(0.5)
-	except KeyboardInterrupt:
-		print "exiting"
-		fru_fgpdb.should_run = False
-		fru_fgpdb.join()
-		print "exited thread"
+		Returns:
+			Nothing
+		"""
 
-if __name__ == "__main__":
-	main()
+		# Set up the crate info
+		if _crate.host == None:
+			_crate.host = os.environ(MTCA_HOST)
+			_crate.user = os.environ(MTCA_USER)
+			_crate.password = os.environ(MTCA_PASSWORD)
 
+		# Get the information about the sensor
+		fru_id, sensor_name, fn = args.split(None, 2)
+		self.fru_id = fru_id
+		self.sensor_name = sensor_name
+		self.fru = get_fru(fru_id)
+	
+		self.fru.read_sensors()
+
+		self.process = getattr(self, fn)
+		self.allowScan = self.fru.scan_list.add
+
+		try:
+			rec.UDF = 0
+			rec.EGU = self.fru.sensors[self.sensor_name].egu
+		except AttributeError:
+			pass
+
+	def detach(self, rec):
+		pass
+
+	def get_val(self, rec, report):
+		""" 
+		Get a sensor value and store in the PV
+
+		Args:
+			rec: database record 
+			report: ?
+
+		Returns: 
+			Nothing
+		"""
+
+		rec.VAL = self.fru.sensors[self.sensor_name].value
+
+	def update(self, rec, report):
+		"""
+		Call this function to update the sensor values
+
+		Args:
+			rec: database record 
+			report: ?
+
+		Returns: 
+			Nothing
+		"""
+		self.read_sensors()
+
+	
