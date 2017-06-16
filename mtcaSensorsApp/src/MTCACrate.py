@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# File: MicroTCACrate.py
+# File: MTCACrate.py
 # Date: 2017-06-15
 # Author: Wayne Lewis
 #
@@ -12,7 +12,8 @@
 import threading
 from subprocess import check_output
 
-_crates = {}
+#_crates = {}
+_crate = MTCACrate()
 
 def get_crate(host):
 	"""
@@ -22,14 +23,15 @@ def get_crate(host):
 		host: host name of crate MCH
 
 	Returns: 
-		MicroTCACrateScanner object
+		MTCACrate object
 	"""
 	try:
-		return _crates[host]
-	except KeyError:
-		crate = MicroTCACrateScanner(host)
-		_crates[host] = crate
-		return crate
+		#return _crates[host]
+        return _crate
+	#except KeyError:
+		#crate = MTCACrate(host)
+		#_crates[host] = crate
+		#return crate
 
 class FRU():
 	"""
@@ -62,17 +64,15 @@ class FRU():
 		"""
 		return "ID: {}, Name: {}".format(self.id, self.name)
 
-#class MicroTCACrateScanner(StoppableThread)
-# TODO: work out if this should be a thread or just processed from EPICS
 
-class MicroTCACrateScanner(threading.Thread):
+class MTCACrate():
 	"""
-	Class for identifying FRUs in microTCA crate.
+	Class for holding microTCA crate information, including FRU list
 	"""
 	
-	def __init__(self, host):
+	def __init__(self):
 		"""
-		Initializer for MicroTCACrateScanner object.
+		Initializer for MTCACrate object.
 
 		Args:
 			host: host name of MCH in crate
@@ -81,14 +81,10 @@ class MicroTCACrateScanner(threading.Thread):
 			Nothing
 		"""
 
-		self.host = host
+		self.host = None
 		self.user = None
 		self.password = None
 
-		#self.scan_list = IOScanListBlock()
-		
-		super(MicroTCACrateScanner, self).__init__()
-		
 		# Initialize list of FRUs
 		self.frus = []
 
@@ -103,40 +99,102 @@ class MicroTCACrateScanner(threading.Thread):
 			Nothing
 		"""
 
-		command = []
-		command.append("ipmitool")
-		command.append("-H")
-		command.append(self.host)
-		command.append("-U")
-		command.append(self.user)
-		command.append("-P")
-		command.append(self.password)
-		command.append("sdr")
-		command.append("elist")
-		command.append("fru")
+        if self.host != None and self.user != None and self.password != None:
+            command = []
+            command.append("ipmitool")
+            command.append("-H")
+            command.append(self.host)
+            command.append("-U")
+            command.append(self.user)
+            command.append("-P")
+            command.append(self.password)
+            command.append("sdr")
+            command.append("elist")
+            command.append("fru")
 
-		result = check_output(command)
-		
-		print result
+            result = check_output(command)
+            
+            print result
 
-		for line in result.splitlines():
-			try:
-				print line
-				name, ref, status, id, desc = line.split('|')
-				self.frus.append(FRU(name=name.strip(), id=id.strip()))
-			except ValueError:
-				print "Couldn't parse {}".format(line)
+            for line in result.splitlines():
+                try:
+                    print line
+                    name, ref, status, id, desc = line.split('|')
+                    self.frus.append(FRU(name=name.strip(), id=id.strip()))
+                except ValueError:
+                    print "Couldn't parse {}".format(line)
 
-		for fru in self.frus:
-			print(fru)
+            for fru in self.frus:
+                print(fru)
+        else:
+            print("Crate information not populated")
+            print("Host = {}".format(self.host))
+            print("User = {}".format(self.user))
+            print("Password = {}".format(self.password))
 
+class MTCACrateReader():
+    """
+    Class for interfacing to EPICS PVs for MTCA crate
+    """
 
-def main():
-	crate1 = get_crate("mtcamch04")
-	crate1.user = "root"
-	crate1.password = "ctsFree4All"
-	crate1.populate_fru_list()
+    def __init__(self, rec, args):
+        """
+        Initializer class
 
-if __name__ == "__main__":
-	main()
+        Args:
+            rec: pyDevSup record object
+            args: arguments from EPICS record
+                fn: function to be called
 
+        Returns:
+            Nothing
+        """
+
+        fn = args
+        self.process = getattr(self, fn)
+
+        try:
+            rec.UDF = 0
+        except AttributeError:
+            pass
+
+    def detach(self, rec):
+        pass
+
+    def set_host(self, rec, report):
+        """
+        Set host name
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+        self.host = rec.VAL
+
+    def set_user(self, rec, report):
+        """
+        Set user name
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+        self.user = rec.VAL
+
+    def set_password(self, rec, report):
+        """
+        Set password 
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+        self.password = rec.VAL
+
+build = MTCACrateReader
