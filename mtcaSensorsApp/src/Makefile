@@ -15,12 +15,12 @@ DBD += mtcaSensors.dbd
 
 # mtcaSensors.dbd will be made up from these files:
 mtcaSensors_DBD += base.dbd
-mtcaSensors_DBD += iocAdmin.dbd
+#mtcaSensors_DBD += iocAdmin.dbd
 mtcaSensors_DBD += pyDevSup.dbd
 mtcaSensors_DBD += base.dbd
 
 # Add all the support libraries needed by this IOC
-mtcaSensors_LIBS += devIocStats
+#mtcaSensors_LIBS += devIocStats
 mtcaSensors_LIBS += pyDevSup$(PY_LD_VER)
 
 # mtcaSensors_registerRecordDeviceDriver.cpp derives from mtcaSensors.dbd
