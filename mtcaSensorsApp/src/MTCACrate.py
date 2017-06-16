@@ -13,91 +13,88 @@ import threading
 from subprocess import check_output
 
 #_crates = {}
-_crate = MTCACrate()
 
-def get_crate(host):
-	"""
-	Find existing crate object, or create new one.
+def get_crate():
+    """
+    Find existing crate object, or create new one.
 
-	Args:
-		host: host name of crate MCH
+    Args:
+        host: host name of crate MCH
 
-	Returns: 
-		MTCACrate object
-	"""
-	try:
-		#return _crates[host]
+    Returns: 
+        MTCACrate object
+    """
+    
+    try:
         return _crate
-	#except KeyError:
-		#crate = MTCACrate(host)
-		#_crates[host] = crate
-		#return crate
+    except:
+        pass
 
 class FRU():
-	"""
-	FRU information
-	"""
+    """
+    FRU information
+    """
 
-	def __init__(self, id=None, name=None):
-		"""
-		FRU class initializer
+    def __init__(self, id=None, name=None):
+        """
+        FRU class initializer
 
-		Args:
-			id (str): FRU ID (e.g., 192.101)
-			name (str): FRU name
+        Args:
+            id (str): FRU ID (e.g., 192.101)
+            name (str): FRU name
 
-		Returns: 
-			Nothing
-		"""
-		self.id = id
-		self.name = name
+        Returns: 
+            Nothing
+        """
+        self.id = id
+        self.name = name
 
-	def __str__(self):
-		"""
-		FRU class printout
-		
-		Args:
-			None
+    def __str__(self):
+        """
+        FRU class printout
+        
+        Args:
+            None
 
-		Returns:
-			String representation of FRU
-		"""
-		return "ID: {}, Name: {}".format(self.id, self.name)
+        Returns:
+            String representation of FRU
+        """
+        return "ID: {}, Name: {}".format(self.id, self.name)
 
 
 class MTCACrate():
-	"""
-	Class for holding microTCA crate information, including FRU list
-	"""
-	
-	def __init__(self):
-		"""
-		Initializer for MTCACrate object.
+    """
+    Class for holding microTCA crate information, including FRU list
+    """
+    
+    def __init__(self):
+        """
+        Initializer for MTCACrate object.
 
-		Args:
-			host: host name of MCH in crate
+        Args:
+            host: host name of MCH in crate
 
-		Returns:
-			Nothing
-		"""
+        Returns:
+            Nothing
+        """
 
-		self.host = None
-		self.user = None
-		self.password = None
+        self.host = None
+        self.user = None
+        self.password = None
 
-		# Initialize list of FRUs
-		self.frus = []
+        # Initialize list of FRUs
+        self.frus = []
 
-	def populate_fru_list(self):
-		""" 
-		Call MCH and get list of FRUs
+    def populate_fru_list(self):
+        """ 
+        Call MCH and get list of FRUs
 
-		Args:	
-			None
+        Args:   
+            None
 
-		Returns:
-			Nothing
-		"""
+        Returns:
+            Nothing
+        """
 
         if self.host != None and self.user != None and self.password != None:
             command = []
@@ -114,23 +111,16 @@ class MTCACrate():
 
             result = check_output(command)
             
-            print result
-
             for line in result.splitlines():
                 try:
-                    print line
                     name, ref, status, id, desc = line.split('|')
                     self.frus.append(FRU(name=name.strip(), id=id.strip()))
                 except ValueError:
                     print "Couldn't parse {}".format(line)
-
-            for fru in self.frus:
-                print(fru)
         else:
             print("Crate information not populated")
-            print("Host = {}".format(self.host))
-            print("User = {}".format(self.user))
-            print("Password = {}".format(self.password))
+
+_crate = MTCACrate()
 
 class MTCACrateReader():
     """
@@ -151,6 +141,7 @@ class MTCACrateReader():
         """
 
         fn = args
+	self.crate = get_crate()
         self.process = getattr(self, fn)
 
         try:
@@ -171,7 +162,7 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-        self.host = rec.VAL
+        self.crate.host = rec.VAL
 
     def set_user(self, rec, report):
         """
@@ -183,7 +174,7 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-        self.user = rec.VAL
+        self.crate.user = rec.VAL
 
     def set_password(self, rec, report):
         """
@@ -195,6 +186,19 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-        self.password = rec.VAL
+        self.crate.password = rec.VAL
+
+    def get_fru_list(self, rec, report):
+        """
+        Get FRU info from crate
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+        self.crate.populate_fru_list()
 
 build = MTCACrateReader
+
