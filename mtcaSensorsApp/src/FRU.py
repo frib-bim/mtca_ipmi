@@ -11,11 +11,11 @@
 # MTCA_USER
 # MTCA_PASSWORD
 
-#from devsup.db import IOScanListBlock
+from devsup.db import IOScanListBlock
 #from devsup.util import StoppableThread
+from subprocess import check_output
 import threading
 import time
-from subprocess import check_output
 import os
 
 
@@ -194,9 +194,9 @@ class FRUReader:
 		Args:
 			rec: pyDevSup record object
 			args: arguments from the EPICS record INP field, consisting of
+				fn: function to be called for this record
 				fru_id: e.g., 192.101
 				sensor_name: e.g., Current 1.2 V
-				fn: function to be called for this record
 	
 		Returns:
 			Nothing
@@ -209,7 +209,7 @@ class FRUReader:
 			_crate.password = os.environ(MTCA_PASSWORD)
 
 		# Get the information about the sensor
-		fru_id, sensor_name, fn = args.split(None, 2)
+		fn, fru_id, sensor_name = args.split(None, 2)
 		self.fru_id = fru_id
 		self.sensor_name = sensor_name
 		self.fru = get_fru(fru_id)
