@@ -12,7 +12,8 @@ dbLoadDatabase "dbd/mtcaSensors.dbd"
 mtcaSensors_registerRecordDeviceDriver pdbbase
 
 ## Load record instances
-dbLoadRecords("db/schroff_utca_cu.db","P=MTCA:TEST1:")
+#dbLoadRecords("db/schroff_utca_cu.db","P=MTCA:TEST1:,FRU_ID=30.97")
+dbLoadRecords("db/mtca_crate.db","P=MTCA:TEST1:")
 
 cd "${TOP}/iocBoot/${IOC}"
 iocInit

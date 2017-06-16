@@ -9,7 +9,7 @@
 # This record is scanned and triggers the device support to read the values.
 # Device support then processes all the I/O Intr records.
 
-record(ai, $($)SCANNER") {
+record(ai, "$(P)SCANNER") {
 	field(DESC, "Master record for scanning values")
 	field(SCAN, "1 second")
 	
