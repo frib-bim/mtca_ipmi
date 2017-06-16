@@ -7,12 +7,43 @@
 #
 
 record(stringout, "$(P)HOST") {
-	field(DESC, "Master record for scanning values")
+	field(DESC, "Crate host name")
 	field(DTYP, "Python Device")
 	field(PINI, "YES")
-	field(OUT,  "@devsup.ptable mtca_crate host")
+	field(OUT,  "@MTCACrate set_host")
 	field(VAL,  "mtcamch04")
 
 	info(autosaveFields, "VAL")
+}
+
+record(stringout, "$(P)USER") {
+	field(DESC, "Crate user name")
+	field(DTYP, "Python Device")
+	field(PINI, "YES")
+	field(OUT,  "@MTCACrate set_user")
+	field(VAL,  "root")
+
+	info(autosaveFields, "VAL")
+}
+
+# This may be able to move to an environment variable on the crate
+record(stringout, "$(P)PASSWORD") {
+	field(DESC, "Crate password")
+	field(DTYP, "Python Device")
+	field(PINI, "YES")
+	field(OUT,  "@MTCACrate set_password")
+	field(VAL,  "ctsFree4All")
+
+	info(autosaveFields, "VAL")
+}
+
+record(bo, "$(P)GET_FRU") {
+	field(DESC, "Get crate FRU list")
+	field(DTYP, "Python Device")
+	field(OUT,  "@MTCACrate get_fru_list")
+	field(SCAN, "Passive")
+	field(PINI, "YES")
+
+	info(autosaveFields, "SCAN")
 }
 

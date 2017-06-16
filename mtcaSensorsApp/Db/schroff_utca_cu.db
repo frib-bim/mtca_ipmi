@@ -9,9 +9,11 @@
 # This record is scanned and triggers the device support to read the values.
 # Device support then processes all the I/O Intr records.
 
-record(ai, "$(P)SCANNER") {
+record(bo, "$(P)SCANNER") {
 	field(DESC, "Master record for scanning values")
+	field(DTYP, "Python Device")
 	field(SCAN, "1 second")
+	field(OUT,  "@FRU update $(FRU_ID)")
 	
 	info(autosaveFields, "SCAN")
 }
