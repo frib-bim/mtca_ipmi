@@ -55,6 +55,11 @@ class Sensor():
         self.status = None
         self.sensor_id = None
         self.fru_id = None
+        self.lolo = 0.0
+        self.low = 0.0
+        self.high = 0.0
+        self.hihi = 0.0
+        self.alarms_set = False
 
     def __str__(self):
         """
@@ -94,6 +99,13 @@ class FRUScanner():
         # Initialize list of FRUs
         self.sensors = {}
 
+        self.attr_dict = {
+            'Lower Critical': 'lolo',
+            'Lower Non-Critical': 'low',
+            'Upper Non-Critical': 'high',
+            'Upper Critical': 'hihi'
+            }
+        
     def read_sensors(self, crate):
         """ 
         Call MCH and get sensors for this FRU
@@ -135,11 +147,48 @@ class FRUScanner():
                         self.sensors[name].value = float(value)
                         self.sensors[name].egu = egu
                         self.sensors[name].status = status
+                        if not self.sensors[name].alarms_set:
+                            self.set_alarms(crate, name)
+
                 except ValueError:
                     pass
 
             #for key in self.sensors:
                 #print(self.sensors[key])
+
+    def set_alarms(self, crate, name):
+        """
+        Function to set alarm setpoints in AI records
+
+        Args:
+            name: sensor name
+
+        Returns:
+            Nothing
+        """
+        command = []
+        command.append("ipmitool")
+        command.append("-H")
+        command.append(crate.host)
+        command.append("-U")
+        command.append(crate.user)
+        command.append("-P")
+        command.append(crate.password)
+        command.append("sensor")
+        command.append("get")
+        command.append(name)
+
+        result = check_output(command)
+
+        for line in result.splitlines():
+            try:
+                item, value = [x.strip() for x in line.split(':',1)]
+                if item in self.attr_dict.keys():
+                    setattr(self.sensors[name], self.attr_dict[item], float(value))
+            except ValueError:
+                pass
+
+        self.sensors[name].alarms_set = True       
 
 class FRUReader:
     """
@@ -176,6 +225,7 @@ class FRUReader:
         self.fru_id = fru_id
         self.sensor_name = sensor_name
         self.egu_set = False
+        self.alarms_set = False
         self.fru = get_fru(fru_id)
     
         self.process = getattr(self, fn)
@@ -205,6 +255,17 @@ class FRUReader:
         if not self.egu_set:
             rec.EGU = self.fru.sensors[self.sensor_name].egu
             self.egu_set = True
+
+        if (not self.alarms_set) and self.fru.sensors[self.sensor_name].alarms_set:
+            rec.LOLO = self.fru.sensors[self.sensor_name].lolo
+            rec.LOW = self.fru.sensors[self.sensor_name].low
+            rec.HIGH = self.fru.sensors[self.sensor_name].high
+            rec.HIHI = self.fru.sensors[self.sensor_name].hihi
+            rec.LLSV = 2 # MAJOR
+            rec.LSV = 1 # MINOR
+            rec.HSV = 1 # MINOR
+            rec.HHSV = 2 # MAJOR
+            self.alarms_set = True
 
     def update(self, rec, report):
         """
