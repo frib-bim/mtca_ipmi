@@ -18,7 +18,7 @@ record(bo, "$(P)SCANNER") {
 	info(autosaveFields, "SCAN")
 }
 
-record(ai, "$(P)3_3V") {
+record(ai, "$(P)3V3") {
 	field(DESC, "Crate 3.3 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")

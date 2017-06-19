@@ -18,7 +18,7 @@ record(bo, "$(P)SCANNER") {
 	info(autosaveFields, "SCAN")
 }
 
-record(ai, "$(P)GTP_TRX_1_2V") {
+record(ai, "$(P)GTP_TRX_1V2") {
 	field(DESC, "GTP trx 1.2 V")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
@@ -26,7 +26,7 @@ record(ai, "$(P)GTP_TRX_1_2V") {
 	field(PREC, "2")
 }
 
-record(ai, "$(P)CURRENT_1_2V") {
+record(ai, "$(P)CURRENT_1V2") {
 	field(DESC, "Current 1.2 V")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
@@ -42,7 +42,7 @@ record(ai, "$(P)CURRENT_12V") {
 	field(PREC, "2")
 }
 
-record(ai, "$(P)CURRENT_3_3V") {
+record(ai, "$(P)CURRENT_3V3") {
 	field(DESC, "Current 3.3 V")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
@@ -50,7 +50,7 @@ record(ai, "$(P)CURRENT_3_3V") {
 	field(PREC, "2")
 }
 
-record(ai, "$(P)FPGA_1_2V") {
+record(ai, "$(P)FPGA_1V2") {
 	field(DESC, "FPGA 1.2 V")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
@@ -58,7 +58,7 @@ record(ai, "$(P)FPGA_1_2V") {
 	field(PREC, "2")
 }
 
-record(ai, "$(P)2_5/3_3_V_FMC_PP") {
+record(ai, "$(P)2V5/3V3_FMC_PP") {
 	field(DESC, "2.5/3.3 V FMC PP")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
@@ -66,7 +66,7 @@ record(ai, "$(P)2_5/3_3_V_FMC_PP") {
 	field(PREC, "2")
 }
 
-record(ai, "$(P)3_3_V_PP") {
+record(ai, "$(P)3V3_PP") {
 	field(DESC, "3.3 V PP")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
