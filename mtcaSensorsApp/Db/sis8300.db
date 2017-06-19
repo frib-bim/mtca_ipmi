@@ -1,0 +1,109 @@
+# File: sis8300.db
+# Date: 2017-06-19
+# Author: Wayne Lewis
+#
+# Description:
+# Database for getting Struck SIS8300 IPMI information
+#
+
+# This record is scanned and triggers the device support to read the values.
+# Device support then processes all the I/O Intr records.
+
+record(bo, "$(P)SCANNER") {
+	field(DESC, "Master record for scanning values")
+	field(DTYP, "Python Device")
+	field(SCAN, "1 second")
+	field(OUT,  "@FRU update $(FRU_ID)")
+	
+	info(autosaveFields, "SCAN")
+}
+
+record(ai, "$(P)12V_PP") {
+	field(DESC, "Crate 12 V PP supply")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) 12V PP")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)3_3V_MP") {
+	field(DESC, "Crate 3.3 V supply")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) +12V")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)12V_1") {
+	field(DESC, "Crate 12 V supply #1")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) +12V_1")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)LM75_TEMP1") {
+	field(DESC, "LM 75 temperature 1")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) LM75 Temp")
+	field(PREC, "0")
+}
+
+record(ai, "$(P)LM75_TEMP2") {
+	field(DESC, "LM 75 temperature 2")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) LM75 Temp2")
+	field(PREC, "0")
+}
+
+record(ai, "$(P)FAN1") {
+	field(DESC, "Fan 1 speed")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) Fan 1")
+	field(PREC, "0")
+}
+
+record(ai, "$(P)FAN2") {
+	field(DESC, "Fan 2 speed")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) Fan 2")
+	field(PREC, "0")
+}
+
+record(ai, "$(P)FAN3") {
+	field(DESC, "Fan 3 speed")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) Fan 3")
+	field(PREC, "0")
+}
+
+record(ai, "$(P)FAN4") {
+	field(DESC, "Fan 4 speed")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) Fan 4")
+	field(PREC, "0")
+}
+
+record(ai, "$(P)FAN5") {
+	field(DESC, "Fan 5 speed")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) Fan 5")
+	field(PREC, "0")
+}
+
+record(ai, "$(P)FAN6") {
+	field(DESC, "Fan 6 speed")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) Fan 6")
+	field(PREC, "0")
+}
+
+	
