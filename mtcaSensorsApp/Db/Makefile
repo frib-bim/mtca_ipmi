@@ -12,6 +12,7 @@ include $(TOP)/configure/CONFIG
 # databases, templates, substitutions like this
 DB += mtca_crate.db
 DB += fgpdb.db
+DB += sis8300.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

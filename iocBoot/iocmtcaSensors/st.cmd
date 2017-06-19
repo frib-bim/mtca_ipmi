@@ -17,6 +17,7 @@ mtcaSensors_registerRecordDeviceDriver pdbbase
 dbLoadRecords("db/mtca_crate.db","P=$(CRATE_MCH)")
 dbLoadRecords("db/schroff_utca_cu.db","P=$(CRATE_MCH)30_97:,FRU_ID=30.97")
 dbLoadRecords("db/fgpdb.db","P=$(CRATE_MCH)193_102:,FRU_ID=193.102")
+dbLoadRecords("db/sis8300.db","P=$(CRATE_MCH)193_101:,FRU_ID=193.101")
 
 cd "${TOP}/iocBoot/${IOC}"
 iocInit
