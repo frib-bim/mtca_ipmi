@@ -10,15 +10,15 @@ file amc_card.template
 {
 pattern
 { S, AMC_SLOT }
-#{ "SLOT01:", 1 }
-#{ "SLOT02:", 2 }
-#{ "SLOT03:", 3 }
-#{ "SLOT04:", 4 }
+{ "SLOT01:", 1 }
+{ "SLOT02:", 2 }
+{ "SLOT03:", 3 }
+{ "SLOT04:", 4 }
 { "SLOT05:", 5 }
 { "SLOT06:", 6 }
 { "SLOT07:", 7 }
-#{ "SLOT08:", 8 }
-#{ "SLOT09:", 9 }
-#{ "SLOT10:", 10 }
-#{ "SLOT11:", 11 }
-#{ "SLOT12:", 12 }
+{ "SLOT08:", 8 }
+{ "SLOT09:", 9 }
+{ "SLOT10:", 10 }
+{ "SLOT11:", 11 }
+{ "SLOT12:", 12 }
