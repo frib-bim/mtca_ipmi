@@ -3,14 +3,14 @@
 # Date: 2017-06-15
 # Author: Wayne Lewis
 #
-# Description: Get FRU information for microTCA crate.
-# FRU = Field Replaceable Unit
+# Description: Get sensor information for microTCA crate.
 #
 
 from devsup.db import IOScanListBlock
 from subprocess import check_output
 
 AMC_SLOT_OFFSET = 96
+AMC_BUS_ID = 193
 
 SENSOR_NAMES = {
         '12 V PP': '12V',
@@ -59,18 +59,18 @@ class Sensor():
         self.hihi = 0.0
         self.alarms_set = False
 
-class FRU():
+class AMC_Slot():
     """
-    FRU information
+    AMC_Slot information
     """
 
-    def __init__(self, id=None, name=None):
+    def __init__(self, id = None, name = None, slot = None, crate = None):
         """
-        FRU class initializer
+        AMC_Slot class initializer
 
         Args:
-            id (str): FRU ID (e.g., 192.101)
-            name (str): FRU name
+            id (str): AMC_Slot ID (e.g., 193.101)
+            name (str): AMC card name
             slot(int): AMC slot number
             crate(obj): reference to crate object
 
@@ -87,19 +87,19 @@ class FRU():
 
     def __str__(self):
         """
-        FRU class printout
+        AMC_Slot class printout
         
         Args:
             None
 
         Returns:
-            String representation of FRU
+            String representation of AMC_Slot
         """
         return "ID: {}, Name: {}".format(self.id, self.name)
 
     def read_sensors(self):
         """
-        Read the sensors for this FRU
+        Read the sensors for this AMC Slot 
 
         Args:
             None
@@ -181,7 +181,7 @@ class FRU():
         
 class MTCACrate():
     """
-    Class for holding microTCA crate information, including FRU list
+    Class for holding microTCA crate information, including AMC Slot list
     """
     
     def __init__(self):
@@ -199,16 +199,16 @@ class MTCACrate():
         self.user = None
         self.password = None
 
-        # Initialize dict of FRUs
-        self.frus = {}
-        self.frus_inited = False
+        # Initialize dict of AMC Slots
+        self.amc_slots = {}
+        self.amc_slots_inited = False
 
         # Create scan list for I/O Intr records
         self.scan_list = IOScanListBlock()
 
-    def populate_fru_list(self):
+    def populate_amc_slot_list(self):
         """ 
-        Call MCH and get list of FRUs
+        Call MCH and get list of AMC slots
 
         Args:   
             None
@@ -235,18 +235,21 @@ class MTCACrate():
             for line in result.splitlines():
                 try:
                     name, ref, status, id, desc = line.split('|')
+                    
                     # Get the AMC slot number
-                    slot = int(id.strip().split('.')[1])
+                    bus, slot = id.strip().split('.')
+                    bus, slot = int(bus), int(slot)
                     slot -= AMC_SLOT_OFFSET
-                    print "Creating slot number {}".format(slot)
-                    self.frus[slot] = FRU(
-                            name=name.strip(), 
-                            id=id.strip(), 
-                            slot=slot, 
-                            crate = self)
+                    if bus == AMC_BUS_ID:
+                        print "Creating slot number {}".format(slot)
+                        self.amc_slots[slot] = AMC_Slot(
+                                name=name.strip(), 
+                                id=id.strip(), 
+                                slot=slot, 
+                                crate = self)
                 except ValueError:
                     print "Couldn't parse {}".format(line)
-            self.frus_inited = True
+            self.amc_slots_inited = True
         else:
             print("Crate information not populated")
 
@@ -261,8 +264,8 @@ class MTCACrate():
             Nothing
         """
 
-        for slot in self.frus:
-            self.frus[slot].read_sensors()
+        for slot in self.amc_slots:
+            self.amc_slots[slot].read_sensors()
 
 
 _crate = MTCACrate()
@@ -349,9 +352,9 @@ class MTCACrateReader():
         self.crate.password = rec.VAL
         rec.UDF = 0
 
-    def get_fru_list(self, rec, report):
+    def get_amc_slot_list(self, rec, report):
         """
-        Get FRU info from crate
+        Get AMC_Slot info from crate
 
         Args:
             rec: pyDevSup record object
@@ -359,7 +362,7 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-        self.crate.populate_fru_list()
+        self.crate.populate_amc_slot_list()
         rec.UDF = 0
 
     def read_sensors(self, rec, report):
@@ -390,17 +393,17 @@ class MTCACrateReader():
         if not self.alarms_set:
             self.set_alarms(rec)
 
-        rec.VAL = getattr(self.crate.frus[self.slot], self.sensor)
+        rec.VAL = getattr(self.crate.amc_slots[self.slot], self.sensor)
         rec.UDF = 0
 
     def set_alarms(self, rec):
         print self.slot
-        print self.crate.frus[self.slot]
+        print self.crate.amc_slots[self.slot]
         try:
-            rec.LOLO = self.crate.frus[self.slot].sensors[self.sensor].lolo
-            rec.LOW = self.crate.frus[self.slot].sensors[self.sensor].low
-            rec.HIGH = self.crate.frus[self.slot].sensors[self.sensor].high
-            rec.HIHI = self.crate.frus[self.slot].sensors[self.sensor].hihi
+            rec.LOLO = self.crate.amc_slots[self.slot].sensors[self.sensor].lolo
+            rec.LOW = self.crate.amc_slots[self.slot].sensors[self.sensor].low
+            rec.HIGH = self.crate.amc_slots[self.slot].sensors[self.sensor].high
+            rec.HIHI = self.crate.amc_slots[self.slot].sensors[self.sensor].hihi
             rec.LLSV = 2 # MAJOR
             rec.LSV = 1 # MINOR
             rec.HSV = 1 # MINOR

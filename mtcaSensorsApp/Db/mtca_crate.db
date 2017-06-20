@@ -33,15 +33,15 @@ record(stringout, "$(P)PASSWORD") {
 	field(DTYP, "Python Device")
 	field(OUT,  "@MTCACrate set_password")
 	field(VAL,  "ctsFree4All")
-	field(FLNK, "$(P)GET_FRU")
+	field(FLNK, "$(P)GET_AMC")
 
 	info(autosaveFields, "VAL")
 }
 
-record(bo, "$(P)GET_FRU") {
-	field(DESC, "Get crate FRU list")
+record(bo, "$(P)GET_AMC") {
+	field(DESC, "Get crate AMC card list")
 	field(DTYP, "Python Device")
-	field(OUT,  "@MTCACrate get_fru_list")
+	field(OUT,  "@MTCACrate get_amc_slot_list")
 	field(SCAN, "Passive")
 
 	info(autosaveFields, "SCAN")
