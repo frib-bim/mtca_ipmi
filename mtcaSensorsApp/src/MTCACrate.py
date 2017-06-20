@@ -9,7 +9,7 @@
 
 from subprocess import check_output
 
-AMC_SLOT_1 = 97
+AMC_SLOT_OFFSET = 96
 
 SENSOR_NAMES = {
         '12 V PP': '12V',
@@ -233,7 +233,7 @@ class MTCACrate():
                     name, ref, status, id, desc = line.split('|')
                     # Get the AMC slot number
                     slot = int(id.strip().split('.')[1])
-                    slot -= AMC_SLOT_1
+                    slot -= AMC_SLOT_OFFSET
                     self.frus[slot] = FRU(
                             name=name.strip(), 
                             id=id.strip(), 
