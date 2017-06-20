@@ -11,7 +11,7 @@ record(stringout, "$(P)HOST") {
 	field(DTYP, "Python Device")
 	field(PINI, "YES")
 	field(OUT,  "@MTCACrate set_host")
-	field(VAL,  "mtcamch04")
+	field(VAL,  "$(MCH_HOST)")
 	field(FLNK, "$(P)USER")
 
 	info(autosaveFields, "VAL")
