@@ -16,7 +16,7 @@ record(bo, "$(P)$(S)SCANNER") {
 	field(DESC, "Master record for scanning values")
 	field(DTYP, "Python Device")
 	field(SCAN, "1 second")
-	field(OUT,  "@MTCACrate update $(AMC_SLOT)")
+	field(OUT,  "@MTCACrate read_sensors $(AMC_SLOT)")
 	
 	info(autosaveFields, "SCAN")
 }
