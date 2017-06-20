@@ -14,11 +14,16 @@ AMC_BUS_ID = 193
 
 SENSOR_NAMES = {
         '12 V PP': '12V',
+        '12V PP': '12V',
         '12 V AMC': '12V',
         '3.3 V PP': '3V3',
-        '3.3 V MP': '3V3',
+        '3.3V MP': '3V3',
+        '2.5 V': '2V5',
+        '2.5V': '2V5',
         '1.8 V': '1V8',
-        '1.0 V CORE': '1V0'
+        '1.8V': '1V8',
+        '1.5V DDR3': '1V5',
+        '1.0V CORE': '1V0'
         }
 
 ALARMS = {
@@ -126,20 +131,21 @@ class AMC_Slot():
         for line in result.splitlines():
             try:
                 line_strip = [x.strip() for x in line.split('|')]
-                name, sensor_id, status, fru_id, val = line_strip
+                sensor_name, sensor_id, status, fru_id, val = line_strip
                 value, egu = val.split(' ', 1)
                 # Check if the sensor name is in the list we know about
                 if sensor_name in SENSOR_NAMES.keys():
-                    sensor_type = SENSOR_NAMES[name]
+                    sensor_type = SENSOR_NAMES[sensor_name]
                     # Check if we have already created this sensor
                     if not sensor_type in self.sensors.keys():
-                        self.sensors[sensor_type] = Sensor(name)
+                        self.sensors[sensor_type] = Sensor(sensor_name)
+                
                     self.sensors[sensor_type].value = float(value)
                     self.sensors[sensor_type].egu = egu
 
                     if not self.sensors[sensor_type].alarms_set:
                         self.set_alarms(sensor_name)
-                        self.set_alarms[sensor_type].alarms_set = True
+                        self.sensors[sensor_type].alarms_set = True
             except ValueError:
                 pass
 
@@ -169,14 +175,14 @@ class AMC_Slot():
 
         for line in result.splitlines():
             try:
-                item, value = [x.strip() for x in line.split(':',1)]
-                if item in ALARMS.keys():
+                description, value = [x.strip() for x in line.split(':',1)]
+                if description in ALARMS.keys():
                     sensor_type = SENSOR_NAMES[name]
-                    setattr(self.sensors[sensor_type], ALARMS[item], float(value))
+                    setattr(self.sensors[sensor_type], ALARMS[description], float(value))
+                    self.sensors[sensor_type].alarms_set = True       
             except ValueError:
                 pass
 
-        self.sensors[name].alarms_set = True       
 
         
 class MTCACrate():
@@ -241,12 +247,12 @@ class MTCACrate():
                     bus, slot = int(bus), int(slot)
                     slot -= AMC_SLOT_OFFSET
                     if bus == AMC_BUS_ID:
-                        print "Creating slot number {}".format(slot)
-                        self.amc_slots[slot] = AMC_Slot(
-                                name=name.strip(), 
-                                id=id.strip(), 
-                                slot=slot, 
-                                crate = self)
+                        if slot not in self.amc_slots.keys():
+                            self.amc_slots[slot] = AMC_Slot(
+                                    name=name.strip(), 
+                                    id=id.strip(), 
+                                    slot=slot, 
+                                    crate = self)
                 except ValueError:
                     print "Couldn't parse {}".format(line)
             self.amc_slots_inited = True
@@ -267,13 +273,15 @@ class MTCACrate():
         for slot in self.amc_slots:
             self.amc_slots[slot].read_sensors()
 
-
 _crate = MTCACrate()
 
 class MTCACrateReader():
     """
     Class for interfacing to EPICS PVs for MTCA crate
     """
+
+    # Allow us to write direct to rec.VAL
+    raw = True
 
     def __init__(self, rec, args):
         """
@@ -375,8 +383,12 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-        self.crate.read_sensors()
-        self.crate.scan_list.interrupt()
+        try:
+            self.crate.read_sensors()
+            self.crate.scan_list.interrupt()
+        except AttributeError:
+            # TODO: Work out why we get this exception
+            pass
 
 
     def get_val(self, rec, report):
@@ -390,15 +402,19 @@ class MTCACrateReader():
             Nothing
         """
 
-        if not self.alarms_set:
-            self.set_alarms(rec)
-
-        rec.VAL = getattr(self.crate.amc_slots[self.slot], self.sensor)
-        rec.UDF = 0
+        if self.sensor != None:
+            # Check if this is a valid sensor
+            if self.sensor in self.crate.amc_slots[self.slot].sensors.keys():
+                if not self.alarms_set:
+                    self.set_alarms(rec)
+                val = self.crate.amc_slots[self.slot].sensors[self.sensor].value
+                rec.VAL = val
+                rec.UDF = 0
+        else:
+            rec.VAL = 0
+            rec.UDF = 1
 
     def set_alarms(self, rec):
-        print self.slot
-        print self.crate.amc_slots[self.slot]
         try:
             rec.LOLO = self.crate.amc_slots[self.slot].sensors[self.sensor].lolo
             rec.LOW = self.crate.amc_slots[self.slot].sensors[self.sensor].low
