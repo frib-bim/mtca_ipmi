@@ -7,6 +7,7 @@
 # FRU = Field Replaceable Unit
 #
 
+from devsup.db import IOScanListBlock
 from subprocess import check_output
 
 AMC_SLOT_OFFSET = 96
@@ -16,8 +17,8 @@ SENSOR_NAMES = {
         '12 V AMC': '12V',
         '3.3 V PP': '3V3',
         '3.3 V MP': '3V3',
-        '1.8 V', '1V8',
-        '1.0 V CORE', '1V0'
+        '1.8 V': '1V8',
+        '1.0 V CORE': '1V0'
         }
 
 ALARMS = {
@@ -202,6 +203,9 @@ class MTCACrate():
         self.frus = {}
         self.frus_inited = False
 
+		# Create scan list for I/O Intr records
+		self.scan_list = IOScanListBlock()
+
     def populate_fru_list(self):
         """ 
         Call MCH and get list of FRUs
@@ -291,7 +295,10 @@ class MTCACrateReader():
             sensor = None
 
 	    self.crate = get_crate()
+		# Set up the function to be called when the record processes
         self.process = getattr(self, fn)
+		# Allow for I/O Intr scanning
+		self.allowScan = self.crate.scan_list.add
         self.slot = int(slot)
         self.sensor = sensor
         self.alarms_set = False
@@ -351,7 +358,7 @@ class MTCACrateReader():
         self.crate.populate_fru_list()
         rec.UDF = 0
 
-    def read_values(self, rec, report):
+    def read_sensors(self, rec, report):
         """
         Read all sensor values for this crate
 
@@ -361,6 +368,8 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
+		self.crate.read_sensors()
+		self.crate.scan_list.interrupt()
 
 
     def get_val(self, rec, report):
