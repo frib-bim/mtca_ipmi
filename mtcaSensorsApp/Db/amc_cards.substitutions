@@ -9,16 +9,16 @@
 file amc_card.template 
 {
 pattern
-{ P, S, AMC_SLOT }
-#{ "CHASSIS1:", "SLOT01:", 1 }
-#{ "CHASSIS1:", "SLOT02:", 2 }
-#{ "CHASSIS1:", "SLOT03:", 3 }
-#{ "CHASSIS1:", "SLOT04:", 4 }
-{ "CHASSIS1:", "SLOT05:", 5 }
-#{ "CHASSIS1:", "SLOT06:", 6 }
-#{ "CHASSIS1:", "SLOT07:", 7 }
-#{ "CHASSIS1:", "SLOT08:", 8 }
-#{ "CHASSIS1:", "SLOT09:", 9 }
-#{ "CHASSIS1:", "SLOT10:", 10 }
-#{ "CHASSIS1:", "SLOT11:", 11 }
-#{ "CHASSIS1:", "SLOT12:", 12 }
+{ S, AMC_SLOT }
+#{ "SLOT01:", 1 }
+#{ "SLOT02:", 2 }
+#{ "SLOT03:", 3 }
+#{ "SLOT04:", 4 }
+{ "SLOT05:", 5 }
+#{ "SLOT06:", 6 }
+#{ "SLOT07:", 7 }
+#{ "SLOT08:", 8 }
+#{ "SLOT09:", 9 }
+#{ "SLOT10:", 10 }
+#{ "SLOT11:", 11 }
+#{ "SLOT12:", 12 }
