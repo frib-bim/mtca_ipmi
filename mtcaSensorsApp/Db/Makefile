@@ -10,9 +10,10 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------------------
 # Create and install (or just install) into <top>/db
 # databases, templates, substitutions like this
-DB += mtca_crate.db
-DB += fgpdb.db
-DB += sis8300.db
+#DB += mtca_crate.db
+#DB += fgpdb.db
+#DB += sis8300.db
+DB += amc_cards.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

@@ -1,84 +1,87 @@
-# File: mtca_card.db
+# File: amc_card.template
 # Date: 2017-06-19
 # Author: Wayne Lewis
 #
 # Description:
 # Database for getting generic MTCA AMC card IPMI data
 #
+# Macros:
+# P:				PV prefix
+# AMC_SLOT:	AMC slot number 
 
 # This record is scanned and triggers the device support to read the values.
 # Device support then processes all the I/O Intr records.
 
-record(bo, "$(P)SCANNER") {
+record(bo, "$(P)$(S)SCANNER") {
 	field(DESC, "Master record for scanning values")
 	field(DTYP, "Python Device")
 	field(SCAN, "1 second")
-	field(OUT,  "@FRU update $(FRU_ID)")
+	field(OUT,  "@MTCACrate update $(AMC_SLOT)")
 	
 	info(autosaveFields, "SCAN")
 }
 
-record(ai, "$(P)12V") {
+record(ai, "$(P)$(S)12V") {
 	field(DESC, "12 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@FRU get_val $(AMC_SLOT) 12V")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 12V")
 	field(PREC, "2")
 }
 
-record(ai, "$(P)5V0") {
+record(ai, "$(P)$(S)5V0") {
 	field(DESC, "5 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@FRU get_val $(AMC_SLOT) 5V0")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 5V0")
 	field(PREC, "2")
 }
 
-record(ai, "$(P)3V3") {
+record(ai, "$(P)$(S)3V3") {
 	field(DESC, "3.3 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@FRU get_val $(AMC_SLOT) 3V3")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 3V3")
 	field(PREC, "2")
 }
 
-record(ai, "$(P)2V5") {
+record(ai, "$(P)$(S)2V5") {
 	field(DESC, "2.5 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@FRU get_val $(AMC_SLOT) 2V5")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 2V5")
 	field(PREC, "2")
 }
 
-record(ai, "$(P)1V8") {
+record(ai, "$(P)$(S)1V8") {
 	field(DESC, "1.8 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@FRU get_val $(AMC_SLOT) 1V8")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V8")
 	field(PREC, "2")
 }
 
-record(ai, "$(P)1V5") {
+record(ai, "$(P)$(S)1V5") {
 	field(DESC, "1.5 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@FRU get_val $(AMC_SLOT) 1V5")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V5")
 	field(PREC, "2")
 }
 
-record(ai, "$(P)1V2") {
+record(ai, "$(P)$(S)1V2") {
 	field(DESC, "1.2 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@FRU get_val $(AMC_SLOT) 1V2")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V2")
 	field(PREC, "2")
 }
 
-record(ai, "$(P)1V0") {
+record(ai, "$(P)$(S)1V0") {
 	field(DESC, "1.0 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@FRU get_val $(AMC_SLOT) 1V0")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V0")
 	field(PREC, "2")
 }
 
