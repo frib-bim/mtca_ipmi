@@ -12,6 +12,7 @@ record(stringout, "$(P)HOST") {
 	field(PINI, "YES")
 	field(OUT,  "@MTCACrate set_host")
 	field(VAL,  "mtcamch04")
+	field(FLNK, "$(P)USER")
 
 	info(autosaveFields, "VAL")
 }
@@ -19,9 +20,9 @@ record(stringout, "$(P)HOST") {
 record(stringout, "$(P)USER") {
 	field(DESC, "Crate user name")
 	field(DTYP, "Python Device")
-	field(PINI, "YES")
 	field(OUT,  "@MTCACrate set_user")
 	field(VAL,  "root")
+	field(FLNK, "$(P)PASSWORD")
 
 	info(autosaveFields, "VAL")
 }
@@ -30,9 +31,9 @@ record(stringout, "$(P)USER") {
 record(stringout, "$(P)PASSWORD") {
 	field(DESC, "Crate password")
 	field(DTYP, "Python Device")
-	field(PINI, "YES")
 	field(OUT,  "@MTCACrate set_password")
 	field(VAL,  "ctsFree4All")
+	field(FLNK, "$(P)GET_FRU")
 
 	info(autosaveFields, "VAL")
 }
@@ -42,7 +43,6 @@ record(bo, "$(P)GET_FRU") {
 	field(DTYP, "Python Device")
 	field(OUT,  "@MTCACrate get_fru_list")
 	field(SCAN, "Passive")
-	field(PINI, "YES")
 
 	info(autosaveFields, "SCAN")
 }
