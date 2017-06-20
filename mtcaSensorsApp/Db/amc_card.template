@@ -21,11 +21,11 @@ record(bo, "$(P)$(S)SCANNER") {
 	info(autosaveFields, "SCAN")
 }
 
-record(ai, "$(P)$(S)12V") {
+record(ai, "$(P)$(S)12V0") {
 	field(DESC, "12 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 12V")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 12V0")
 	field(PREC, "2")
 }
 
@@ -85,3 +85,107 @@ record(ai, "$(P)$(S)1V0") {
 	field(PREC, "2")
 }
 
+record(ai, "$(P)$(S)12V0CURRENT") {
+	field(DESC, "12 V current")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 12V0CURRENT")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)3V3CURRENT") {
+	field(DESC, "3.3 V current")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 3V3CURRENT")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)1V2CURRENT") {
+	field(DESC, "1.2 V current")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V2CURRENT")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)TEMP_INLET") {
+	field(DESC, "Inlet temperature")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP_INLET")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)TEMP_OUTLET") {
+	field(DESC, "Outlet temperature")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP_OUTLET")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)TEMP1") {
+	field(DESC, "Temperature 1")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP1")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)TEMP2") {
+	field(DESC, "Temperature 2")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP2")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)TEMP3") {
+	field(DESC, "Temperature 3")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP3")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)TEMP4") {
+	field(DESC, "Temperature 4")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP4")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)TEMP5") {
+	field(DESC, "Temperature 5")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP5")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)TEMP6") {
+	field(DESC, "Temperature 6")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP6")
+	field(PREC, "2")
+}
+
+record(stringin, "$(P)$(S)NAME") {
+	field(DESC, "Card name")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_name $(AMC_SLOT)")
+}
+
+record(ai, "$(P)$(S)SLOT") {
+	field(DESC, "Slot number")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_slot $(AMC_SLOT)")
+	field(PREC, "0")
+	field(EGU,  "None")
+}
+	
