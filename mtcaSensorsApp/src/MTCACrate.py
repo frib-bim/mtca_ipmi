@@ -203,8 +203,8 @@ class MTCACrate():
         self.frus = {}
         self.frus_inited = False
 
-		# Create scan list for I/O Intr records
-		self.scan_list = IOScanListBlock()
+        # Create scan list for I/O Intr records
+        self.scan_list = IOScanListBlock()
 
     def populate_fru_list(self):
         """ 
@@ -238,14 +238,15 @@ class MTCACrate():
                     # Get the AMC slot number
                     slot = int(id.strip().split('.')[1])
                     slot -= AMC_SLOT_OFFSET
+                    print "Creating slot number {}".format(slot)
                     self.frus[slot] = FRU(
                             name=name.strip(), 
                             id=id.strip(), 
                             slot=slot, 
                             crate = self)
-                    self.frus_inited = True
                 except ValueError:
                     print "Couldn't parse {}".format(line)
+            self.frus_inited = True
         else:
             print("Crate information not populated")
 
@@ -289,16 +290,19 @@ class MTCACrateReader():
         args_list = args.split(None, 2)
         if len(args_list) == 3:
             fn, slot, sensor = args_list
+        elif len(args_list) == 2:
+            fn, slot = args_list
+            sensor = None
         else:
             fn = args
             slot = 0
             sensor = None
 
-	    self.crate = get_crate()
-		# Set up the function to be called when the record processes
+        self.crate = get_crate()
+        # Set up the function to be called when the record processes
         self.process = getattr(self, fn)
-		# Allow for I/O Intr scanning
-		self.allowScan = self.crate.scan_list.add
+        # Allow for I/O Intr scanning
+        self.allowScan = self.crate.scan_list.add
         self.slot = int(slot)
         self.sensor = sensor
         self.alarms_set = False
@@ -368,8 +372,8 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-		self.crate.read_sensors()
-		self.crate.scan_list.interrupt()
+        self.crate.read_sensors()
+        self.crate.scan_list.interrupt()
 
 
     def get_val(self, rec, report):
@@ -384,21 +388,26 @@ class MTCACrateReader():
         """
 
         if not self.alarms_set:
-            set_alarms(rec)
+            self.set_alarms(rec)
 
         rec.VAL = getattr(self.crate.frus[self.slot], self.sensor)
         rec.UDF = 0
 
     def set_alarms(self, rec):
-        rec.LOLO = self.crate.frus[self.slot].sensors[self.sensor].lolo
-        rec.LOW = self.crate.frus[self.slot].sensors[self.sensor].low
-        rec.HIGH = self.crate.frus[self.slot].sensors[self.sensor].high
-        rec.HIHI = self.crate.frus[self.slot].sensors[self.sensor].hihi
-        rec.LLSV = 2 # MAJOR
-        rec.LSV = 1 # MINOR
-        rec.HSV = 1 # MINOR
-        rec.HHSV = 2 # MAJOR
-        self.alarms_set = True
+        print self.slot
+        print self.crate.frus[self.slot]
+        try:
+            rec.LOLO = self.crate.frus[self.slot].sensors[self.sensor].lolo
+            rec.LOW = self.crate.frus[self.slot].sensors[self.sensor].low
+            rec.HIGH = self.crate.frus[self.slot].sensors[self.sensor].high
+            rec.HIHI = self.crate.frus[self.slot].sensors[self.sensor].hihi
+            rec.LLSV = 2 # MAJOR
+            rec.LSV = 1 # MINOR
+            rec.HSV = 1 # MINOR
+            rec.HHSV = 2 # MAJOR
+            self.alarms_set = True
+        except KeyError as e:
+            print "Caught KeyError: {}".format(e)
 
 build = MTCACrateReader
 
