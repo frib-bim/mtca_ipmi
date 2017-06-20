@@ -30,7 +30,7 @@ mtcaSensors_SRCS += mtcaSensors_registerRecordDeviceDriver.cpp
 mtcaSensors_SRCS_DEFAULT += mtcaSensorsMain.cpp
 mtcaSensors_SRCS_vxWorks += -nil-
 
-PY += FRU.py
+#PY += FRU.py
 PY += MTCACrate.py
 
 # Finally link to the EPICS Base libraries
