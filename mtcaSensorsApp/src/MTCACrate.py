@@ -417,15 +417,20 @@ class MTCACrateReader():
             Nothing
         """
 
+        valid_sensor = False
+
         if self.sensor != None:
-            # Check if this is a valid sensor
-            if self.sensor in self.crate.amc_slots[self.slot].sensors.keys():
-                if not self.alarms_set:
-                    self.set_alarms(rec)
-                val = self.crate.amc_slots[self.slot].sensors[self.sensor].value
-                rec.VAL = val
-                rec.UDF = 0
-        else:
+            # Check if this card exists
+            if self.slot in self.crate.amc_slots.keys():
+                # Check if this is a valid sensor
+                if self.sensor in self.crate.amc_slots[self.slot].sensors.keys():
+                    if not self.alarms_set:
+                        self.set_alarms(rec)
+                    val = self.crate.amc_slots[self.slot].sensors[self.sensor].value
+                    rec.VAL = val
+                    rec.UDF = 0
+                    valid_sensor = True
+        if not valid_sensor:
             rec.VAL = 0
             rec.UDF = 1
 
@@ -464,7 +469,11 @@ class MTCACrateReader():
             Nothing
         """
 
-        rec.VAL = self.crate.amc_slots[self.slot].name
+        # Check if this card exists
+        if self.slot in self.crate.amc_slots.keys():
+            rec.VAL = self.crate.amc_slots[self.slot].name
+        else:
+            rec.VAL = "Empty"
 
     def get_slot(self, rec, report):
         """
@@ -477,7 +486,11 @@ class MTCACrateReader():
             Nothing
         """
 
-        rec.VAL = self.crate.amc_slots[self.slot].slot
+        # Check if this card exists
+        if self.slot in self.crate.amc_slots.keys():
+            rec.VAL = self.crate.amc_slots[self.slot].slot
+        else:
+            rec.VAL = -1
 
 build = MTCACrateReader
 
