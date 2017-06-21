@@ -1,3 +1,10 @@
 *.swp
 *.pyc
-.gitconfig
+bin/
+/db/
+dbd/
+lib/
+include/
+O.*/
+envPaths
+/python2.7/

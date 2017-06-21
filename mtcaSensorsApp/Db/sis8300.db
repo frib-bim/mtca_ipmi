@@ -1,0 +1,125 @@
+# File: sis8300.db
+# Date: 2017-06-19
+# Author: Wayne Lewis
+#
+# Description:
+# Database for getting Struck SIS8300 IPMI information
+#
+
+# This record is scanned and triggers the device support to read the values.
+# Device support then processes all the I/O Intr records.
+
+record(bo, "$(P)SCANNER") {
+	field(DESC, "Master record for scanning values")
+	field(DTYP, "Python Device")
+	field(SCAN, "1 second")
+	field(OUT,  "@FRU update $(FRU_ID)")
+	
+	info(autosaveFields, "SCAN")
+}
+
+record(ai, "$(P)12V_PP") {
+	field(DESC, "12 V PP supply")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) 12V PP")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)3V3_MP") {
+	field(DESC, "3.3 V supply")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) 3.3V MP")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)1V0_CORE") {
+	field(DESC, "1.0 V Core supply")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) 1.0V CORE")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)2V5") {
+	field(DESC, "2.5 V supply")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) 2.5V")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)1V8") {
+	field(DESC, "1.8 V supply")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) 1.8V")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)1V5_DDR3") {
+	field(DESC, "1.5V DDR3 supply")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) 1.5V DDR3")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)RTM_PP_CURRENT") {
+	field(DESC, "RTM PP Current")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) RTM PP Current")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)RTM_MP_CURRENT") {
+	field(DESC, "RTM MP Current")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) RTM MP Current")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)TEMP_INLET") {
+	field(DESC, "Inlet temperature")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) Inlet")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)TEMP_OUTLET") {
+	field(DESC, "Outlet temperature")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) Outlet")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)TEMP_MIDDLE") {
+	field(DESC, "Middle temperature")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) Middle")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)FPGA_PCB") {
+	field(DESC, "FPGA PCB temperature")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) FPGA PCB")
+	field(PREC, "2")
+}
+
+record(ai, "$(P)FPGA_DIE") {
+	field(DESC, "FPGA DIE temperature")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@FRU get_val $(FRU_ID) FPGA DIE")
+	field(PREC, "2")
+}
+
+	

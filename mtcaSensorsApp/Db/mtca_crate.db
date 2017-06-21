@@ -1,0 +1,49 @@
+# File: mtca_crate.db
+# Date: 2017-06-16
+# Author: Wayne Lewis
+#
+# Description:
+# Database for holding cratewide information
+#
+
+record(stringout, "$(P)HOST") {
+	field(DESC, "Crate host name")
+	field(DTYP, "Python Device")
+	field(PINI, "YES")
+	field(OUT,  "@MTCACrate set_host")
+	field(VAL,  "$(MCH_HOST)")
+	field(FLNK, "$(P)USER")
+
+	info(autosaveFields, "VAL")
+}
+
+record(stringout, "$(P)USER") {
+	field(DESC, "Crate user name")
+	field(DTYP, "Python Device")
+	field(OUT,  "@MTCACrate set_user")
+	field(VAL,  "root")
+	field(FLNK, "$(P)PASSWORD")
+
+	info(autosaveFields, "VAL")
+}
+
+# This may be able to move to an environment variable on the crate
+record(stringout, "$(P)PASSWORD") {
+	field(DESC, "Crate password")
+	field(DTYP, "Python Device")
+	field(OUT,  "@MTCACrate set_password")
+	field(VAL,  "ctsFree4All")
+	field(FLNK, "$(P)GET_AMC")
+
+	info(autosaveFields, "VAL")
+}
+
+record(bo, "$(P)GET_AMC") {
+	field(DESC, "Get crate AMC card list")
+	field(DTYP, "Python Device")
+	field(OUT,  "@MTCACrate get_amc_slot_list")
+	field(SCAN, "Passive")
+
+	info(autosaveFields, "SCAN")
+}
+
