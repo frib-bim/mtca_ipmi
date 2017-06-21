@@ -333,6 +333,9 @@ class MTCACrateReader():
         self.sensor = sensor
         self.alarms_set = False
 
+        # Set record invalid until it processes
+        rec.UDF = 1
+
     def detach(self, rec):
         pass
 
@@ -432,7 +435,7 @@ class MTCACrateReader():
                     valid_sensor = True
         if not valid_sensor:
             rec.VAL = 0
-            rec.UDF = 1
+            rec.UDF = 0
 
     def set_alarms(self, rec):
         """
@@ -491,6 +494,8 @@ class MTCACrateReader():
             rec.VAL = self.crate.amc_slots[self.slot].slot
         else:
             rec.VAL = -1
+        # Make the record defined regardless of value
+        rec.UDF = 0
 
 build = MTCACrateReader
 
