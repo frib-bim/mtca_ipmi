@@ -22,8 +22,9 @@ SENSOR_NAMES = {
     ,'2.5V': '2V5'
     ,'1.8 V': '1V8'
     ,'1.8V': '1V8'
-    ,'1.5V DDR3': '1V5'
-    ,'1.0V CORE': '1V0'
+    ,'1.0V CORE': 'V_FPGA'
+    ,'1.0 V': 'V_FPGA'
+    ,'FPGA 1.2 V': 'V_FPGA'
     ,'Current 12 V': '12V0CURRENT'
     ,'Current 3.3 V': '3V3CURRENT'
     ,'Current 1.2 V': '1V2CURRENT'
@@ -448,7 +449,7 @@ class MTCACrateReader():
                     rec.UDF = 0
                     valid_sensor = True
         if not valid_sensor:
-            rec.VAL = 0
+            rec.VAL = float('NaN')
             rec.EGU = ''
             rec.UDF = 0
 
@@ -508,7 +509,7 @@ class MTCACrateReader():
         if self.slot in self.crate.amc_slots.keys():
             rec.VAL = self.crate.amc_slots[self.slot].slot
         else:
-            rec.VAL = -1
+            rec.VAL = float('NaN')
         # Make the record defined regardless of value
         rec.UDF = 0
 

@@ -29,14 +29,6 @@ record(ai, "$(P)$(S)12V0") {
 	field(PREC, "2")
 }
 
-record(ai, "$(P)$(S)5V0") {
-	field(DESC, "5 V supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 5V0")
-	field(PREC, "2")
-}
-
 record(ai, "$(P)$(S)3V3") {
 	field(DESC, "3.3 V supply")
 	field(DTYP, "Python Device")
@@ -61,27 +53,11 @@ record(ai, "$(P)$(S)1V8") {
 	field(PREC, "2")
 }
 
-record(ai, "$(P)$(S)1V5") {
-	field(DESC, "1.5 V supply")
+record(ai, "$(P)$(S)V_FPGA") {
+	field(DESC, "FPGA voltage")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V5")
-	field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)1V2") {
-	field(DESC, "1.2 V supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V2")
-	field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)1V0") {
-	field(DESC, "1.0 V supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V0")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) V_FPGA")
 	field(PREC, "2")
 }
 
