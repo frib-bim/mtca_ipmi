@@ -148,4 +148,26 @@ record(ai, "$(P)$(S)SLOT") {
 	field(PREC, "0")
 	field(EGU,  "None")
 }
+
+record(mbbi, "$(P)$(S)STATUS") {
+	field(DESC, "Slot alarm status")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_status $(AMC_SLOT)")
+	field(ZRVL, "0")
+	field(ZRST, "UNSET")
+	field(ZRSV, "NO_ALARM")
+	field(ONVL, "1")
+	field(ONST, "NO_ALARM")
+	field(ONSV, "NO_ALARM")
+	field(TWVL, "2")
+	field(TWST, "NON_CRITICAL")
+	field(TWSV, "MINOR")
+	field(THVL, "3")
+	field(THST, "CRITICAL")
+	field(THSV, "MAJOR")
+	field(FRVL, "4")
+	field(FRST, "NON_RECOVERABLE")
+	field(FRSV, "MAJOR")
+}
 	

@@ -41,6 +41,7 @@ SENSOR_NAMES = {
     ,'FPGA PCB': 'TEMP2'
     ,'FMC2': 'TEMP2'
     ,'CPLD': 'TEMP3'
+    ,'Hot Swap': 'HOT_SWAP'
 }
 
 ALARMS = {
@@ -57,6 +58,24 @@ EGU = {
     ,'unspecified': ''
     ,'RPM': 'RPM'
 }
+
+ALARM_LEVELS = {
+    'ok': 1
+    ,'lnc': 2
+    ,'unc': 2
+    ,'lc': 3
+    ,'uc': 3
+    ,'lnr': 4
+    ,'unr': 4
+}
+
+ALARM_STATES = [
+    'UNSET'
+    ,'NO_ALARM'
+    ,'NON_CRITICAL'
+    ,'CRITICAL'
+    ,'NON_RECOVERABLE'
+]
 
 def get_crate():
     """
@@ -109,6 +128,7 @@ class AMC_Slot():
         self.name = name
         self.slot  = slot
         self.crate = crate
+        self.alarm_level = ALARM_STATES.index('UNSET')
 
         # Properties for storing sensor values
         self.sensors = {}
@@ -151,6 +171,8 @@ class AMC_Slot():
 
         result = check_output(command)
         
+        max_alarm_level = ALARM_STATES.index('NO_ALARM')
+
         for line in result.splitlines():
             try:
                 line_strip = [x.strip() for x in line.split('|')]
@@ -163,6 +185,7 @@ class AMC_Slot():
                     if not sensor_type in self.sensors.keys():
                         self.sensors[sensor_type] = Sensor(sensor_name)
                 
+                    # Store the value
                     self.sensors[sensor_type].value = float(value)
 
                     # Get the simplified engineering units
@@ -171,11 +194,26 @@ class AMC_Slot():
                     else:
                         self.sensors[sensor_type].egu = egu
 
+                    # Set the alarm thresholds if we haven't already
                     if not self.sensors[sensor_type].alarms_set:
                         self.set_alarms(sensor_name)
                         self.sensors[sensor_type].alarms_set = True
+
+                    # Check the alarm status reported by the device
+                    status = status.strip()
+                    if status in ALARM_LEVELS.keys():
+                        alarm_level = ALARM_LEVELS[status]
+                        if alarm_level > max_alarm_level:
+                            # Special case to ignore normal state of Hot Swap sensor
+                            if sensor_name == 'Hot Swap' and status == 'lnc':
+                                pass
+                            else:
+                                max_alarm_level = alarm_level
+
             except ValueError:
                 pass
+
+        self.alarm_level = max_alarm_level
 
     def set_alarms(self, name):
         """
@@ -514,6 +552,25 @@ class MTCACrateReader():
             rec.VAL = self.crate.amc_slots[self.slot].slot
         else:
             rec.VAL = float('NaN')
+        # Make the record defined regardless of value
+        rec.UDF = 0
+
+    def get_status(self, rec, report):
+        """
+        Get card alarm status
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+
+        # Check if this card exists
+        if self.slot in self.crate.amc_slots.keys():
+            rec.VAL = self.crate.amc_slots[self.slot].alarm_level
+        else:
+            rec.VAL = ALARM_STATES.index('UNSET')
         # Make the record defined regardless of value
         rec.UDF = 0
 
