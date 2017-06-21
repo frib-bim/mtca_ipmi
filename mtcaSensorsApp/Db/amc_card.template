@@ -125,6 +125,14 @@ record(ai, "$(P)$(S)TEMP_OUTLET") {
 	field(PREC, "2")
 }
 
+record(ai, "$(P)$(S)TEMP_FPGA") {
+	field(DESC, "Temperature 4")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP_FPGA")
+	field(PREC, "2")
+}
+
 record(ai, "$(P)$(S)TEMP1") {
 	field(DESC, "Temperature 1")
 	field(DTYP, "Python Device")
@@ -146,30 +154,6 @@ record(ai, "$(P)$(S)TEMP3") {
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
 	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP3")
-	field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)TEMP4") {
-	field(DESC, "Temperature 4")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP4")
-	field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)TEMP5") {
-	field(DESC, "Temperature 5")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP5")
-	field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)TEMP6") {
-	field(DESC, "Temperature 6")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP6")
 	field(PREC, "2")
 }
 
