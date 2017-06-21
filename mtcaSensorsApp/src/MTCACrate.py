@@ -442,10 +442,14 @@ class MTCACrateReader():
                 if self.sensor in self.crate.amc_slots[self.slot].sensors.keys():
                     if not self.alarms_set:
                         self.set_alarms(rec)
-                    val = self.crate.amc_slots[self.slot].sensors[self.sensor].value
-                    egu = self.crate.amc_slots[self.slot].sensors[self.sensor].egu
+                    card = self.crate.amc_slots[self.slot]
+                    sensor = card.sensors[self.sensor]
+                    val = sensor.value
+                    egu = sensor.egu
+                    desc = sensor.name
                     rec.VAL = val
                     rec.EGU = egu
+                    rec.DESC = desc
                     rec.UDF = 0
                     valid_sensor = True
         if not valid_sensor:
