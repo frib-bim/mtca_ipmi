@@ -48,7 +48,13 @@ ALARMS = {
         'Upper Critical': 'hihi'
         }
 
-#_crates = {}
+EGU = { 
+    'Volts': 'V',
+	'Amps': 'A',
+	'degrees C': 'C',
+	'unspecified': '',
+	'RPM': 'RPM'
+}
 
 def get_crate():
     """
@@ -156,7 +162,12 @@ class AMC_Slot():
                         self.sensors[sensor_type] = Sensor(sensor_name)
                 
                     self.sensors[sensor_type].value = float(value)
-                    self.sensors[sensor_type].egu = egu
+
+                    # Get the simplified engineering units
+                    if egu in EGU.keys():
+                        self.sensors[sensor_type].egu = EGU[egu]
+                    else:
+                        self.sensors[sensor_type].egu = egu
 
                     if not self.sensors[sensor_type].alarms_set:
                         self.set_alarms(sensor_name)
@@ -430,11 +441,14 @@ class MTCACrateReader():
                     if not self.alarms_set:
                         self.set_alarms(rec)
                     val = self.crate.amc_slots[self.slot].sensors[self.sensor].value
+                    egu = self.crate.amc_slots[self.slot].sensors[self.sensor].egu
                     rec.VAL = val
+                    rec.EGU = egu
                     rec.UDF = 0
                     valid_sensor = True
         if not valid_sensor:
             rec.VAL = 0
+            rec.EGU = ''
             rec.UDF = 0
 
     def set_alarms(self, rec):
