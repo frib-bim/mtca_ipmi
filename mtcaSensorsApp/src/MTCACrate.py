@@ -13,47 +13,47 @@ AMC_SLOT_OFFSET = 96
 AMC_BUS_ID = 193
 
 SENSOR_NAMES = {
-        '12 V PP': '12V0',
-        '12V PP': '12V0',
-        '12 V AMC': '12V0',
-        '3.3 V PP': '3V3',
-        '3.3V MP': '3V3',
-        '2.5 V': '2V5',
-        '2.5V': '2V5',
-        '1.8 V': '1V8',
-        '1.8V': '1V8',
-        '1.5V DDR3': '1V5',
-        '1.0V CORE': '1V0',
-        'RTM PP Current': '12V0CURRENT',
-        'Current 12 V': '12V0CURRENT',
-        'RTM MP Current': '3V3CURRENT',
-        'Current 3.3 V': '3V3CURRENT',
-        'Current 1.2 V': '1V2CURRENT',
-        'Inlet': 'TEMP_INLET',
-        'Temp 1 (inlet)': 'TEMP_INLET',
-        'Outlet': 'TEMP_OUTLET',
-        'Temp 2 (outlet)': 'TEMP_OUTLET',
-        'DC/DC Inlet': 'TEMP1',
-        'FMC1': 'TEMP2',
-        'FMC2': 'TEMP3',
-        'CPLD': 'TEMP4',
-        'FPGA V5': 'TEMP5',
-        'FPGA S6': 'TEMP6'
-        }
+    '12 V PP': '12V0',
+    '12V PP': '12V0',
+    '12 V AMC': '12V0',
+    '3.3 V PP': '3V3',
+    '3.3V MP': '3V3',
+    '2.5 V': '2V5',
+    '2.5V': '2V5',
+    '1.8 V': '1V8',
+    '1.8V': '1V8',
+    '1.5V DDR3': '1V5',
+    '1.0V CORE': '1V0',
+    'RTM PP Current': '12V0CURRENT',
+    'Current 12 V': '12V0CURRENT',
+    'RTM MP Current': '3V3CURRENT',
+    'Current 3.3 V': '3V3CURRENT',
+    'Current 1.2 V': '1V2CURRENT',
+    'Inlet': 'TEMP_INLET',
+    'Temp 1 (inlet)': 'TEMP_INLET',
+    'Outlet': 'TEMP_OUTLET',
+    'Temp 2 (outlet)': 'TEMP_OUTLET',
+    'DC/DC Inlet': 'TEMP1',
+    'FMC1': 'TEMP2',
+    'FMC2': 'TEMP3',
+    'CPLD': 'TEMP4',
+    'FPGA V5': 'TEMP5',
+    'FPGA S6': 'TEMP6'
+}
 
 ALARMS = {
-        'Lower Critical': 'lolo',
-        'Lower Non-Critical': 'low',
-        'Upper Non-Critical': 'high',
-        'Upper Critical': 'hihi'
-        }
+    'Lower Critical': 'lolo',
+    'Lower Non-Critical': 'low',
+    'Upper Non-Critical': 'high',
+    'Upper Critical': 'hihi'
+}
 
 EGU = { 
     'Volts': 'V',
-	'Amps': 'A',
-	'degrees C': 'C',
-	'unspecified': '',
-	'RPM': 'RPM'
+    'Amps': 'A',
+    'degrees C': 'C',
+    'unspecified': '',
+    'RPM': 'RPM'
 }
 
 def get_crate():
