@@ -16,7 +16,7 @@ AMC_BUS_ID = 193
 HOT_SWAP_FAULT = 0
 HOT_SWAP_OK = 1
 
-AI_SENSOR_NAMES = {
+SENSOR_NAMES = {
     '12 V PP': '12V0'
     ,'12V PP': '12V0'
     ,'12 V AMC': '12V0'
@@ -45,10 +45,7 @@ AI_SENSOR_NAMES = {
     ,'FPGA PCB': 'TEMP2'
     ,'FMC2': 'TEMP2'
     ,'CPLD': 'TEMP3'
-}
-
-BI_SENSOR_NAMES = {
-    'Hot Swap': 'HOT_SWAP'
+    ,'Hot Swap': 'HOT_SWAP'
 }
 
 ALARMS = {
@@ -112,7 +109,6 @@ class Sensor():
         self.high = 0.0
         self.hihi = 0.0
         self.alarms_set = False
-        self.analog = True
 
 class AMC_Slot():
     """
@@ -188,14 +184,13 @@ class AMC_Slot():
                 value, egu = val.split(' ', 1)
 
                 # Check if the sensor name is in the list of 
-                # analog sensors we know about
-                if sensor_name in AI_SENSOR_NAMES.keys():
-                    sensor_type = AI_SENSOR_NAMES[sensor_name]
+                # sensors we know about
+                if sensor_name in SENSOR_NAMES.keys():
+                    sensor_type = SENSOR_NAMES[sensor_name]
 
                     # Check if we have already created this sensor
                     if not sensor_type in self.sensors.keys():
                         self.sensors[sensor_type] = Sensor(sensor_name)
-                        self.sensors[sensor_type].analog = True
                 
                     # Store the value
                     self.sensors[sensor_type].value = float(value)
@@ -211,33 +206,8 @@ class AMC_Slot():
                         self.set_alarms(sensor_name)
                         self.sensors[sensor_type].alarms_set = True
 
-                # Check if the sensor name is in the list of 
-                # digital sensors we know about
-                if sensor_name in BI_SENSOR_NAMES.keys():
-                    sensor_type = BI_SENSOR_NAMES[sensor_name]
-
-                    # Check if we have already created this sensor
-                    if not sensor_type in self.sensors.keys():
-                        self.sensors[sensor_type] = Sensor(sensor_name)
-                        self.sensors[sensor_type].egu = 'None'
-                        self.sensors[sensor_type].alarms_set = True
-                        self.sensors[sensor_type].analog = False
-                
-                    # Store the value
-                    # Special case for Hot Swap, need to look at alarm state
-                    if sensor_name == 'Hot Swap':
-                        if status == 'lnc':
-                            self.sensors[sensor_type].value = HOT_SWAP_OK
-                        else:
-                            self.sensors[sensor_type].value = HOT_SWAP_FAULT
-                    #else:
-                    # Other digital sensors go here
-
-                # Check if this sensor is in either the analog or 
-                # digital sensor list to do the card overall status
-                # evaluation
-                if sensor_name in AI_SENSOR_NAMES.keys() or \
-                    sensor_name in BI_SENSOR_NAMES.keys():
+                # Do the card overall status evaluation
+                if sensor_name in SENSOR_NAMES.keys():
 
                     # Check the alarm status reported by the device
                     status = status.strip()
@@ -283,7 +253,7 @@ class AMC_Slot():
             try:
                 description, value = [x.strip() for x in line.split(':',1)]
                 if description in ALARMS.keys():
-                    sensor_type = AI_SENSOR_NAMES[name]
+                    sensor_type = SENSOR_NAMES[name]
                     setattr(self.sensors[sensor_type], ALARMS[description], float(value))
                     self.sensors[sensor_type].alarms_set = True       
             except ValueError:
@@ -512,7 +482,6 @@ class MTCACrateReader():
         """
 
         valid_sensor = False
-        analog = True
 
         # Check if we have a valid sensor and slot number
         if self.sensor != None and not math.isnan(self.slot):
@@ -527,26 +496,13 @@ class MTCACrateReader():
                     val = sensor.value
                     egu = sensor.egu
                     desc = sensor.name
-                    if sensor.analog:
-                        try:
-                            rec.VAL = val
-                            rec.EGU = egu
-                        except ValueError as e:
-                            print e
-                    else:
-                        analog = False
-                        if math.isnan(val):
-                            rec.VAL = 0
-                        else:
-                            rec.VAL = val
+                    rec.VAL = val
+                    rec.EGU = egu
                     rec.DESC = desc
                     rec.UDF = 0
                     valid_sensor = True
         if not valid_sensor:
-            if analog:
-                rec.VAL = float('NaN')
-            else:
-                rec.VAL = 0
+            rec.VAL = float('NaN')
             rec.UDF = 0
 
     def set_alarms(self, rec):
@@ -561,20 +517,19 @@ class MTCACrateReader():
         """
 
         sensor = self.crate.amc_slots[self.slot].sensors[self.sensor]
-        if sensor.analog:
-            try:
-                rec.LOLO = sensor.lolo
-                rec.LOW = sensor.low
-                rec.HIGH = sensor.high
-                rec.HIHI = sensor.hihi
+        try:
+            rec.LOLO = sensor.lolo
+            rec.LOW = sensor.low
+            rec.HIGH = sensor.high
+            rec.HIHI = sensor.hihi
 
-                rec.LLSV = 2 # MAJOR
-                rec.LSV = 1 # MINOR
-                rec.HSV = 1 # MINOR
-                rec.HHSV = 2 # MAJOR
-                self.alarms_set = True
-            except KeyError as e:
-                print "Caught KeyError: {}".format(e)
+            rec.LLSV = 2 # MAJOR
+            rec.LSV = 1 # MINOR
+            rec.HSV = 1 # MINOR
+            rec.HHSV = 2 # MAJOR
+            self.alarms_set = True
+        except KeyError as e:
+            print "Caught KeyError: {}".format(e)
     
     def get_name(self, rec, report):
         """

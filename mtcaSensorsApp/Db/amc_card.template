@@ -149,16 +149,16 @@ record(ai, "$(P)$(S)SLOT") {
 	field(EGU,  "None")
 }
 
-record(bi, "$(P)$(S)HOT_SWAP") {
-	field(DESC, "Hot swap status")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) HOT_SWAP")
-	field(ZNAM, "Fault")
-	field(ZSV,  "MAJOR")
-	field(ONAM, "OK")
-	field(OSV,  "NO_ALARM")
-}
+#record(bi, "$(P)$(S)HOT_SWAP") {
+	#field(DESC, "Hot swap status")
+	#field(DTYP, "Python Device")
+	#field(SCAN, "I/O Intr")
+	#field(INP,  "@MTCACrate get_val $(AMC_SLOT) HOT_SWAP")
+	#field(ZNAM, "Fault")
+	#field(ZSV,  "MAJOR")
+	#field(ONAM, "OK")
+	#field(OSV,  "NO_ALARM")
+#}
 
 record(mbbi, "$(P)$(S)STATUS") {
 	field(DESC, "Slot alarm status")
