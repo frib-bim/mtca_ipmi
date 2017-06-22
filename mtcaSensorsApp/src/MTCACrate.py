@@ -6,11 +6,15 @@
 # Description: Get sensor information for microTCA crate.
 #
 
+import math
 from devsup.db import IOScanListBlock
 from subprocess import check_output
 
 AMC_SLOT_OFFSET = 96
 AMC_BUS_ID = 193
+
+HOT_SWAP_FAULT = 0
+HOT_SWAP_OK = 1
 
 SENSOR_NAMES = {
     '12 V PP': '12V0'
@@ -63,8 +67,8 @@ ALARM_LEVELS = {
     'ok': 1
     ,'lnc': 2
     ,'unc': 2
-    ,'lc': 3
-    ,'uc': 3
+    ,'lcr': 3
+    ,'ucr': 3
     ,'lnr': 4
     ,'unr': 4
 }
@@ -178,9 +182,12 @@ class AMC_Slot():
                 line_strip = [x.strip() for x in line.split('|')]
                 sensor_name, sensor_id, status, fru_id, val = line_strip
                 value, egu = val.split(' ', 1)
-                # Check if the sensor name is in the list we know about
+
+                # Check if the sensor name is in the list of 
+                # sensors we know about
                 if sensor_name in SENSOR_NAMES.keys():
                     sensor_type = SENSOR_NAMES[sensor_name]
+
                     # Check if we have already created this sensor
                     if not sensor_type in self.sensors.keys():
                         self.sensors[sensor_type] = Sensor(sensor_name)
@@ -199,13 +206,16 @@ class AMC_Slot():
                         self.set_alarms(sensor_name)
                         self.sensors[sensor_type].alarms_set = True
 
+                # Do the card overall status evaluation
+                if sensor_name in SENSOR_NAMES.keys():
+
                     # Check the alarm status reported by the device
                     status = status.strip()
                     if status in ALARM_LEVELS.keys():
                         alarm_level = ALARM_LEVELS[status]
                         if alarm_level > max_alarm_level:
                             # Special case to ignore normal state of Hot Swap sensor
-                            if sensor_name == 'Hot Swap' and status == 'lnc':
+                            if sensor_name.strip() == 'Hot Swap' and status == 'lnc':
                                 pass
                             else:
                                 max_alarm_level = alarm_level
@@ -473,7 +483,8 @@ class MTCACrateReader():
 
         valid_sensor = False
 
-        if self.sensor != None:
+        # Check if we have a valid sensor and slot number
+        if self.sensor != None and not math.isnan(self.slot):
             # Check if this card exists
             if self.slot in self.crate.amc_slots.keys():
                 # Check if this is a valid sensor
@@ -492,7 +503,6 @@ class MTCACrateReader():
                     valid_sensor = True
         if not valid_sensor:
             rec.VAL = float('NaN')
-            rec.EGU = ''
             rec.UDF = 0
 
     def set_alarms(self, rec):
@@ -506,11 +516,13 @@ class MTCACrateReader():
             Nothing
         """
 
+        sensor = self.crate.amc_slots[self.slot].sensors[self.sensor]
         try:
-            rec.LOLO = self.crate.amc_slots[self.slot].sensors[self.sensor].lolo
-            rec.LOW = self.crate.amc_slots[self.slot].sensors[self.sensor].low
-            rec.HIGH = self.crate.amc_slots[self.slot].sensors[self.sensor].high
-            rec.HIHI = self.crate.amc_slots[self.slot].sensors[self.sensor].hihi
+            rec.LOLO = sensor.lolo
+            rec.LOW = sensor.low
+            rec.HIGH = sensor.high
+            rec.HIHI = sensor.hihi
+
             rec.LLSV = 2 # MAJOR
             rec.LSV = 1 # MINOR
             rec.HSV = 1 # MINOR
@@ -531,7 +543,8 @@ class MTCACrateReader():
         """
 
         # Check if this card exists
-        if self.slot in self.crate.amc_slots.keys():
+        if not math.isnan(self.slot) and \
+        self.slot in self.crate.amc_slots.keys():
             rec.VAL = self.crate.amc_slots[self.slot].name
         else:
             rec.VAL = "Empty"
