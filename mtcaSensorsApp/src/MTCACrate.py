@@ -9,6 +9,7 @@
 import math
 from devsup.db import IOScanListBlock
 from subprocess import check_output
+from subprocess import CalledProcessError
 
 AMC_SLOT_OFFSET = 96
 AMC_BUS_ID = 193
@@ -16,16 +17,22 @@ AMC_BUS_ID = 193
 HOT_SWAP_FAULT = 0
 HOT_SWAP_OK = 1
 
+EPICS_ALARM_OFFSET = 0.001
+
 SENSOR_NAMES = {
     '12 V PP': '12V0'
     ,'12V PP': '12V0'
     ,'12 V AMC': '12V0'
+    ,'+12V PSU': '12V0'
+    ,'+5V PSU': '5V0'
     ,'3.3 V PP': '3V3'
     ,'3.3V MP': '3V3'
+    ,'+3.3V PSU': '3V3'
     ,'2.5 V': '2V5'
     ,'2.5V': '2V5'
     ,'1.8 V': '1V8'
     ,'1.8V': '1V8'
+    ,'1.5V PSU': '1V5'
     ,'1.0V CORE': 'V_FPGA'
     ,'1.0 V': 'V_FPGA'
     ,'FPGA 1.2 V': 'V_FPGA'
@@ -42,8 +49,10 @@ SENSOR_NAMES = {
     ,'FPGA V5': 'TEMP_FPGA'
     ,'Middle': 'TEMP1'
     ,'FMC1': 'TEMP1'
+    ,'Board Temp': 'TEMP1'
     ,'FPGA PCB': 'TEMP2'
     ,'FMC2': 'TEMP2'
+    ,'CPU Temp': 'TEMP2'
     ,'CPLD': 'TEMP3'
     ,'Hot Swap': 'HOT_SWAP'
 }
@@ -108,7 +117,8 @@ class Sensor():
         self.low = 0.0
         self.high = 0.0
         self.hihi = 0.0
-        self.alarms_set = False
+        self.alarm_values_read = False
+        self.alarms_valid = False
 
 class AMC_Slot():
     """
@@ -202,9 +212,9 @@ class AMC_Slot():
                         self.sensors[sensor_type].egu = egu
 
                     # Set the alarm thresholds if we haven't already
-                    if not self.sensors[sensor_type].alarms_set:
+                    if not self.sensors[sensor_type].alarm_values_read:
                         self.set_alarms(sensor_name)
-                        self.sensors[sensor_type].alarms_set = True
+                        self.sensors[sensor_type].alarm_values_read = True
 
                 # Do the card overall status evaluation
                 if sensor_name in SENSOR_NAMES.keys():
@@ -247,17 +257,19 @@ class AMC_Slot():
         command.append("get")
         command.append(name)
 
-        result = check_output(command)
-
-        for line in result.splitlines():
-            try:
-                description, value = [x.strip() for x in line.split(':',1)]
-                if description in ALARMS.keys():
-                    sensor_type = SENSOR_NAMES[name]
-                    setattr(self.sensors[sensor_type], ALARMS[description], float(value))
-                    self.sensors[sensor_type].alarms_set = True       
-            except ValueError:
-                pass
+        try:
+            result = check_output(command)
+            for line in result.splitlines():
+                try:
+                    description, value = [x.strip() for x in line.split(':',1)]
+                    if description in ALARMS.keys():
+                        sensor_type = SENSOR_NAMES[name]
+                        setattr(self.sensors[sensor_type], ALARMS[description], float(value))
+                        self.sensors[sensor_type].alarms_valid = True       
+                except ValueError:
+                    pass
+        except CalledProcessError as e:
+            print ("Caught subprocess.CalledProcessError: {}".format(e))
 
 
         
@@ -518,15 +530,22 @@ class MTCACrateReader():
 
         sensor = self.crate.amc_slots[self.slot].sensors[self.sensor]
         try:
-            rec.LOLO = sensor.lolo
-            rec.LOW = sensor.low
-            rec.HIGH = sensor.high
-            rec.HIHI = sensor.hihi
+            rec.LOLO = sensor.lolo - EPICS_ALARM_OFFSET
+            rec.LOW = sensor.low - EPICS_ALARM_OFFSET
+            rec.HIGH = sensor.high + EPICS_ALARM_OFFSET
+            rec.HIHI = sensor.hihi + EPICS_ALARM_OFFSET
 
-            rec.LLSV = 2 # MAJOR
-            rec.LSV = 1 # MINOR
-            rec.HSV = 1 # MINOR
-            rec.HHSV = 2 # MAJOR
+            if sensor.alarms_valid:
+                rec.LLSV = 2 # MAJOR
+                rec.LSV = 1 # MINOR
+                rec.HSV = 1 # MINOR
+                rec.HHSV = 2 # MAJOR
+            else:
+                rec.LLSV = 0 # NO_ALARM
+                rec.LSV = 0 # NO_ALARM
+                rec.HSV = 0 # NO_ALARM
+                rec.HHSV = 0 # NO_ALARM
+
             self.alarms_set = True
         except KeyError as e:
             print "Caught KeyError: {}".format(e)
