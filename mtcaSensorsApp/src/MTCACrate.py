@@ -12,7 +12,10 @@ from subprocess import check_output
 AMC_SLOT_OFFSET = 96
 AMC_BUS_ID = 193
 
-SENSOR_NAMES = {
+HOT_SWAP_FAULT = 0
+HOT_SWAP_OK = 1
+
+AI_SENSOR_NAMES = {
     '12 V PP': '12V0'
     ,'12V PP': '12V0'
     ,'12 V AMC': '12V0'
@@ -41,7 +44,10 @@ SENSOR_NAMES = {
     ,'FPGA PCB': 'TEMP2'
     ,'FMC2': 'TEMP2'
     ,'CPLD': 'TEMP3'
-    ,'Hot Swap': 'HOT_SWAP'
+}
+
+BI_SENSOR_NAMES = {
+    'Hot Swap': 'HOT_SWAP'
 }
 
 ALARMS = {
@@ -63,8 +69,8 @@ ALARM_LEVELS = {
     'ok': 1
     ,'lnc': 2
     ,'unc': 2
-    ,'lc': 3
-    ,'uc': 3
+    ,'lcr': 3
+    ,'ucr': 3
     ,'lnr': 4
     ,'unr': 4
 }
@@ -105,6 +111,7 @@ class Sensor():
         self.high = 0.0
         self.hihi = 0.0
         self.alarms_set = False
+        self.analog = True
 
 class AMC_Slot():
     """
@@ -178,12 +185,16 @@ class AMC_Slot():
                 line_strip = [x.strip() for x in line.split('|')]
                 sensor_name, sensor_id, status, fru_id, val = line_strip
                 value, egu = val.split(' ', 1)
-                # Check if the sensor name is in the list we know about
-                if sensor_name in SENSOR_NAMES.keys():
-                    sensor_type = SENSOR_NAMES[sensor_name]
+
+                # Check if the sensor name is in the list of 
+                # analog sensors we know about
+                if sensor_name in AI_SENSOR_NAMES.keys():
+                    sensor_type = AI_SENSOR_NAMES[sensor_name]
+
                     # Check if we have already created this sensor
                     if not sensor_type in self.sensors.keys():
                         self.sensors[sensor_type] = Sensor(sensor_name)
+                        self.sensors[sensor_type].analog = True
                 
                     # Store the value
                     self.sensors[sensor_type].value = float(value)
@@ -199,13 +210,41 @@ class AMC_Slot():
                         self.set_alarms(sensor_name)
                         self.sensors[sensor_type].alarms_set = True
 
+                # Check if the sensor name is in the list of 
+                # digital sensors we know about
+                if sensor_name in BI_SENSOR_NAMES.keys():
+                    sensor_type = BI_SENSOR_NAMES[sensor_name]
+
+                    # Check if we have already created this sensor
+                    if not sensor_type in self.sensors.keys():
+                        self.sensors[sensor_type] = Sensor(sensor_name)
+                        self.sensors[sensor_type].egu = 'None'
+                        self.sensors[sensor_type].alarms_set = True
+                        self.sensors[sensor_type].analog = False
+                
+                    # Store the value
+                    # Special case for Hot Swap, need to look at alarm state
+                    if sensor_name == 'Hot Swap':
+                        if status == 'lnc':
+                            self.sensors[sensor_type].value = HOT_SWAP_OK
+                        else:
+                            self.sensors[sensor_type].value = HOT_SWAP_FAULT
+                    #else:
+                    # Other digital sensors go here
+
+                # Check if this sensor is in either the analog or 
+                # digital sensor list to do the card overall status
+                # evaluation
+                if sensor_name in AI_SENSOR_NAMES.keys() or \
+                    sensor_name in BI_SENSOR_NAMES.keys():
+
                     # Check the alarm status reported by the device
                     status = status.strip()
                     if status in ALARM_LEVELS.keys():
                         alarm_level = ALARM_LEVELS[status]
                         if alarm_level > max_alarm_level:
                             # Special case to ignore normal state of Hot Swap sensor
-                            if sensor_name == 'Hot Swap' and status == 'lnc':
+                            if sensor_name.strip() == 'Hot Swap' and status == 'lnc':
                                 pass
                             else:
                                 max_alarm_level = alarm_level
@@ -243,7 +282,7 @@ class AMC_Slot():
             try:
                 description, value = [x.strip() for x in line.split(':',1)]
                 if description in ALARMS.keys():
-                    sensor_type = SENSOR_NAMES[name]
+                    sensor_type = AI_SENSOR_NAMES[name]
                     setattr(self.sensors[sensor_type], ALARMS[description], float(value))
                     self.sensors[sensor_type].alarms_set = True       
             except ValueError:
@@ -472,8 +511,9 @@ class MTCACrateReader():
         """
 
         valid_sensor = False
+        analog = False
 
-        if self.sensor != None:
+        if self.sensor != None and self.slot != float('NaN'):
             # Check if this card exists
             if self.slot in self.crate.amc_slots.keys():
                 # Check if this is a valid sensor
@@ -485,14 +525,23 @@ class MTCACrateReader():
                     val = sensor.value
                     egu = sensor.egu
                     desc = sensor.name
-                    rec.VAL = val
-                    rec.EGU = egu
+                    if sensor.analog:
+                        rec.VAL = val
+                        rec.EGU = egu
+                        analog = True
+                    else:
+                        if val == float('NaN'):
+                            rec.VAL = 0
+                        else:
+                            rec.VAL = val
                     rec.DESC = desc
                     rec.UDF = 0
                     valid_sensor = True
         if not valid_sensor:
-            rec.VAL = float('NaN')
-            rec.EGU = ''
+            if analog:
+                rec.VAL = float('NaN')
+            else:
+                rec.VAL = 0
             rec.UDF = 0
 
     def set_alarms(self, rec):
@@ -506,18 +555,21 @@ class MTCACrateReader():
             Nothing
         """
 
-        try:
-            rec.LOLO = self.crate.amc_slots[self.slot].sensors[self.sensor].lolo
-            rec.LOW = self.crate.amc_slots[self.slot].sensors[self.sensor].low
-            rec.HIGH = self.crate.amc_slots[self.slot].sensors[self.sensor].high
-            rec.HIHI = self.crate.amc_slots[self.slot].sensors[self.sensor].hihi
-            rec.LLSV = 2 # MAJOR
-            rec.LSV = 1 # MINOR
-            rec.HSV = 1 # MINOR
-            rec.HHSV = 2 # MAJOR
-            self.alarms_set = True
-        except KeyError as e:
-            print "Caught KeyError: {}".format(e)
+        sensor = self.crate.amc_slots[self.slot].sensors[self.sensor]
+        if sensor.analog:
+            try:
+                rec.LOLO = sensor.lolo
+                rec.LOW = sensor.low
+                rec.HIGH = sensor.high
+                rec.HIHI = sensor.hihi
+
+                rec.LLSV = 2 # MAJOR
+                rec.LSV = 1 # MINOR
+                rec.HSV = 1 # MINOR
+                rec.HHSV = 2 # MAJOR
+                self.alarms_set = True
+            except KeyError as e:
+                print "Caught KeyError: {}".format(e)
     
     def get_name(self, rec, report):
         """
