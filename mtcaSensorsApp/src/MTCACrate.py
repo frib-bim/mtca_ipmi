@@ -6,6 +6,7 @@
 # Description: Get sensor information for microTCA crate.
 #
 
+import math
 from devsup.db import IOScanListBlock
 from subprocess import check_output
 
@@ -511,9 +512,10 @@ class MTCACrateReader():
         """
 
         valid_sensor = False
-        analog = False
+        analog = True
 
-        if self.sensor != None and self.slot != float('NaN'):
+        # Check if we have a valid sensor and slot number
+        if self.sensor != None and not math.isnan(self.slot):
             # Check if this card exists
             if self.slot in self.crate.amc_slots.keys():
                 # Check if this is a valid sensor
@@ -526,11 +528,14 @@ class MTCACrateReader():
                     egu = sensor.egu
                     desc = sensor.name
                     if sensor.analog:
-                        rec.VAL = val
-                        rec.EGU = egu
-                        analog = True
+                        try:
+                            rec.VAL = val
+                            rec.EGU = egu
+                        except ValueError as e:
+                            print e
                     else:
-                        if val == float('NaN'):
+                        analog = False
+                        if math.isnan(val):
                             rec.VAL = 0
                         else:
                             rec.VAL = val
@@ -583,7 +588,8 @@ class MTCACrateReader():
         """
 
         # Check if this card exists
-        if self.slot in self.crate.amc_slots.keys():
+        if not math.isnan(self.slot) and \
+        self.slot in self.crate.amc_slots.keys():
             rec.VAL = self.crate.amc_slots[self.slot].name
         else:
             rec.VAL = "Empty"
