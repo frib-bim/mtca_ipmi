@@ -12,22 +12,30 @@ from subprocess import check_output
 from subprocess import CalledProcessError
 
 AMC_SLOT_OFFSET = 96
-AMC_BUS_ID = 193
 
 HOT_SWAP_FAULT = 0
 HOT_SWAP_OK = 1
 
 EPICS_ALARM_OFFSET = 0.001
 
+BUS_IDS = {
+    'amc': 193
+    ,'cu': 30
+    ,'pm': 10
+}
+
 SENSOR_NAMES = {
     '12 V PP': '12V0'
     ,'12V PP': '12V0'
     ,'12 V AMC': '12V0'
     ,'+12V PSU': '12V0'
+    ,'+12V': '12V0'
+    ,'+12V_1': '12V0_1'
     ,'+5V PSU': '5V0'
     ,'3.3 V PP': '3V3'
     ,'3.3V MP': '3V3'
     ,'+3.3V PSU': '3V3'
+    ,'+3.3V': '3V3'
     ,'2.5 V': '2V5'
     ,'2.5V': '2V5'
     ,'1.8 V': '1V8'
@@ -50,10 +58,18 @@ SENSOR_NAMES = {
     ,'Middle': 'TEMP1'
     ,'FMC1': 'TEMP1'
     ,'Board Temp': 'TEMP1'
+    ,'LM75 Temp': 'TEMP1'
     ,'FPGA PCB': 'TEMP2'
     ,'FMC2': 'TEMP2'
     ,'CPU Temp': 'TEMP2'
+    ,'LM75 Temp2': 'TEMP2'
     ,'CPLD': 'TEMP3'
+    ,'Fan 1': 'FAN1'
+    ,'Fan 2': 'FAN2'
+    ,'Fan 3': 'FAN3'
+    ,'Fan 4': 'FAN4'
+    ,'Fan 5': 'FAN5'
+    ,'Fan 6': 'FAN6'
     ,'Hot Swap': 'HOT_SWAP'
 }
 
@@ -120,19 +136,20 @@ class Sensor():
         self.alarm_values_read = False
         self.alarms_valid = False
 
-class AMC_Slot():
+class FRU():
     """
-    AMC_Slot information
+    FRU information
     """
 
-    def __init__(self, id = None, name = None, slot = None, crate = None):
+    def __init__(self, id = None, name = None, slot = None, bus = None, crate = None):
         """
-        AMC_Slot class initializer
+        FRU class initializer
 
         Args:
-            id (str): AMC_Slot ID (e.g., 193.101)
-            name (str): AMC card name
-            slot(int): AMC slot number
+            id (str): FRU ID (e.g., 193.101)
+            name (str): card name
+            slot(int): slot number
+            bus(int): MTCA bus number
             crate(obj): reference to crate object
 
         Returns: 
@@ -141,6 +158,7 @@ class AMC_Slot():
         self.id = id
         self.name = name
         self.slot  = slot
+        self.bus  = bus
         self.crate = crate
         self.alarm_level = ALARM_STATES.index('UNSET')
 
@@ -149,13 +167,13 @@ class AMC_Slot():
 
     def __str__(self):
         """
-        AMC_Slot class printout
+        FRU class printout
         
         Args:
             None
 
         Returns:
-            String representation of AMC_Slot
+            String representation of FRU
         """
         return "ID: {}, Name: {}".format(self.id, self.name)
 
@@ -293,14 +311,14 @@ class MTCACrate():
         self.user = None
         self.password = None
 
-        # Initialize dict of AMC Slots
-        self.amc_slots = {}
-        self.amc_slots_inited = False
+        # Initialize dictionaries of FRUs
+        self.frus = {}
+        self.frus_inited = False
 
         # Create scan list for I/O Intr records
         self.scan_list = IOScanListBlock()
 
-    def populate_amc_slot_list(self):
+    def populate_fru_list(self):
         """ 
         Call MCH and get list of AMC slots
 
@@ -333,17 +351,18 @@ class MTCACrate():
                     # Get the AMC slot number
                     bus, slot = id.strip().split('.')
                     bus, slot = int(bus), int(slot)
-                    slot -= AMC_SLOT_OFFSET
-                    if bus == AMC_BUS_ID:
-                        if slot not in self.amc_slots.keys():
-                            self.amc_slots[slot] = AMC_Slot(
-                                    name=name.strip(), 
-                                    id=id.strip(), 
-                                    slot=slot, 
-                                    crate = self)
+                    
+                    slot -= SLOT_OFFSET
+                    if (bus, slot) not in bus_dict.keys():
+                        self.bus_dict[(bus, slot)] = FRU(
+                                name = name.strip(), 
+                                id = id.strip(), 
+                                slot = slot, 
+                                bus = bus
+                                crate = self)
                 except ValueError:
                     print "Couldn't parse {}".format(line)
-            self.amc_slots_inited = True
+            self.frus_inited = True
         else:
             print("Crate information not populated")
 
@@ -358,8 +377,8 @@ class MTCACrate():
             Nothing
         """
 
-        for slot in self.amc_slots:
-            self.amc_slots[slot].read_sensors()
+        for fru in self.frus:
+            fru.read_sensors()
 
 _crate = MTCACrate()
 
@@ -379,6 +398,7 @@ class MTCACrateReader():
             rec: pyDevSup record object
             fn (str): function to be called
             args (str): arguments from EPICS record
+                bus (str, optional): mtca bus type (see BUS_IDS) 
                 slot (int, optional): amc slot number 
                 sensor(str, optional): sensor to read
 
@@ -387,8 +407,8 @@ class MTCACrateReader():
         """
 
         args_list = args.split(None, 2)
-        if len(args_list) == 3:
-            fn, slot, sensor = args_list
+        if len(args_list) == 4:
+            fn, bus, slot, sensor = args_list
         elif len(args_list) == 2:
             fn, slot = args_list
             sensor = None
@@ -403,6 +423,7 @@ class MTCACrateReader():
         # Allow for I/O Intr scanning
         self.allowScan = self.crate.scan_list.add
         self.slot = int(slot)
+        self.bus = BUS_IDS[bus]
         self.sensor = sensor
         self.alarms_set = False
 
@@ -451,9 +472,9 @@ class MTCACrateReader():
         self.crate.password = rec.VAL
         rec.UDF = 0
 
-    def get_amc_slot_list(self, rec, report):
+    def get_fru_list(self, rec, report):
         """
-        Get AMC_Slot info from crate
+        Get FRU info from crate
 
         Args:
             rec: pyDevSup record object
@@ -461,7 +482,7 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-        self.crate.populate_amc_slot_list()
+        self.crate.populate_fru_list()
         rec.UDF = 0
 
     def read_sensors(self, rec, report):

@@ -1,0 +1,160 @@
+# File: cooling_unit.template
+# Date: 2017-06-23
+# Author: Wayne Lewis
+#
+# Description:
+# Database for getting MTCA crate cooling unit sensors
+#
+# Macros:
+# P:        PV prefix
+# UNIT: AMC slot number 
+
+# This record is scanned and triggers the device support to read the values.
+# Device support then processes all the I/O Intr records.
+
+record(bo, "$(P)$(S)SCANNER") {
+    field(DESC, "Master record for scanning values")
+    field(DTYP, "Python Device")
+    field(SCAN, "1 second")
+    field(OUT,  "@MTCACrate read_sensors cu $(NUMBER)")
+    
+    info(autosaveFields, "SCAN")
+}
+
+record(ai, "$(P)$(S)12V0") {
+    field(DESC, "12 V supply (0)")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) 12V0")
+    field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)12V0_1") {
+    field(DESC, "12 V supply (1)")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) 12V0_1")
+    field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)3V3") {
+    field(DESC, "3.3 V supply")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) 3V3")
+    field(PREC, "3")
+}
+
+record(ai, "$(P)$(S)TEMP1") {
+    field(DESC, "Temperature 1")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) TEMP1")
+    field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)TEMP2") {
+    field(DESC, "Temperature 2")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) TEMP2")
+    field(PREC, "2")
+}
+
+record(ai, "$(P)$(S)FAN1") {
+    field(DESC, "Fan 1")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) FAN1")
+    field(PREC, "0")
+}
+
+record(ai, "$(P)$(S)FAN2") {
+    field(DESC, "Fan 2")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) FAN2")
+    field(PREC, "0")
+}
+
+record(ai, "$(P)$(S)FAN3") {
+    field(DESC, "Fan 3")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) FAN3")
+    field(PREC, "0")
+}
+
+record(ai, "$(P)$(S)FAN4") {
+    field(DESC, "Fan 4")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) FAN4")
+    field(PREC, "0")
+}
+
+record(ai, "$(P)$(S)FAN5") {
+    field(DESC, "Fan 5")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) FAN5")
+    field(PREC, "0")
+}
+
+record(ai, "$(P)$(S)FAN6") {
+    field(DESC, "Fan 6")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val cu $(UNIT) FAN6")
+    field(PREC, "0")
+}
+
+record(stringin, "$(P)$(S)NAME") {
+    field(DESC, "Card name")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_name cu $(UNIT)")
+}
+
+record(ai, "$(P)$(S)SLOT") {
+    field(DESC, "Slot number")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_slot cu $(UNIT)")
+    field(PREC, "0")
+    field(EGU,  "None")
+}
+
+#record(bi, "$(P)$(S)HOT_SWAP") {
+    #field(DESC, "Hot swap status")
+    #field(DTYP, "Python Device")
+    #field(SCAN, "I/O Intr")
+    #field(INP,  "@MTCACrate get_val cu $(UNIT) HOT_SWAP")
+    #field(ZNAM, "Fault")
+    #field(ZSV,  "MAJOR")
+    #field(ONAM, "OK")
+    #field(OSV,  "NO_ALARM")
+#}
+
+record(mbbi, "$(P)$(S)STATUS") {
+    field(DESC, "Slot alarm status")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_status cu $(UNIT)")
+    field(ZRVL, "0")
+    field(ZRST, "UNSET")
+    field(ZRSV, "NO_ALARM")
+    field(ONVL, "1")
+    field(ONST, "NO_ALARM")
+    field(ONSV, "NO_ALARM")
+    field(TWVL, "2")
+    field(TWST, "NON_CRITICAL")
+    field(TWSV, "MINOR")
+    field(THVL, "3")
+    field(THST, "CRITICAL")
+    field(THSV, "MAJOR")
+    field(FRVL, "4")
+    field(FRST, "NON_RECOVERABLE")
+    field(FRSV, "MAJOR")
+}
+    
