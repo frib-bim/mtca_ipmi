@@ -11,7 +11,7 @@ from devsup.db import IOScanListBlock
 from subprocess import check_output
 from subprocess import CalledProcessError
 
-AMC_SLOT_OFFSET = 96
+SLOT_OFFSET = 96
 
 HOT_SWAP_FAULT = 0
 HOT_SWAP_OK = 1
@@ -353,12 +353,12 @@ class MTCACrate():
                     bus, slot = int(bus), int(slot)
                     
                     slot -= SLOT_OFFSET
-                    if (bus, slot) not in bus_dict.keys():
-                        self.bus_dict[(bus, slot)] = FRU(
+                    if (bus, slot) not in self.frus.keys():
+                        self.frus[(bus, slot)] = FRU(
                                 name = name.strip(), 
                                 id = id.strip(), 
                                 slot = slot, 
-                                bus = bus
+                                bus = bus,
                                 crate = self)
                 except ValueError:
                     print "Couldn't parse {}".format(line)
@@ -377,6 +377,7 @@ class MTCACrate():
             Nothing
         """
 
+        print(self.frus)
         for fru in self.frus:
             fru.read_sensors()
 
@@ -406,14 +407,19 @@ class MTCACrateReader():
             Nothing
         """
 
-        args_list = args.split(None, 2)
+        args_list = args.split(None, 3)
         if len(args_list) == 4:
             fn, bus, slot, sensor = args_list
+        elif len(args_list) == 3:
+            fn, bus, slot = args_list
+            sensor = None
         elif len(args_list) == 2:
             fn, slot = args_list
+            bus = 0
             sensor = None
         else:
             fn = args
+            bus = 0
             slot = 0
             sensor = None
 
@@ -423,7 +429,10 @@ class MTCACrateReader():
         # Allow for I/O Intr scanning
         self.allowScan = self.crate.scan_list.add
         self.slot = int(slot)
-        self.bus = BUS_IDS[bus]
+        if bus in BUS_IDS.keys():
+            self.bus = BUS_IDS[bus]
+        else:
+            self.bus = None
         self.sensor = sensor
         self.alarms_set = False
 
@@ -519,12 +528,13 @@ class MTCACrateReader():
         # Check if we have a valid sensor and slot number
         if self.sensor != None and not math.isnan(self.slot):
             # Check if this card exists
-            if self.slot in self.crate.amc_slots.keys():
+            index = (self.bus, self.slot)
+            if index in self.crate.frus.keys():
                 # Check if this is a valid sensor
-                if self.sensor in self.crate.amc_slots[self.slot].sensors.keys():
+                if self.sensor in self.crate.frus[index].sensors.keys():
                     if not self.alarms_set:
                         self.set_alarms(rec)
-                    card = self.crate.amc_slots[self.slot]
+                    card = self.crate.frus[index]
                     sensor = card.sensors[self.sensor]
                     val = sensor.value
                     egu = sensor.egu
@@ -549,7 +559,7 @@ class MTCACrateReader():
             Nothing
         """
 
-        sensor = self.crate.amc_slots[self.slot].sensors[self.sensor]
+        sensor = self.crate.frus[(self.bus, self.slot)].sensors[self.sensor]
         try:
             rec.LOLO = sensor.lolo - EPICS_ALARM_OFFSET
             rec.LOW = sensor.low - EPICS_ALARM_OFFSET
@@ -584,8 +594,8 @@ class MTCACrateReader():
 
         # Check if this card exists
         if not math.isnan(self.slot) and \
-        self.slot in self.crate.amc_slots.keys():
-            rec.VAL = self.crate.amc_slots[self.slot].name
+        (self.bus, self.slot) in self.crate.frus.keys():
+            rec.VAL = self.crate.frus[(self.bus, self.slot)].name
         else:
             rec.VAL = "Empty"
 
@@ -601,8 +611,8 @@ class MTCACrateReader():
         """
 
         # Check if this card exists
-        if self.slot in self.crate.amc_slots.keys():
-            rec.VAL = self.crate.amc_slots[self.slot].slot
+        if (self.bus, self.slot) in self.crate.frus.keys():
+            rec.VAL = self.crate.frus[(self.bus, self.slot)].slot
         else:
             rec.VAL = float('NaN')
         # Make the record defined regardless of value
@@ -620,8 +630,8 @@ class MTCACrateReader():
         """
 
         # Check if this card exists
-        if self.slot in self.crate.amc_slots.keys():
-            rec.VAL = self.crate.amc_slots[self.slot].alarm_level
+        if (self.bus, self.slot) in self.crate.frus.keys():
+            rec.VAL = self.crate.frus[(self.bus, self.slot)].alarm_level
         else:
             rec.VAL = ALARM_STATES.index('UNSET')
         # Make the record defined regardless of value

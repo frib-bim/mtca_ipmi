@@ -12,20 +12,11 @@
 # This record is scanned and triggers the device support to read the values.
 # Device support then processes all the I/O Intr records.
 
-record(bo, "$(P)$(S)SCANNER") {
-	field(DESC, "Master record for scanning values")
-	field(DTYP, "Python Device")
-	field(SCAN, "1 second")
-	field(OUT,  "@MTCACrate read_sensors $(AMC_SLOT)")
-	
-	info(autosaveFields, "SCAN")
-}
-
 record(ai, "$(P)$(S)12V0") {
 	field(DESC, "12 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 12V0")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 12V0")
 	field(PREC, "2")
 }
 
@@ -33,7 +24,7 @@ record(ai, "$(P)$(S)3V3") {
 	field(DESC, "3.3 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 3V3")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 3V3")
 	field(PREC, "3")
 }
 
@@ -41,7 +32,7 @@ record(ai, "$(P)$(S)2V5") {
 	field(DESC, "2.5 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 2V5")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 2V5")
 	field(PREC, "3")
 }
 
@@ -49,7 +40,7 @@ record(ai, "$(P)$(S)1V8") {
 	field(DESC, "1.8 V supply")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V8")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 1V8")
 	field(PREC, "3")
 }
 
@@ -57,7 +48,7 @@ record(ai, "$(P)$(S)V_FPGA") {
 	field(DESC, "FPGA voltage")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) V_FPGA")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) V_FPGA")
 	field(PREC, "3")
 }
 
@@ -65,7 +56,7 @@ record(ai, "$(P)$(S)12V0CURRENT") {
 	field(DESC, "12 V current")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 12V0CURRENT")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 12V0CURRENT")
 	field(PREC, "2")
 }
 
@@ -73,7 +64,7 @@ record(ai, "$(P)$(S)3V3CURRENT") {
 	field(DESC, "3.3 V current")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 3V3CURRENT")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 3V3CURRENT")
 	field(PREC, "2")
 }
 
@@ -81,7 +72,7 @@ record(ai, "$(P)$(S)1V2CURRENT") {
 	field(DESC, "1.2 V current")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) 1V2CURRENT")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 1V2CURRENT")
 	field(PREC, "2")
 }
 
@@ -89,7 +80,7 @@ record(ai, "$(P)$(S)TEMP_INLET") {
 	field(DESC, "Inlet temperature")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP_INLET")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP_INLET")
 	field(PREC, "2")
 }
 
@@ -97,7 +88,7 @@ record(ai, "$(P)$(S)TEMP_OUTLET") {
 	field(DESC, "Outlet temperature")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP_OUTLET")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP_OUTLET")
 	field(PREC, "2")
 }
 
@@ -105,7 +96,7 @@ record(ai, "$(P)$(S)TEMP_FPGA") {
 	field(DESC, "Temperature 4")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP_FPGA")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP_FPGA")
 	field(PREC, "2")
 }
 
@@ -113,7 +104,7 @@ record(ai, "$(P)$(S)TEMP1") {
 	field(DESC, "Temperature 1")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP1")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP1")
 	field(PREC, "2")
 }
 
@@ -121,7 +112,7 @@ record(ai, "$(P)$(S)TEMP2") {
 	field(DESC, "Temperature 2")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP2")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP2")
 	field(PREC, "2")
 }
 
@@ -129,7 +120,7 @@ record(ai, "$(P)$(S)TEMP3") {
 	field(DESC, "Temperature 3")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val $(AMC_SLOT) TEMP3")
+	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP3")
 	field(PREC, "2")
 }
 
@@ -137,14 +128,14 @@ record(stringin, "$(P)$(S)NAME") {
 	field(DESC, "Card name")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_name $(AMC_SLOT)")
+	field(INP,  "@MTCACrate get_name amc $(AMC_SLOT)")
 }
 
 record(ai, "$(P)$(S)SLOT") {
 	field(DESC, "Slot number")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_slot $(AMC_SLOT)")
+	field(INP,  "@MTCACrate get_slot amc $(AMC_SLOT)")
 	field(PREC, "0")
 	field(EGU,  "None")
 }
@@ -153,7 +144,7 @@ record(ai, "$(P)$(S)SLOT") {
 	#field(DESC, "Hot swap status")
 	#field(DTYP, "Python Device")
 	#field(SCAN, "I/O Intr")
-	#field(INP,  "@MTCACrate get_val $(AMC_SLOT) HOT_SWAP")
+	#field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) HOT_SWAP")
 	#field(ZNAM, "Fault")
 	#field(ZSV,  "MAJOR")
 	#field(ONAM, "OK")
@@ -164,7 +155,7 @@ record(mbbi, "$(P)$(S)STATUS") {
 	field(DESC, "Slot alarm status")
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_status $(AMC_SLOT)")
+	field(INP,  "@MTCACrate get_status amc $(AMC_SLOT)")
 	field(ZRVL, "0")
 	field(ZRST, "UNSET")
 	field(ZRSV, "NO_ALARM")

@@ -6,6 +6,15 @@
 # Database for holding cratewide information
 #
 
+record(bo, "$(P)SCANNER") {
+	field(DESC, "Master record for scanning values")
+	field(DTYP, "Python Device")
+	field(SCAN, "1 second")
+	field(OUT,  "@MTCACrate read_sensors")
+	
+	info(autosaveFields, "SCAN")
+}
+
 record(stringout, "$(P)HOST") {
 	field(DESC, "Crate host name")
 	field(DTYP, "Python Device")
@@ -41,7 +50,7 @@ record(stringout, "$(P)PASSWORD") {
 record(bo, "$(P)GET_AMC") {
 	field(DESC, "Get crate AMC card list")
 	field(DTYP, "Python Device")
-	field(OUT,  "@MTCACrate get_amc_slot_list")
+	field(OUT,  "@MTCACrate get_fru_list")
 	field(SCAN, "Passive")
 
 	info(autosaveFields, "SCAN")
