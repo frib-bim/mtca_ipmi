@@ -41,7 +41,7 @@ record(ai, "$(P)$(S)TEMP1") {
     field(DTYP, "Python Device")
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) TEMP1")
-    field(PREC, "2")
+    field(PREC, "1")
 }
 
 record(ai, "$(P)$(S)TEMP2") {
@@ -49,7 +49,7 @@ record(ai, "$(P)$(S)TEMP2") {
     field(DTYP, "Python Device")
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) TEMP2")
-    field(PREC, "2")
+    field(PREC, "1")
 }
 
 record(ai, "$(P)$(S)FAN1") {

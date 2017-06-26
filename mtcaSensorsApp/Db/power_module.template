@@ -54,7 +54,7 @@ record(ai, "$(P)$(S)TEMP_INLET") {
     field(DTYP, "Python Device")
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) TEMP_INLET")
-    field(PREC, "2")
+    field(PREC, "1")
 }
 
 record(ai, "$(P)$(S)TEMP_OUTLET") {
@@ -62,7 +62,7 @@ record(ai, "$(P)$(S)TEMP_OUTLET") {
     field(DTYP, "Python Device")
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) TEMP_OUTLET")
-    field(PREC, "2")
+    field(PREC, "1")
 }
 
 record(ai, "$(P)$(S)TEMP1") {
@@ -70,7 +70,7 @@ record(ai, "$(P)$(S)TEMP1") {
     field(DTYP, "Python Device")
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) TEMP1")
-    field(PREC, "2")
+    field(PREC, "1")
 }
 
 record(ai, "$(P)$(S)TEMP2") {
@@ -78,7 +78,7 @@ record(ai, "$(P)$(S)TEMP2") {
     field(DTYP, "Python Device")
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) TEMP2")
-    field(PREC, "2")
+    field(PREC, "1")
 }
 
 record(ai, "$(P)$(S)I_TOTAL") {
