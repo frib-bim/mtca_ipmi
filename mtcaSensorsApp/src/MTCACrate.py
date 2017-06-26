@@ -162,7 +162,7 @@ class FRU():
         self.crate = crate
         self.alarm_level = ALARM_STATES.index('UNSET')
 
-        # Properties for storing sensor values
+        # Dictionary for storing sensor values
         self.sensors = {}
 
     def __str__(self):
@@ -287,8 +287,13 @@ class FRU():
                 except ValueError:
                     pass
         except CalledProcessError as e:
-            print ("Caught subprocess.CalledProcessError: {}".format(e))
-
+            # This traps any errors thrown by the call to ipmitool. 
+            # This occurs if all alarm thresholds are not set. 
+            # See Jira issue DIAG-23
+            # https://jira.frib.msu.edu/projects/DIAG/issues/DIAG-23
+            #print ("Caught subprocess.CalledProcessError: {}".format(e))
+            # Be silent
+            pass
 
         
 class MTCACrate():
@@ -377,9 +382,8 @@ class MTCACrate():
             Nothing
         """
 
-        print(self.frus)
         for fru in self.frus:
-            fru.read_sensors()
+            self.frus[fru].read_sensors()
 
 _crate = MTCACrate()
 
@@ -507,7 +511,7 @@ class MTCACrateReader():
         try:
             self.crate.read_sensors()
             self.crate.scan_list.interrupt()
-        except AttributeError:
+        except AttributeError as e:
             # TODO: Work out why we get this exception
             pass
 
@@ -527,7 +531,6 @@ class MTCACrateReader():
 
         # Check if we have a valid sensor and slot number
         if self.sensor != None and not math.isnan(self.slot):
-            # Check if this card exists
             index = (self.bus, self.slot)
             if index in self.crate.frus.keys():
                 # Check if this is a valid sensor
