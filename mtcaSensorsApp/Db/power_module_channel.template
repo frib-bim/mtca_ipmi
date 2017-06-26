@@ -1,0 +1,37 @@
+# File: power_module_channel.template
+# Date: 2017-06-26
+# Author: Wayne Lewis
+#
+# Description:
+# Database MTCA crate power module current channel 
+#
+# Macros:
+# P:    PV prefix
+# UNIT: Power module number 
+# CH:	Power module current channel
+
+record(ai, "$(P)$(S)I$(CH)") {
+    field(DESC, "Ch$(CH) Current")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val pm $(UNIT) I$(CH)")
+    field(PREC, "2")
+}
+
+record(calcout, "$(P)$(S)I$(CH)_CALC") {
+    field(DESC, "Ch$(CH) current status calc")
+    field(INPA, "$(P)$(S)I$(CH) CPP")
+    field(INPB, "0.1")
+    field(CALC, "A>B?1:0")
+    field(OUT,  "$(P)$(S)I$(CH)_STS PP")
+    field(OOPT, "On Change")
+
+    info(autosaveFields, "INPB")
+}
+
+record(bi, "$(P)$(S)I$(CH)_STS") {
+    field(DESC, "Ch$(CH) current status")
+    field(ZNAM, "Off")
+    field(ONAM, "On")
+}
+
