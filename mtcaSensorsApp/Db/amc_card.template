@@ -6,11 +6,8 @@
 # Database for getting generic MTCA AMC card IPMI data
 #
 # Macros:
-# P:				PV prefix
+# P:		PV prefix
 # AMC_SLOT:	AMC slot number 
-
-# This record is scanned and triggers the device support to read the values.
-# Device support then processes all the I/O Intr records.
 
 record(ai, "$(P)$(S)12V0") {
 	field(DESC, "12 V supply")
