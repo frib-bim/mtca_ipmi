@@ -17,7 +17,8 @@ mtcaSensors_registerRecordDeviceDriver pdbbase
 ## Load record instances
 dbLoadRecords("db/mtca_crate.db","P=$(CRATE),MCH_HOST=$(MCH_HOST)")
 dbLoadRecords("db/amc_cards.db","P=$(CRATE)")
-
+dbLoadRecords("db/cooling_units.db","P=$(CRATE)")
+dbLoadRecords("db/power_modules.db","P=$(CRATE)")
 
 cd "${TOP}/iocBoot/${IOC}"
 iocInit
