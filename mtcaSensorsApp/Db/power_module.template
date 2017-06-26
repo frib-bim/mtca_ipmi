@@ -266,3 +266,22 @@ record(mbbi, "$(P)$(S)STATUS") {
     field(FRSV, "MAJOR")
 }
     
+record(calcout, "$(P)$(S)POWER_CALC") {
+    field(DESC, "Power module power calculation")
+    # Based on conversation with Scott Cogan, use nominal 12 VDC
+    field(INPA, "12")
+    # Uncomment this line and comment above line to use sensor voltage
+    #field(INPA, "$(P)$(S)12V0 CPP")
+    field(INPB, "$(P)$(S)I_TOTAL CPP")
+    field(CALC, "A*B")
+    field(OOPT, "On Change")
+    field(OUT,  "$(P)$(S)POWER PP")
+}
+
+record(ai, "$(P)$(S)POWER") {
+    field(DESC, "Power module power")
+    field(EGU,  "W")
+    field(PREC, "1")
+}
+
+
