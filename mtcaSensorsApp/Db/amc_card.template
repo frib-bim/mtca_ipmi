@@ -22,7 +22,7 @@ record(ai, "$(P)$(S)3V3") {
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 3V3")
-	field(PREC, "3")
+	field(PREC, "2")
 }
 
 record(ai, "$(P)$(S)2V5") {
@@ -30,7 +30,7 @@ record(ai, "$(P)$(S)2V5") {
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 2V5")
-	field(PREC, "3")
+	field(PREC, "2")
 }
 
 record(ai, "$(P)$(S)1V8") {
@@ -38,7 +38,7 @@ record(ai, "$(P)$(S)1V8") {
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 1V8")
-	field(PREC, "3")
+	field(PREC, "2")
 }
 
 record(ai, "$(P)$(S)V_FPGA") {
@@ -46,7 +46,7 @@ record(ai, "$(P)$(S)V_FPGA") {
 	field(DTYP, "Python Device")
 	field(SCAN, "I/O Intr")
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) V_FPGA")
-	field(PREC, "3")
+	field(PREC, "2")
 }
 
 record(ai, "$(P)$(S)12V0CURRENT") {

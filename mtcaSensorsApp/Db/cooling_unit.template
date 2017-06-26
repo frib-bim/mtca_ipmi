@@ -33,7 +33,7 @@ record(ai, "$(P)$(S)3V3") {
     field(DTYP, "Python Device")
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) 3V3")
-    field(PREC, "3")
+    field(PREC, "2")
 }
 
 record(ai, "$(P)$(S)TEMP1") {
