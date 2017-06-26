@@ -1,0 +1,14 @@
+# File: power_modules.substitutions
+# Date: 2017-06-26
+# Author: Wayne Lewis
+#
+# Description:
+# Substitution file for generating power modules
+#
+
+file power_module.template 
+{
+pattern
+{ S, UNIT }
+{ "PM02:", 2 }
+}

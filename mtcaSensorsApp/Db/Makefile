@@ -15,6 +15,7 @@ DB += mtca_crate.db
 #DB += sis8300.db
 DB += amc_cards.db
 DB += cooling_units.db
+DB += power_modules.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
