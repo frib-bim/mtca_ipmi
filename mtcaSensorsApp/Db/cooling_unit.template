@@ -6,20 +6,11 @@
 # Database for getting MTCA crate cooling unit sensors
 #
 # Macros:
-# P:        PV prefix
-# UNIT: AMC slot number 
+# P:    PV prefix
+# UNIT: Cooling unit number 
 
 # This record is scanned and triggers the device support to read the values.
 # Device support then processes all the I/O Intr records.
-
-record(bo, "$(P)$(S)SCANNER") {
-    field(DESC, "Master record for scanning values")
-    field(DTYP, "Python Device")
-    field(SCAN, "1 second")
-    field(OUT,  "@MTCACrate read_sensors cu $(NUMBER)")
-    
-    info(autosaveFields, "SCAN")
-}
 
 record(ai, "$(P)$(S)12V0") {
     field(DESC, "12 V supply (0)")

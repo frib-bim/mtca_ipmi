@@ -1,0 +1,15 @@
+# File: amc_card.substitutions
+# Date: 2017-06-26
+# Author: Wayne Lewis
+#
+# Description:
+# Substitution file for generating cooling units
+#
+
+file cooling_unit.template 
+{
+pattern
+{ S, UNIT }
+{ "CU01:", 1 }
+{ "CU02:", 2 }
+}
