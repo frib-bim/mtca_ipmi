@@ -9,10 +9,10 @@
 
 # Adjust these variables as required
 mtcamch="mtcamch03"
-i_lnc=0.1
-i_unc=1.9
+i_lnc=0.0
+i_unc=1.8
 i_ucr=2.0
-i_unr=2.1
+i_unr=2.2
 i_total_lnc=1.0
 i_total_unc=15
 i_total_ucr=16
