@@ -1,0 +1,14 @@
+# File: mch.substitutions
+# Date: 2017-06-27
+# Author: Wayne Lewis
+#
+# Description:
+# Substitution file for generating MCH records
+#
+
+file mch.template 
+{
+pattern
+{ S, MCH_SLOT }
+{ "MCH01:", 1 }
+}

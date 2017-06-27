@@ -26,9 +26,10 @@ MIN_GOOD_IPMI_MSG_LEN = 40
 EPICS_ALARM_OFFSET = 0.001
 
 BUS_IDS = {
-    'amc': 193
+    'pm': 10
     ,'cu': 30
-    ,'pm': 10
+    ,'amc': 193
+    ,'mch': 194
 }
 
 SENSOR_NAMES = {
@@ -38,6 +39,7 @@ SENSOR_NAMES = {
     ,'+12V PSU': '12V0'
     ,'+12V': '12V0'
     ,'PP': '12V0'
+    ,'Base 12V': '12V0'
     ,'+12V_1': '12V0_1'
     ,'12VHH': '12V0_1'
     ,'+5V PSU': '5V0'
@@ -48,15 +50,20 @@ SENSOR_NAMES = {
     ,'+3.3V PSU': '3V3'
     ,'+3.3V': '3V3'
     ,'MP': '3V3'
+    ,'Base 3.3V': '3V3'
     ,'2.5 V': '2V5'
     ,'2.5V': '2V5'
+    ,'Base 2.5V': '2V5'
     ,'1.8 V': '1V8'
     ,'1.8V': '1V8'
+    ,'Base 1.8V': '1V8'
     ,'1.5V PSU': '1V5'
+    ,'Base 1.5V': '1V5'
     ,'1.0V CORE': 'V_FPGA'
     ,'1.0 V': 'V_FPGA'
     ,'FPGA 1.2 V': 'V_FPGA'
     ,'Current 12 V': '12V0CURRENT'
+    ,'Base Current': '12V0CURRENT'
     ,'Current 3.3 V': '3V3CURRENT'
     ,'Current 1.2 V': '1V2CURRENT'
     ,'Inlet': 'TEMP_INLET'
@@ -74,11 +81,13 @@ SENSOR_NAMES = {
     ,'Board Temp': 'TEMP1'
     ,'LM75 Temp': 'TEMP1'
     ,'T COOLER UPM': 'TEMP1'
+    ,'Temp CPU': 'TEMP1'
     ,'FPGA PCB': 'TEMP2'
     ,'FMC2': 'TEMP2'
     ,'CPU Temp': 'TEMP2'
     ,'LM75 Temp2': 'TEMP2'
     ,'T TRAFO UPM': 'TEMP2'
+    ,'Temp I/O': 'TEMP2'
     ,'CPLD': 'TEMP3'
     ,'Fan 1': 'FAN1'
     ,'Fan 2': 'FAN2'
