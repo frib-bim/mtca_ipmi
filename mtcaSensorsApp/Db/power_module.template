@@ -283,5 +283,15 @@ record(ai, "$(P)$(S)POWER") {
     field(EGU,  "W")
     field(PREC, "1")
 }
-
+    
+record(bi, "$(P)$(S)COMMS_STS") {
+	field(DESC, "$(S) communications status")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_comms_sts pm $(UNIT)")
+	field(ZNAM, "Error")
+	field(ZSV,  "MAJOR")
+	field(ONAM, "OK")
+	field(OSV,  "NO_ALARM")
+}
 

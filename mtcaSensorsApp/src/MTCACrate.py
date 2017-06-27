@@ -20,7 +20,7 @@ HOT_SWAP_OK = 1
 COMMS_ERROR = 0
 COMMS_OK = 1
 
-MIN_GOOD_IPMI_MSG_LEN = 2
+MIN_GOOD_IPMI_MSG_LEN = 40
 
 EPICS_ALARM_OFFSET = 0.001
 
@@ -236,12 +236,11 @@ class FRU():
 
         result = check_output(command)
         
-        print("result length = {}".format(len(result))")
-        
-        if (len(result) < MIN_GOOD_IPMI_MSG_LEN:
+        if len(result) < MIN_GOOD_IPMI_MSG_LEN:
             self.comms_ok = False
             max_alarm_level = ALARM_STATES.index('NON_RECOVERABLE')
         else:
+            self.comms_ok = True
             max_alarm_level = ALARM_STATES.index('NO_ALARM')
 
             for line in result.splitlines():
