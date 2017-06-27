@@ -237,7 +237,11 @@ class FRU():
 
         result = check_output(command)
         
-        if len(result) < MIN_GOOD_IPMI_MSG_LEN:
+        # Check if we got a good response from ipmitool
+        # First test checks for an unplugged card
+        # Second test checks for MCH comms failure
+        if len(result) < MIN_GOOD_IPMI_MSG_LEN \
+            or result.find('Error') >= 0:
             self.comms_ok = False
             max_alarm_level = ALARM_STATES.index('NON_RECOVERABLE')
         else:
@@ -590,7 +594,7 @@ class MTCACrateReader():
                     # Check if we are still communication with the card
                     if card.comms_ok:
                         rec.UDF = 0
-                    else
+                    else:
                         rec.UDF = 1
 
                     valid_sensor = True
