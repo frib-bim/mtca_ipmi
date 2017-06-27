@@ -379,6 +379,11 @@ class MTCACrate():
             Nothing
         """
 
+        # Clear the list each time this runs. Allows a user-requested
+        # refresh of the list.
+        self.frus_inited = False
+        self.frus = {}
+
         if self.host != None and self.user != None and self.password != None:
             command = []
             command.append("ipmitool")
@@ -427,8 +432,9 @@ class MTCACrate():
             Nothing
         """
 
-        for fru in self.frus:
-            self.frus[fru].read_sensors()
+        if self.frus_inited:
+            for fru in self.frus:
+                self.frus[fru].read_sensors()
 
 _crate = MTCACrate()
 
@@ -553,12 +559,13 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-        try:
-            self.crate.read_sensors()
-            self.crate.scan_list.interrupt()
-        except AttributeError as e:
-            # TODO: Work out why we get this exception
-            pass
+        if self.crate.frus_inited:
+            try:
+                self.crate.read_sensors()
+                self.crate.scan_list.interrupt()
+            except AttributeError as e:
+                # TODO: Work out why we get this exception
+                pass
 
 
     def get_val(self, rec, report):
