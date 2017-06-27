@@ -586,7 +586,13 @@ class MTCACrateReader():
                     rec.VAL = val
                     rec.EGU = egu
                     rec.DESC = desc
-                    rec.UDF = 0
+
+                    # Check if we are still communication with the card
+                    if card.comms_ok:
+                        rec.UDF = 0
+                    else
+                        rec.UDF = 1
+
                     valid_sensor = True
         if not valid_sensor:
             rec.VAL = float('NaN')
