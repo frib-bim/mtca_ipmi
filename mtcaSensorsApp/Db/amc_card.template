@@ -170,3 +170,13 @@ record(mbbi, "$(P)$(S)STATUS") {
 	field(FRSV, "MAJOR")
 }
 	
+record(bi, "$(P)$(S)COMMS_STS") {
+		field(DESC, "$(S) communications status")
+		field(DTYP, "Python Device")
+		field(SCAN, "I/O Intr")
+		field(INP,  "@MTCACrate get_comms_sts amc $(AMC_SLOT)")
+		field(ZNAM, "Error")
+		field(ZSV,  "MAJOR")
+		field(ONAM, "OK")
+		field(OSV,  "NO_ALARM")
+}

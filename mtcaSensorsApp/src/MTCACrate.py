@@ -3,7 +3,8 @@
 # Date: 2017-06-15
 # Author: Wayne Lewis
 #
-# Description: Get sensor information for microTCA crate.
+# Description: 
+# Get sensor information for microTCA crate using ipmitool command.
 #
 
 import math
@@ -15,6 +16,11 @@ SLOT_OFFSET = 96
 
 HOT_SWAP_FAULT = 0
 HOT_SWAP_OK = 1
+
+COMMS_ERROR = 0
+COMMS_OK = 1
+
+MIN_GOOD_IPMI_MSG_LEN = 2
 
 EPICS_ALARM_OFFSET = 0.001
 
@@ -186,6 +192,7 @@ class FRU():
         self.slot  = slot
         self.bus  = bus
         self.crate = crate
+        self.comms_ok = False
         self.alarm_level = ALARM_STATES.index('UNSET')
 
         # Dictionary for storing sensor values
@@ -229,53 +236,61 @@ class FRU():
 
         result = check_output(command)
         
-        max_alarm_level = ALARM_STATES.index('NO_ALARM')
+        print("result length = {}".format(len(result))")
+        
+        if (len(result) < MIN_GOOD_IPMI_MSG_LEN:
+            self.comms_ok = False
+            max_alarm_level = ALARM_STATES.index('NON_RECOVERABLE')
+        else:
+            max_alarm_level = ALARM_STATES.index('NO_ALARM')
 
-        for line in result.splitlines():
-            try:
-                line_strip = [x.strip() for x in line.split('|')]
-                sensor_name, sensor_id, status, fru_id, val = line_strip
-                value, egu = val.split(' ', 1)
+            for line in result.splitlines():
+                try:
+                    line_strip = [x.strip() for x in line.split('|')]
+                    sensor_name, sensor_id, status, fru_id, val = line_strip
+                    value, egu = val.split(' ', 1)
 
-                # Check if the sensor name is in the list of 
-                # sensors we know about
-                if sensor_name in SENSOR_NAMES.keys():
-                    sensor_type = SENSOR_NAMES[sensor_name]
+                    # Check if the sensor name is in the list of 
+                    # sensors we know about
+                    if sensor_name in SENSOR_NAMES.keys():
+                        sensor_type = SENSOR_NAMES[sensor_name]
 
-                    # Check if we have already created this sensor
-                    if not sensor_type in self.sensors.keys():
-                        self.sensors[sensor_type] = Sensor(sensor_name)
-                
-                    # Store the value
-                    self.sensors[sensor_type].value = float(value)
+                        # Check if we have already created this sensor
+                        if not sensor_type in self.sensors.keys():
+                            self.sensors[sensor_type] = Sensor(sensor_name)
+                    
+                        sensor = self.sensors[sensor_type]
 
-                    # Get the simplified engineering units
-                    if egu in EGU.keys():
-                        self.sensors[sensor_type].egu = EGU[egu]
-                    else:
-                        self.sensors[sensor_type].egu = egu
+                        # Store the value
+                        sensor.value = float(value)
 
-                    # Set the alarm thresholds if we haven't already
-                    if not self.sensors[sensor_type].alarm_values_read:
-                        self.set_alarms(sensor_name)
-                        self.sensors[sensor_type].alarm_values_read = True
+                        # Get the simplified engineering units
+                        if egu in EGU.keys():
+                            sensor.egu = EGU[egu]
+                        else:
+                            sensor.egu = egu
 
-                # Do the card overall status evaluation
-                if sensor_name in SENSOR_NAMES.keys():
+                        # Set the alarm thresholds if we haven't already
+                        if not sensor.alarm_values_read:
+                            self.set_alarms(sensor_name)
+                            sensor.alarm_values_read = True
 
-                    # Check the alarm status reported by the device
-                    status = status.strip()
-                    if status in ALARM_LEVELS.keys():
-                        alarm_level = ALARM_LEVELS[status]
-                        if alarm_level > max_alarm_level:
-                            # Special case to ignore normal state of Hot Swap sensor
-                            if sensor_name.strip() == 'Hot Swap' and status == 'lnc':
-                                pass
-                            else:
-                                max_alarm_level = alarm_level
+                    # Do the card overall status evaluation
+                    if sensor_name in SENSOR_NAMES.keys():
 
-            except ValueError:
-                pass
+                        # Check the alarm status reported by the device
+                        status = status.strip()
+                        if status in ALARM_LEVELS.keys():
+                            alarm_level = ALARM_LEVELS[status]
+                            if alarm_level > max_alarm_level:
+                                # Special case to ignore normal state of Hot Swap sensor
+                                if sensor_name.strip() == 'Hot Swap' and status == 'lnc':
+                                    pass
+                                else:
+                                    max_alarm_level = alarm_level
+
+                except ValueError:
+                    pass
 
         self.alarm_level = max_alarm_level
 
@@ -663,6 +678,26 @@ class MTCACrateReader():
             rec.VAL = self.crate.frus[(self.bus, self.slot)].alarm_level
         else:
             rec.VAL = ALARM_STATES.index('UNSET')
+        # Make the record defined regardless of value
+        rec.UDF = 0
+
+    def get_comms_sts(self, rec, report):
+        """
+        Get FRU communications status
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+
+        if (self.bus, self.slot) in self.crate.frus.keys():
+            if self.crate.frus[(self.bus, self.slot)].comms_ok:
+                rec.VAL = COMMS_OK
+            else:
+                rec.VAL = COMMS_ERROR
+
         # Make the record defined regardless of value
         rec.UDF = 0
 
