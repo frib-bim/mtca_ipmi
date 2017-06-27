@@ -19,6 +19,7 @@ HOT_SWAP_OK = 1
 
 COMMS_ERROR = 0
 COMMS_OK = 1
+COMMS_NONE = 2
 
 MIN_GOOD_IPMI_MSG_LEN = 40
 
@@ -691,11 +692,15 @@ class MTCACrateReader():
             Nothing
         """
 
+        # Check if the card exists
         if (self.bus, self.slot) in self.crate.frus.keys():
             if self.crate.frus[(self.bus, self.slot)].comms_ok:
                 rec.VAL = COMMS_OK
             else:
                 rec.VAL = COMMS_ERROR
+        else:
+            # Set the comms error given that the slot is empty
+            rec.VAL = COMMS_NONE
 
         # Make the record defined regardless of value
         rec.UDF = 0
