@@ -14,8 +14,9 @@ from subprocess import CalledProcessError
 
 SLOT_OFFSET = 96
 
-HOT_SWAP_FAULT = 0
+HOT_SWAP_N_A = 0
 HOT_SWAP_OK = 1
+HOT_SWAP_FAULT = 2
 
 HOT_SWAP_NORMAL_STS = ['lnc', 'ok']
 
@@ -114,6 +115,8 @@ SENSOR_NAMES = {
     ,'Ch14 Current': 'I14'
     ,'Ch15 Current': 'I15'
     ,'Ch16 Current': 'I16'
+    ,'Ejector Handle': 'HOT_SWAP'
+    ,'HotSwap': 'HOT_SWAP'
     ,'Hot Swap': 'HOT_SWAP'
 }
 
@@ -623,8 +626,7 @@ class MTCACrateReader():
                     desc = sensor.name
                     type = SENSOR_NAMES[desc]
                     rec.VAL = val
-                    if not type in DIGITAL_SENSORS:
-                        rec.EGU = egu
+                    rec.EGU = egu
                     rec.DESC = desc
 
                     # Check if we are still communication with the card
@@ -651,28 +653,27 @@ class MTCACrateReader():
 
         sensor = self.crate.frus[(self.bus, self.slot)].sensors[self.sensor]
         sensor_type = SENSOR_NAMES[sensor.name]
-        if sensor_type not in DIGITAL_SENSORS:
-            try:
-                rec.LOLO = sensor.lolo - EPICS_ALARM_OFFSET
-                rec.LOW = sensor.low - EPICS_ALARM_OFFSET
-                rec.HIGH = sensor.high + EPICS_ALARM_OFFSET
-                rec.HIHI = sensor.hihi + EPICS_ALARM_OFFSET
+        try:
+            rec.LOLO = sensor.lolo - EPICS_ALARM_OFFSET
+            rec.LOW = sensor.low - EPICS_ALARM_OFFSET
+            rec.HIGH = sensor.high + EPICS_ALARM_OFFSET
+            rec.HIHI = sensor.hihi + EPICS_ALARM_OFFSET
 
-                if sensor.alarms_valid:
-                    rec.LLSV = 2 # MAJOR
-                    rec.LSV = 1 # MINOR
-                    rec.HSV = 1 # MINOR
-                    rec.HHSV = 2 # MAJOR
-                else:
-                    rec.LLSV = 0 # NO_ALARM
-                    rec.LSV = 0 # NO_ALARM
-                    rec.HSV = 0 # NO_ALARM
-                    rec.HHSV = 0 # NO_ALARM
+            if sensor.alarms_valid:
+                rec.LLSV = 2 # MAJOR
+                rec.LSV = 1 # MINOR
+                rec.HSV = 1 # MINOR
+                rec.HHSV = 2 # MAJOR
+            else:
+                rec.LLSV = 0 # NO_ALARM
+                rec.LSV = 0 # NO_ALARM
+                rec.HSV = 0 # NO_ALARM
+                rec.HHSV = 0 # NO_ALARM
 
-                self.alarms_set = True
-            except KeyError as e:
-                print "Caught KeyError: {}".format(e)
-    
+            self.alarms_set = True
+        except KeyError as e:
+            print "Caught KeyError: {}".format(e)
+
     def get_name(self, rec, report):
         """
         Get card name
