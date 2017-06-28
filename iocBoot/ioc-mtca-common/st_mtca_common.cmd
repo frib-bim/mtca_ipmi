@@ -24,7 +24,7 @@ dbLoadRecords("db/save_restoreStatus.db","P=$(CRATE)")
 save_restoreSet_Debug(0)
 save_restoreSet_IncompleteSetsOk(1)
 save_restoreSet_DatedBackupFiles(1)
-save_restoreSet_status_prefix("$(CRATE))
+save_restoreSet_status_prefix("$(CRATE)")
 
 set_savefile_path("$(AS_PATH)","/sav")
 
