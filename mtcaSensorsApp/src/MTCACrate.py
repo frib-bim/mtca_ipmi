@@ -17,6 +17,8 @@ SLOT_OFFSET = 96
 HOT_SWAP_FAULT = 0
 HOT_SWAP_OK = 1
 
+HOT_SWAP_NORMAL_STS = ['lnc', 'ok']
+
 COMMS_ERROR = 0
 COMMS_OK = 1
 COMMS_NONE = 2
@@ -114,6 +116,10 @@ SENSOR_NAMES = {
     ,'Ch16 Current': 'I16'
     ,'Hot Swap': 'HOT_SWAP'
 }
+
+DIGITAL_SENSORS = [
+    'HOT_SWAP'
+] 
 
 ALARMS = {
     'Lower Critical': 'lolo'
@@ -261,12 +267,23 @@ class FRU():
                 try:
                     line_strip = [x.strip() for x in line.split('|')]
                     sensor_name, sensor_id, status, fru_id, val = line_strip
-                    value, egu = val.split(' ', 1)
 
                     # Check if the sensor name is in the list of 
                     # sensors we know about
                     if sensor_name in SENSOR_NAMES.keys():
                         sensor_type = SENSOR_NAMES[sensor_name]
+                        
+                        if sensor_type in DIGITAL_SENSORS:
+                            egu = ''
+                            if sensor_type == 'HOT_SWAP':
+                                if status in HOT_SWAP_NORMAL_STS:
+                                    value = HOT_SWAP_OK
+                                else:
+                                    value = HOT_SWAP_FAULT
+                        else:
+                            # If this fails, it will trigger an exception,
+                            # which we catch and allow to proceed
+                            value, egu = val.split(' ', 1)
 
                         # Check if we have already created this sensor
                         if not sensor_type in self.sensors.keys():
@@ -302,7 +319,8 @@ class FRU():
                                 else:
                                     max_alarm_level = alarm_level
 
-                except ValueError:
+                except ValueError as e:
+                    print("Caught ValueError: {}".format(e))
                     pass
 
         self.alarm_level = max_alarm_level
@@ -574,7 +592,7 @@ class MTCACrateReader():
                 self.crate.scan_list.interrupt()
             except AttributeError as e:
                 # TODO: Work out why we get this exception
-                pass
+                print ("Caught AttributeError: {}".format(e))
 
 
     def get_val(self, rec, report):
@@ -603,8 +621,10 @@ class MTCACrateReader():
                     val = sensor.value
                     egu = sensor.egu
                     desc = sensor.name
+                    type = SENSOR_NAMES[desc]
                     rec.VAL = val
-                    rec.EGU = egu
+                    if not type in DIGITAL_SENSORS:
+                        rec.EGU = egu
                     rec.DESC = desc
 
                     # Check if we are still communication with the card
@@ -630,26 +650,28 @@ class MTCACrateReader():
         """
 
         sensor = self.crate.frus[(self.bus, self.slot)].sensors[self.sensor]
-        try:
-            rec.LOLO = sensor.lolo - EPICS_ALARM_OFFSET
-            rec.LOW = sensor.low - EPICS_ALARM_OFFSET
-            rec.HIGH = sensor.high + EPICS_ALARM_OFFSET
-            rec.HIHI = sensor.hihi + EPICS_ALARM_OFFSET
+        sensor_type = SENSOR_NAMES[sensor.name]
+        if sensor_type not in DIGITAL_SENSORS:
+            try:
+                rec.LOLO = sensor.lolo - EPICS_ALARM_OFFSET
+                rec.LOW = sensor.low - EPICS_ALARM_OFFSET
+                rec.HIGH = sensor.high + EPICS_ALARM_OFFSET
+                rec.HIHI = sensor.hihi + EPICS_ALARM_OFFSET
 
-            if sensor.alarms_valid:
-                rec.LLSV = 2 # MAJOR
-                rec.LSV = 1 # MINOR
-                rec.HSV = 1 # MINOR
-                rec.HHSV = 2 # MAJOR
-            else:
-                rec.LLSV = 0 # NO_ALARM
-                rec.LSV = 0 # NO_ALARM
-                rec.HSV = 0 # NO_ALARM
-                rec.HHSV = 0 # NO_ALARM
+                if sensor.alarms_valid:
+                    rec.LLSV = 2 # MAJOR
+                    rec.LSV = 1 # MINOR
+                    rec.HSV = 1 # MINOR
+                    rec.HHSV = 2 # MAJOR
+                else:
+                    rec.LLSV = 0 # NO_ALARM
+                    rec.LSV = 0 # NO_ALARM
+                    rec.HSV = 0 # NO_ALARM
+                    rec.HHSV = 0 # NO_ALARM
 
-            self.alarms_set = True
-        except KeyError as e:
-            print "Caught KeyError: {}".format(e)
+                self.alarms_set = True
+            except KeyError as e:
+                print "Caught KeyError: {}".format(e)
     
     def get_name(self, rec, report):
         """
