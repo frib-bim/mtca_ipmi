@@ -197,3 +197,9 @@ record(mbbi, "$(P)$(S)COMMS_STS") {
 	field(TWST, "N/A")
 	field(TWSV,  "NO_ALARM")
 }
+
+record(bo, "$(P)$(S)RESET") {
+	field(DESC, "Reset $(S)")
+	field(DTYP, "Python Device")
+	field(OUT,  "@MTCACrate reset amc $(AMC_SLOT)")
+}

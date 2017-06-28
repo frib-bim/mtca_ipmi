@@ -8,6 +8,7 @@
 #
 
 import math
+import time
 from devsup.db import IOScanListBlock
 from subprocess import check_output
 from subprocess import CalledProcessError
@@ -27,6 +28,8 @@ COMMS_NONE = 2
 MIN_GOOD_IPMI_MSG_LEN = 40
 
 EPICS_ALARM_OFFSET = 0.001
+
+PICMG_SLOT_OFFSET = 4
 
 BUS_IDS = {
     'pm': 10
@@ -370,7 +373,56 @@ class FRU():
             # Be silent
             pass
 
+    def reset(self):
+        """
+        Function to set alarm setpoints in AI records
+
+        Args:
+            name: sensor name
+
+        Returns:
+            Nothing
+        """
+        print ("Deactivating slot {}".format(self.slot))
+
+        # Deactivate the card
+        command = []
+        command.append("ipmitool")
+        command.append("-H")
+        command.append(self.crate.host)
+        command.append("-U")
+        command.append(self.crate.user)
+        command.append("-P")
+        command.append(self.crate.password)
+        command.append("picmg")
+        command.append("deactivate")
+        command.append(str(self.slot + PICMG_SLOT_OFFSET))
+
+        result = check_output(command)
         
+        print ("Deactivated slot {}".format(self.slot))
+
+        # Wait for the card to shut down
+        time.sleep(2.0)
+
+        print ("Activating slot {}".format(self.slot))
+        # Activate the card
+        command = []
+        command.append("ipmitool")
+        command.append("-H")
+        command.append(self.crate.host)
+        command.append("-U")
+        command.append(self.crate.user)
+        command.append("-P")
+        command.append(self.crate.password)
+        command.append("picmg")
+        command.append("activate")
+        command.append(str(self.slot + PICMG_SLOT_OFFSET))
+
+        result = check_output(command)
+
+        print ("Activated slot {}".format(self.slot))
+
 class MTCACrate():
     """
     Class for holding microTCA crate information, including AMC Slot list
@@ -753,6 +805,21 @@ class MTCACrateReader():
 
         # Make the record defined regardless of value
         rec.UDF = 0
+
+    def reset(self, rec, report):
+        """
+        Reset AMC card
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+
+        # Check if the card exists
+        if (self.bus, self.slot) in self.crate.frus.keys():
+            self.crate.frus[(self.bus, self.slot)].reset()
 
 build = MTCACrateReader
 
