@@ -383,7 +383,6 @@ class FRU():
         Returns:
             Nothing
         """
-        print ("Deactivating slot {}".format(self.slot))
 
         # Deactivate the card
         command = []
@@ -400,12 +399,9 @@ class FRU():
 
         result = check_output(command)
         
-        print ("Deactivated slot {}".format(self.slot))
-
         # Wait for the card to shut down
         time.sleep(2.0)
 
-        print ("Activating slot {}".format(self.slot))
         # Activate the card
         command = []
         command.append("ipmitool")
@@ -420,8 +416,6 @@ class FRU():
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
         result = check_output(command)
-
-        print ("Activated slot {}".format(self.slot))
 
 class MTCACrate():
     """
