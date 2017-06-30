@@ -7,6 +7,7 @@
 #
 
 import math
+import re
 import time
 from devsup.db import IOScanListBlock
 from subprocess import check_output
@@ -14,6 +15,9 @@ from subprocess import CalledProcessError
 
 SLOT_OFFSET = 96
 PICMG_SLOT_OFFSET = 4
+MCH_FRU_ID_OFFSET = 2
+
+FW_TAG = "Product Extra"
 
 HOT_SWAP_N_A = 0
 HOT_SWAP_OK = 1
@@ -433,6 +437,10 @@ class MTCACrate():
         self.frus = {}
         self.frus_inited = False
 
+        # Initialize dictionaries for MCH firmware
+        self.mch_fw_ver = {}
+        self.mch_fw_date = {}
+
         # Create scan list for I/O Intr records
         self.scan_list = IOScanListBlock()
 
@@ -482,6 +490,9 @@ class MTCACrate():
         else:
             print("Crate information not populated")
 
+        # Get the MCH firmware info
+        self.read_fw_version()
+
     def read_sensors(self):
         """ 
         Call read all sensor values
@@ -495,8 +506,56 @@ class MTCACrate():
 
         if self.frus_inited:
             for fru in self.frus:
-                self.frus[fru].read_sensors()
+                self.frus[fru].read_sensors()   
 
+    def read_fw_version(self):
+        """ 
+        Get MCH firmware version
+
+        Args:   
+            None
+
+        Returns:
+            Nothing
+        """
+        
+        # This function expects the firmware version to be in a line
+        # prefixed with 'Product Extra'.
+        # At the moment, it takes the form:
+        # Product Extra         : MCH FW V2.18.8 Final (r14042) (Mar 31 2017 - 11:29)
+        # The following two parts will be extracted:
+        # mch_fw_ver: V2.18.8 Final
+        # mch_fw_date: Mar 31 2017 - 11:29
+        # If NAT change the format, then this function will need to be updated
+
+        pattern = ".*: MCH FW (.*) \(.*\) \((.*)\)"
+
+        for mch in range(1,3):
+            # Create the command
+            command = create_command()
+            command.append("fru")
+            command.append("print")
+            command.append(str(mch + MCH_FRU_ID_OFFSET))
+
+            try:
+                result = check_output(command)
+
+                print command
+                print result
+
+                for line in result.splitlines():
+                    if FW_TAG in line:
+                        match = re.match(pattern, line)
+                        if match:
+                            self.mch_fw_ver[mch] = match.group(1)
+                            self.mch_fw_date[mch] = match.group(2)
+                        else:
+                            self.mch_fw_ver[mch] = "Unknown"
+                            self.mch_fw_date[mch] = "Unknown"
+            except CalledProcessError as e:
+                        self.mch_fw_ver[mch] = "Unknown"
+                        self.mch_fw_date[mch] = "Unknown"
+        
 _crate = MTCACrate()
 
 class MTCACrateReader():
@@ -784,6 +843,31 @@ class MTCACrateReader():
 
         # Make the record defined regardless of value
         rec.UDF = 0
+
+    def get_fw_ver(self, rec, report):
+        """
+        Get MCH firmware version
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+
+        rec.VAL = self.crate.mch_fw_ver[self.slot]
+
+    def get_fw_date(self, rec, report):
+        """
+        Get MCH firmware date
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+        rec.VAL = self.crate.mch_fw_date[self.slot]
 
     def reset(self, rec, report):
         """

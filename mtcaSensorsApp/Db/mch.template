@@ -205,3 +205,18 @@ record(mbbi, "$(P)$(S)COMMS_STS") {
 	field(TWST, "N/A")
 	field(TWSV,  "NO_ALARM")
 }
+
+record(stringin, "$(P)$(S)FW_VER") {
+	field(DESC, "Firmware version")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_fw_ver mch $(MCH_SLOT)")
+}
+
+record(stringin, "$(P)$(S)FW_DATE") {
+	field(DESC, "Firmware date")
+	field(DTYP, "Python Device")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@MTCACrate get_fw_date mch $(MCH_SLOT)")
+}
+
