@@ -15,6 +15,8 @@ record(ai, "$(P)$(S)12V0") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) 12V0")
     field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)12V0_1") {
@@ -23,6 +25,8 @@ record(ai, "$(P)$(S)12V0_1") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) 12V0_1")
     field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)5V0") {
@@ -31,6 +35,8 @@ record(ai, "$(P)$(S)5V0") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) 5V0")
     field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)5V0_1") {
@@ -39,6 +45,8 @@ record(ai, "$(P)$(S)5V0_1") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) 5V0_1")
     field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)3V3") {
@@ -47,6 +55,8 @@ record(ai, "$(P)$(S)3V3") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) 3V3")
     field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP_INLET") {
@@ -55,6 +65,8 @@ record(ai, "$(P)$(S)TEMP_INLET") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) TEMP_INLET")
     field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP_OUTLET") {
@@ -63,6 +75,8 @@ record(ai, "$(P)$(S)TEMP_OUTLET") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) TEMP_OUTLET")
     field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP1") {
@@ -71,6 +85,8 @@ record(ai, "$(P)$(S)TEMP1") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) TEMP1")
     field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP2") {
@@ -79,6 +95,8 @@ record(ai, "$(P)$(S)TEMP2") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) TEMP2")
     field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)I_TOTAL") {
@@ -87,134 +105,8 @@ record(ai, "$(P)$(S)I_TOTAL") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) I_TOTAL")
     field(PREC, "2")
-}
 
-record(ai, "$(P)$(S)I01") {
-    field(DESC, "Ch01 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I01")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I02") {
-    field(DESC, "Ch02 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I02")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I03") {
-    field(DESC, "Ch03 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I03")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I04") {
-    field(DESC, "Ch04 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I04")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I05") {
-    field(DESC, "Ch05 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I05")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I06") {
-    field(DESC, "Ch06 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I06")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I07") {
-    field(DESC, "Ch07 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I07")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I08") {
-    field(DESC, "Ch08 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I08")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I09") {
-    field(DESC, "Ch09 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I09")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I10") {
-    field(DESC, "Ch10 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I10")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I11") {
-    field(DESC, "Ch11 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I11")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I12") {
-    field(DESC, "Ch12 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I12")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I13") {
-    field(DESC, "Ch13 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I13")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I14") {
-    field(DESC, "Ch14 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I14")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I15") {
-    field(DESC, "Ch15 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I15")
-    field(PREC, "2")
-}
-
-record(ai, "$(P)$(S)I16") {
-    field(DESC, "Ch16 current")
-    field(DTYP, "Python Device")
-    field(SCAN, "I/O Intr")
-    field(INP,  "@MTCACrate get_val pm $(UNIT) I16")
-    field(PREC, "2")
+    info(archive,”monitor:5.0”)
 }
 
 record(stringin, "$(P)$(S)NAME") {
@@ -264,6 +156,8 @@ record(mbbi, "$(P)$(S)STATUS") {
     field(FRVL, "4")
     field(FRST, "NON_RECOVERABLE")
     field(FRSV, "MAJOR")
+
+    info(archive,”monitor:5.0”)
 }
     
 record(calcout, "$(P)$(S)POWER_CALC") {
@@ -282,6 +176,8 @@ record(ai, "$(P)$(S)POWER") {
     field(DESC, "Power module power")
     field(EGU,  "W")
     field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
     
 record(bi, "$(P)$(S)COMMS_STS") {
@@ -293,5 +189,7 @@ record(bi, "$(P)$(S)COMMS_STS") {
 	field(ZSV,  "MAJOR")
 	field(ONAM, "OK")
 	field(OSV,  "NO_ALARM")
+
+    info(archive,”monitor:5.0”)
 }
 
