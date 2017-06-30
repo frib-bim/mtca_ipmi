@@ -18,6 +18,8 @@ record(ai, "$(P)$(S)12V0") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) 12V0")
     field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)12V0_1") {
@@ -26,6 +28,8 @@ record(ai, "$(P)$(S)12V0_1") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) 12V0_1")
     field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)3V3") {
@@ -34,6 +38,8 @@ record(ai, "$(P)$(S)3V3") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) 3V3")
     field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP1") {
@@ -42,6 +48,8 @@ record(ai, "$(P)$(S)TEMP1") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) TEMP1")
     field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP2") {
@@ -50,6 +58,8 @@ record(ai, "$(P)$(S)TEMP2") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) TEMP2")
     field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)FAN1") {
@@ -58,6 +68,8 @@ record(ai, "$(P)$(S)FAN1") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) FAN1")
     field(PREC, "0")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)FAN2") {
@@ -66,6 +78,8 @@ record(ai, "$(P)$(S)FAN2") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) FAN2")
     field(PREC, "0")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)FAN3") {
@@ -74,6 +88,8 @@ record(ai, "$(P)$(S)FAN3") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) FAN3")
     field(PREC, "0")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)FAN4") {
@@ -82,6 +98,8 @@ record(ai, "$(P)$(S)FAN4") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) FAN4")
     field(PREC, "0")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)FAN5") {
@@ -90,6 +108,8 @@ record(ai, "$(P)$(S)FAN5") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) FAN5")
     field(PREC, "0")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)FAN6") {
@@ -98,6 +118,8 @@ record(ai, "$(P)$(S)FAN6") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val cu $(UNIT) FAN6")
     field(PREC, "0")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(stringin, "$(P)$(S)NAME") {
@@ -147,6 +169,8 @@ record(mbbi, "$(P)$(S)STATUS") {
     field(FRVL, "4")
     field(FRST, "NON_RECOVERABLE")
     field(FRSV, "MAJOR")
+
+    info(archive,”monitor:5.0”)
 }
     
 record(bi, "$(P)$(S)COMMS_STS") {
@@ -158,4 +182,6 @@ record(bi, "$(P)$(S)COMMS_STS") {
 	field(ZSV,  "MAJOR")
 	field(ONAM, "OK")
 	field(OSV,  "NO_ALARM")
+
+    info(archive,”monitor:5.0”)
 }

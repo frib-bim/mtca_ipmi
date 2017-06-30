@@ -6,217 +6,251 @@
 # Database for getting generic MCH sensor data
 #
 # Macros:
-# P:		PV prefix
-# MCH_SLOT:	MCH slot number 
+# P:        PV prefix
+# MCH_SLOT: MCH slot number 
 
 record(ai, "$(P)$(S)12V0") {
-	field(DESC, "12 V supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 12V0")
-	field(PREC, "2")
+    field(DESC, "12 V supply")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 12V0")
+    field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)3V3") {
-	field(DESC, "3.3 V supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 3V3")
-	field(PREC, "2")
+    field(DESC, "3.3 V supply")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 3V3")
+    field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)2V5") {
-	field(DESC, "2.5 V supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 2V5")
-	field(PREC, "2")
+    field(DESC, "2.5 V supply")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 2V5")
+    field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)1V8") {
-	field(DESC, "1.8 V supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 1V8")
-	field(PREC, "2")
+    field(DESC, "1.8 V supply")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 1V8")
+    field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)1V5") {
-	field(DESC, "1.5 V supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 1V5")
-	field(PREC, "2")
+    field(DESC, "1.5 V supply")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 1V5")
+    field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)1V2") {
-	field(DESC, "1.2 V supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 1V2")
-	field(PREC, "2")
+    field(DESC, "1.2 V supply")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 1V2")
+    field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)V_FPGA") {
-	field(DESC, "FPGA supply")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) V_FPGA")
-	field(PREC, "2")
+    field(DESC, "FPGA supply")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) V_FPGA")
+    field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)12V0CURRENT") {
-	field(DESC, "12 V current")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 12V0CURRENT")
-	field(PREC, "2")
+    field(DESC, "12 V current")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 12V0CURRENT")
+    field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)3V3CURRENT") {
-	field(DESC, "3.3 V current")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 3V3CURRENT")
-	field(PREC, "2")
+    field(DESC, "3.3 V current")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) 3V3CURRENT")
+    field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP_INLET") {
-	field(DESC, "Inlet Temperature")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP_INLET")
-	field(PREC, "1")
+    field(DESC, "Inlet Temperature")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP_INLET")
+    field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP_OUTLET") {
-	field(DESC, "Outlet Temperature")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP_OUTLET")
-	field(PREC, "1")
+    field(DESC, "Outlet Temperature")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP_OUTLET")
+    field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP_FPGA") {
-	field(DESC, "FPGA Temperature")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP_FPGA")
-	field(PREC, "1")
+    field(DESC, "FPGA Temperature")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP_FPGA")
+    field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP1") {
-	field(DESC, "Temperature 1")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP1")
-	field(PREC, "1")
+    field(DESC, "Temperature 1")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP1")
+    field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP2") {
-	field(DESC, "Temperature 2")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP2")
-	field(PREC, "1")
+    field(DESC, "Temperature 2")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP2")
+    field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(ai, "$(P)$(S)TEMP3") {
-	field(DESC, "Temperature 3")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP3")
-	field(PREC, "1")
+    field(DESC, "Temperature 3")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) TEMP3")
+    field(PREC, "1")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(stringin, "$(P)$(S)NAME") {
-	field(DESC, "Card name")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_name mch $(MCH_SLOT)")
+    field(DESC, "Card name")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_name mch $(MCH_SLOT)")
 }
 
 record(ai, "$(P)$(S)SLOT") {
-	field(DESC, "Slot number")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_slot mch $(MCH_SLOT)")
-	field(PREC, "0")
-	field(EGU,  "None")
+    field(DESC, "Slot number")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_slot mch $(MCH_SLOT)")
+    field(PREC, "0")
+    field(EGU,  "None")
 }
 
 record(ai, "$(P)$(S)HOT_SWAP") {
-	field(DESC, "Hot swap")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) HOT_SWAP")
-	field(PREC, "0")
-	field(EGU,  "None")
+    field(DESC, "Hot swap")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_val mch $(MCH_SLOT) HOT_SWAP")
+    field(PREC, "0")
+    field(EGU,  "None")
 }
 
 record(mbbi, "$(P)$(S)HOT_SWAP_STS") {
-	field(DESC, "Hot swap status")
-	field(INP,  "$(P)$(S)HOT_SWAP CPP")
-	field(ZRVL, "0")
-	field(ZRST, "N/A")
-	field(ZRSV, "NO_ALARM")
-	field(ONVL, "1")
-	field(ONST, "OK")
-	field(ONSV, "NO_ALARM")
-	field(TWVL, "2")
-	field(TWST, "Fault")
-	field(TWSV, "MAJOR")
+    field(DESC, "Hot swap status")
+    field(INP,  "$(P)$(S)HOT_SWAP CPP")
+    field(ZRVL, "0")
+    field(ZRST, "N/A")
+    field(ZRSV, "NO_ALARM")
+    field(ONVL, "1")
+    field(ONST, "OK")
+    field(ONSV, "NO_ALARM")
+    field(TWVL, "2")
+    field(TWST, "Fault")
+    field(TWSV, "MAJOR")
 }
 
 record(mbbi, "$(P)$(S)STATUS") {
-	field(DESC, "Slot alarm status")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_status mch $(MCH_SLOT)")
-	field(ZRVL, "0")
-	field(ZRST, "UNSET")
-	field(ZRSV, "NO_ALARM")
-	field(ONVL, "1")
-	field(ONST, "NO_ALARM")
-	field(ONSV, "NO_ALARM")
-	field(TWVL, "2")
-	field(TWST, "NON_CRITICAL")
-	field(TWSV, "MINOR")
-	field(THVL, "3")
-	field(THST, "CRITICAL")
-	field(THSV, "MAJOR")
-	field(FRVL, "4")
-	field(FRST, "NON_RECOVERABLE")
-	field(FRSV, "MAJOR")
+    field(DESC, "Slot alarm status")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_status mch $(MCH_SLOT)")
+    field(ZRVL, "0")
+    field(ZRST, "UNSET")
+    field(ZRSV, "NO_ALARM")
+    field(ONVL, "1")
+    field(ONST, "NO_ALARM")
+    field(ONSV, "NO_ALARM")
+    field(TWVL, "2")
+    field(TWST, "NON_CRITICAL")
+    field(TWSV, "MINOR")
+    field(THVL, "3")
+    field(THST, "CRITICAL")
+    field(THSV, "MAJOR")
+    field(FRVL, "4")
+    field(FRST, "NON_RECOVERABLE")
+    field(FRSV, "MAJOR")
+
+    info(archive,”monitor:5.0”)
 }
-	
+    
 record(mbbi, "$(P)$(S)COMMS_STS") {
-	field(DESC, "$(S) communications status")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_comms_sts mch $(MCH_SLOT)")
-	field(ZRVL, "0")
-	field(ZRST, "Error")
-	field(ZRSV,  "MAJOR")
-	field(ONVL, "1")
-	field(ONST, "OK")
-	field(ONSV,  "NO_ALARM")
-	field(TWVL, "2")
-	field(TWST, "N/A")
-	field(TWSV,  "NO_ALARM")
+    field(DESC, "$(S) communications status")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_comms_sts mch $(MCH_SLOT)")
+    field(ZRVL, "0")
+    field(ZRST, "Error")
+    field(ZRSV,  "MAJOR")
+    field(ONVL, "1")
+    field(ONST, "OK")
+    field(ONSV,  "NO_ALARM")
+    field(TWVL, "2")
+    field(TWST, "N/A")
+    field(TWSV,  "NO_ALARM")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(stringin, "$(P)$(S)FW_VER") {
-	field(DESC, "Firmware version")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_fw_ver mch $(MCH_SLOT)")
+    field(DESC, "Firmware version")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_fw_ver mch $(MCH_SLOT)")
 }
 
 record(stringin, "$(P)$(S)FW_DATE") {
-	field(DESC, "Firmware date")
-	field(DTYP, "Python Device")
-	field(SCAN, "I/O Intr")
-	field(INP,  "@MTCACrate get_fw_date mch $(MCH_SLOT)")
+    field(DESC, "Firmware date")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+    field(INP,  "@MTCACrate get_fw_date mch $(MCH_SLOT)")
 }
 

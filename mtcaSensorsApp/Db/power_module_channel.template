@@ -16,6 +16,8 @@ record(ai, "$(P)$(S)I$(CH)") {
     field(SCAN, "I/O Intr")
     field(INP,  "@MTCACrate get_val pm $(UNIT) I$(CH)")
     field(PREC, "2")
+
+    info(archive,”monitor:5.0”)
 }
 
 record(calcout, "$(P)$(S)I$(CH)_CALC") {
