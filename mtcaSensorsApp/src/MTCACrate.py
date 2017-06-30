@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # File: MTCACrate.py
 # Date: 2017-06-15
 # Author: Wayne Lewis
