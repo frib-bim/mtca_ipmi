@@ -16,7 +16,7 @@ record(ai, "$(P)$(S)12V0") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 12V0")
 	field(PREC, "2")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)3V3") {
@@ -26,7 +26,7 @@ record(ai, "$(P)$(S)3V3") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 3V3")
 	field(PREC, "2")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)2V5") {
@@ -36,7 +36,7 @@ record(ai, "$(P)$(S)2V5") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 2V5")
 	field(PREC, "2")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)1V8") {
@@ -46,7 +46,7 @@ record(ai, "$(P)$(S)1V8") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 1V8")
 	field(PREC, "2")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)V_FPGA") {
@@ -56,7 +56,7 @@ record(ai, "$(P)$(S)V_FPGA") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) V_FPGA")
 	field(PREC, "2")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)12V0CURRENT") {
@@ -66,7 +66,7 @@ record(ai, "$(P)$(S)12V0CURRENT") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 12V0CURRENT")
 	field(PREC, "2")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)3V3CURRENT") {
@@ -76,7 +76,7 @@ record(ai, "$(P)$(S)3V3CURRENT") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 3V3CURRENT")
 	field(PREC, "2")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)1V2CURRENT") {
@@ -86,7 +86,7 @@ record(ai, "$(P)$(S)1V2CURRENT") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) 1V2CURRENT")
 	field(PREC, "2")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)TEMP_INLET") {
@@ -96,7 +96,7 @@ record(ai, "$(P)$(S)TEMP_INLET") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP_INLET")
 	field(PREC, "1")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)TEMP_OUTLET") {
@@ -106,7 +106,7 @@ record(ai, "$(P)$(S)TEMP_OUTLET") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP_OUTLET")
 	field(PREC, "1")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)TEMP_FPGA") {
@@ -116,7 +116,7 @@ record(ai, "$(P)$(S)TEMP_FPGA") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP_FPGA")
 	field(PREC, "1")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)TEMP1") {
@@ -126,7 +126,7 @@ record(ai, "$(P)$(S)TEMP1") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP1")
 	field(PREC, "1")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)TEMP2") {
@@ -136,7 +136,7 @@ record(ai, "$(P)$(S)TEMP2") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP2")
 	field(PREC, "1")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(ai, "$(P)$(S)TEMP3") {
@@ -146,7 +146,7 @@ record(ai, "$(P)$(S)TEMP3") {
 	field(INP,  "@MTCACrate get_val amc $(AMC_SLOT) TEMP3")
 	field(PREC, "1")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(stringin, "$(P)$(S)NAME") {
@@ -209,7 +209,7 @@ record(mbbi, "$(P)$(S)STATUS") {
 	field(FRST, "NON_RECOVERABLE")
 	field(FRSV, "MAJOR")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 	
 record(mbbi, "$(P)$(S)COMMS_STS") {
@@ -227,7 +227,7 @@ record(mbbi, "$(P)$(S)COMMS_STS") {
 	field(TWST, "N/A")
 	field(TWSV,  "NO_ALARM")
 
-	info(archive,”monitor:5.0”)
+	info(archive,"monitor:5.0")
 }
 
 record(bo, "$(P)$(S)RESET") {
