@@ -13,6 +13,7 @@ from subprocess import check_output
 from subprocess import CalledProcessError
 
 SLOT_OFFSET = 96
+PICMG_SLOT_OFFSET = 4
 
 HOT_SWAP_N_A = 0
 HOT_SWAP_OK = 1
@@ -27,8 +28,6 @@ COMMS_NONE = 2
 MIN_GOOD_IPMI_MSG_LEN = 40
 
 EPICS_ALARM_OFFSET = 0.001
-
-PICMG_SLOT_OFFSET = 4
 
 BUS_IDS = {
     'pm': 10
@@ -175,6 +174,28 @@ def get_crate():
     except:
         pass
 
+def create_command():
+    """
+    Creates common part of ipmitool command
+
+    Args:
+        None
+
+    Returns:
+        command (list): list of common command elements
+    """
+
+    # Create the IPMI tool command
+    crate = get_crate()
+    command = []
+    command.append("ipmitool")
+    command.append("-H")
+    command.append(crate.host)
+    command.append("-A")
+    command.append("None")
+    
+    return command
+
 class Sensor():
     """
     Sensor information
@@ -243,14 +264,7 @@ class FRU():
         """
 
         # Create the IPMI tool command
-        command = []
-        command.append("ipmitool")
-        command.append("-H")
-        command.append(self.crate.host)
-        command.append("-U")
-        command.append(self.crate.user)
-        command.append("-P")
-        command.append(self.crate.password)
+        command = create_command()
         command.append("sdr")
         command.append("entity")
         command.append(self.id)
@@ -340,14 +354,7 @@ class FRU():
         Returns:
             Nothing
         """
-        command = []
-        command.append("ipmitool")
-        command.append("-H")
-        command.append(self.crate.host)
-        command.append("-U")
-        command.append(self.crate.user)
-        command.append("-P")
-        command.append(self.crate.password)
+        command = create_command()
         command.append("sensor")
         command.append("get")
         command.append(name)
@@ -384,14 +391,7 @@ class FRU():
         """
 
         # Deactivate the card
-        command = []
-        command.append("ipmitool")
-        command.append("-H")
-        command.append(self.crate.host)
-        command.append("-U")
-        command.append(self.crate.user)
-        command.append("-P")
-        command.append(self.crate.password)
+        command = create_command()
         command.append("picmg")
         command.append("deactivate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
@@ -402,14 +402,7 @@ class FRU():
         time.sleep(2.0)
 
         # Activate the card
-        command = []
-        command.append("ipmitool")
-        command.append("-H")
-        command.append(self.crate.host)
-        command.append("-U")
-        command.append(self.crate.user)
-        command.append("-P")
-        command.append(self.crate.password)
+        command = create_command()
         command.append("picmg")
         command.append("activate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
@@ -460,14 +453,7 @@ class MTCACrate():
         self.frus = {}
 
         if self.host != None and self.user != None and self.password != None:
-            command = []
-            command.append("ipmitool")
-            command.append("-H")
-            command.append(self.host)
-            command.append("-U")
-            command.append(self.user)
-            command.append("-P")
-            command.append(self.password)
+            command = create_command()
             command.append("sdr")
             command.append("elist")
             command.append("fru")
