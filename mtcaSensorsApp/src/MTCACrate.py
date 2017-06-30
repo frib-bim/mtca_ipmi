@@ -540,9 +540,6 @@ class MTCACrate():
             try:
                 result = check_output(command)
 
-                print command
-                print result
-
                 for line in result.splitlines():
                     if FW_TAG in line:
                         match = re.match(pattern, line)
