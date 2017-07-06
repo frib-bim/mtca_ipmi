@@ -9,9 +9,12 @@
 import math
 import re
 import time
+import os
 from devsup.db import IOScanListBlock
 from subprocess import check_output
 from subprocess import CalledProcessError
+
+DEV_NULL = open(os.devnull, 'w')
 
 SLOT_OFFSET = 96
 PICMG_SLOT_OFFSET = 4
@@ -273,7 +276,7 @@ class FRU():
         command.append("entity")
         command.append(self.id)
 
-        result = check_output(command)
+        result = check_output(command, stderr=DEV_NULL)
         
         # Check if we got a good response from ipmitool
         # First test checks for an unplugged card
@@ -364,7 +367,7 @@ class FRU():
         command.append(name)
 
         try:
-            result = check_output(command)
+            result = check_output(command, stderr=DEV_NULL)
             for line in result.splitlines():
                 try:
                     description, value = [x.strip() for x in line.split(':',1)]
@@ -400,7 +403,7 @@ class FRU():
         command.append("deactivate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
-        result = check_output(command)
+        result = check_output(command, stderr=DEV_NULL)
         
         # Wait for the card to shut down
         time.sleep(2.0)
@@ -411,7 +414,7 @@ class FRU():
         command.append("activate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
-        result = check_output(command)
+        result = check_output(command, stderr=DEV_NULL)
 
 class MTCACrate():
     """
@@ -466,7 +469,7 @@ class MTCACrate():
             command.append("elist")
             command.append("fru")
 
-            result = check_output(command)
+            result = check_output(command, stderr=DEV_NULL)
             
             for line in result.splitlines():
                 try:
@@ -538,7 +541,7 @@ class MTCACrate():
             command.append(str(mch + MCH_FRU_ID_OFFSET))
 
             try:
-                result = check_output(command)
+                result = check_output(command, stderr=DEV_NULL)
 
                 for line in result.splitlines():
                     if FW_TAG in line:
