@@ -6,8 +6,21 @@ This IOC monitors the sensors in an MTCA crate.
 
 ## Prerequisites
 
-- ``ipmitool`` must be installed.
-- pyDevSup must be installed.
+### Command line tools
+- ``ipmitool`` 
+This has been tested against ipmitool version 1.8.11
+
+### EPICS modules
+
+- ``pyDevSup`` 
+- ``autosave``
+
+# Python packages
+- ``numpy``
+- ``re``
+- ``math``
+- ``time``
+- ``os``
 
 ## Usage
 
