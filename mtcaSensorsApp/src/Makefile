@@ -18,7 +18,6 @@ mtcaSensors_DBD += base.dbd
 #mtcaSensors_DBD += iocAdmin.dbd
 mtcaSensors_DBD += asSupport.dbd
 mtcaSensors_DBD += pyDevSup.dbd
-mtcaSensors_DBD += base.dbd
 
 # Add all the support libraries needed by this IOC
 #mtcaSensors_LIBS += devIocStats
