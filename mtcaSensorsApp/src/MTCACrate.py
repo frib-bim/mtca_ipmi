@@ -22,7 +22,9 @@ else:
     from subprocess import CalledProcessError
     from subprocess import TimeoutExpired
 
+# Use this to suppress ipmitool/ipmiutil errors
 #DEV_NULL = open(os.devnull, 'w')
+# Use this to report ipmitool/ipmiutil errors
 DEV_NULL = sys.stderr
 
 SLOT_OFFSET = 96
@@ -214,12 +216,12 @@ def create_ipmitool_command():
     
     return command
 
-def create_ipmiutil_command():
+def create_ipmiutil_command(ipmiutil_cmd):
     """
     Creates common part of ipmiutil command
 
     Args:
-        None
+        ipmiutil_cmd (str): subcommand to pass to ipmiutil
 
     Returns:
         command (list): list of common command elements
@@ -229,6 +231,7 @@ def create_ipmiutil_command():
     crate = get_crate()
     command = []
     command.append("ipmiutil")
+    command.append(ipmiutil_cmd)
     command.append("-N")
     command.append(crate.host)
     command.append("-U")
@@ -598,21 +601,26 @@ class MTCACrate():
                         self.mch_fw_date[mch] = "Unknown"
 
     def reset(self):
-	    """
-	    Reset crate using ipmiutil command
+        """
+        Reset crate using ipmiutil command
 
-	    Args:
-		None
+        Args:
+            None
 
-	    Returns:
-		Nothing
-	    """
+        Returns:
+            Nothing
+        """
 
-	    command = create_ipmiutil_command()
+        # Assemble the crate reset command
+        command = create_ipmiutil_command("power")
+        command.append("-c")
 
-    
+        # Issue the reset command
+        try:
+            check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+        except (CalledProcessError, TimeoutExpired):
+            pass
 
-        
 _crate = MTCACrate()
 
 class MTCACrateReader():
@@ -953,8 +961,6 @@ class MTCACrateReader():
         """
 
         self.crate.reset()
-
-        
 
 build = MTCACrateReader
 

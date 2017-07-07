@@ -56,6 +56,13 @@ record(bo, "$(P)GET_FRU") {
     info(autosaveFields, "SCAN")
 }
 
+record(bo, "$(P)RESET") {
+    field(DESC, "Reset crate")
+    field(DTYP, "Python Device")
+    field(OUT,  "@MTCACrate crate_reset")
+    field(SCAN, "Passive")
+}
+
 record(stringin, "$(P)CRATE") {
     field(DESC, "Crate ID")
     field(VAL,  "$(CRATE_ID)")
