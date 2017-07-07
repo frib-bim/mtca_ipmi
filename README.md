@@ -29,6 +29,12 @@ Built from source at:
 
 http://sourceforge.net/projects/ipmiutil/files/ipmiutil-3.0.5.tar.gz
 
+- ``gnome-terminal``
+
+Required for ssh session to restart CPU
+
+$ sudo apt-get install gnome-terminal
+
 ### EPICS modules
 
 - ``pyDevSup`` 
