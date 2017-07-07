@@ -392,7 +392,6 @@ class FRU():
 
         except TimeoutExpired as e:
             self.comms_ok = False
-            print ("Caught TimeoutExpired: {}".format(e))
 
 
     def set_alarms(self, name):
