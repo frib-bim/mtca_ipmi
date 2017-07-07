@@ -40,6 +40,10 @@ http://sourceforge.net/projects/ipmiutil/files/ipmiutil-3.0.5.tar.gz
 - ``math``
 - ``time``
 - ``os``
+- ``subprocess`` or ``subprocess32``
+For Python2.7 systems, the ``subprocess32`` module needs to be installed:
+
+    sudo pip install subprocess32
 
 ## Usage
 
