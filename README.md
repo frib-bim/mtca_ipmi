@@ -34,7 +34,7 @@ http://sourceforge.net/projects/ipmiutil/files/ipmiutil-3.0.5.tar.gz
 - ``pyDevSup`` 
 - ``autosave``
 
-# Python packages
+### Python packages
 - ``numpy``
 - ``re``
 - ``math``
