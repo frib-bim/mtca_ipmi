@@ -5,20 +5,10 @@
 
 epicsEnvSet("CRATE", "MTCAMCH04:")
 epicsEnvSet("MCH_HOST", "mtcamch04")
+epicsEnvSet("CRATE_ID", "MTCA 03")
+epicsEnvSet("RACK_ID", "Office")
 
 < envPaths
 
-cd "${TOP}"
-
-## Register all support components
-dbLoadDatabase "dbd/mtcaSensors.dbd"
-mtcaSensors_registerRecordDeviceDriver pdbbase
-
-## Load record instances
-dbLoadRecords("db/mtca_crate.db","P=$(CRATE),MCH_HOST=$(MCH_HOST)")
-dbLoadRecords("db/amc_cards.db","P=$(CRATE)")
-
-
-cd "${TOP}/iocBoot/${IOC}"
-iocInit
+< $(TOP)/iocBoot/ioc-mtca-common/st_mtca_common.cmd
 
