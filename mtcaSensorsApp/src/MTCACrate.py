@@ -601,7 +601,7 @@ class MTCACrate():
 
     def reset(self):
         """
-        Reset crate using ipmiutil command
+        Reset crate using ipmitool command
 
         Args:
             None
@@ -611,8 +611,10 @@ class MTCACrate():
         """
 
         # Assemble the crate reset command
-        command = create_ipmiutil_command("power")
-        command.append("-c")
+        command = create_ipmitool_command()
+        command.append("raw")
+        command.append("0x06")
+        command.append("0x03")
 
         # Issue the reset command
         try:
