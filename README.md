@@ -21,6 +21,9 @@ jessie.
 
 https://sourceforge.net/projects/ipmitool/files/ipmitool/1.8.17/ipmitool-1.8.17.tar.bz2
 
+
+1.8.18 breaks the sensor value readings. 1.8.18 is the latest release as of 2017-09-26.
+
 - ``gnome-terminal``
 
 Required for ssh session to restart CPU
