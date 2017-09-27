@@ -315,7 +315,7 @@ class FRU():
         command.append(self.id)
 
         try:
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
             
             # Check if we got a good response from ipmitool
             # First test checks for an unplugged card
@@ -410,7 +410,7 @@ class FRU():
         command.append(name)
 
         try:
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
             for line in result.splitlines():
                 try:
                     description, value = [x.strip() for x in line.split(':',1)]
@@ -446,7 +446,7 @@ class FRU():
         command.append("deactivate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
-        result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+        result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
         
         # Wait for the card to shut down
         time.sleep(2.0)
@@ -457,7 +457,7 @@ class FRU():
         command.append("activate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
-        result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+        result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
 
 class MTCACrate():
     """
@@ -512,7 +512,7 @@ class MTCACrate():
             command.append("elist")
             command.append("fru")
 
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
             
             for line in result.splitlines():
                 try:
@@ -531,7 +531,7 @@ class MTCACrate():
                                 bus = bus,
                                 crate = self)
                 except ValueError:
-                    print "Couldn't parse {}".format(line)
+                    print ("Couldn't parse {}".format(line))
             self.frus_inited = True
         else:
             print("Crate information not populated")
@@ -584,7 +584,7 @@ class MTCACrate():
             command.append(str(mch + MCH_FRU_ID_OFFSET))
 
             try:
-                result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+                result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
 
                 for line in result.splitlines():
                     if FW_TAG in line:
@@ -828,7 +828,7 @@ class MTCACrateReader():
 
             self.alarms_set = True
         except KeyError as e:
-            print "Caught KeyError: {}".format(e)
+            print ("Caught KeyError: {}".format(e))
 
     def get_name(self, rec, report):
         """
