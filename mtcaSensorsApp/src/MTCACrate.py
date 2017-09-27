@@ -5,6 +5,8 @@
 # Description: 
 # Get sensor information for microTCA crate using ipmitool command.
 #
+# Changes:
+# 2017-09-27 WL  Convert to Python3
 
 import math
 import re
@@ -205,10 +207,13 @@ def create_ipmitool_command():
         command (list): list of common command elements
     """
 
+    # Get the path to ipmitool from the EPICS environment
+    ipmitool_path = os.environ['IPMITOOL'] 
+	
     # Create the IPMI tool command
     crate = get_crate()
     command = []
-    command.append("ipmitool")
+    command.append(os.path.join(ipmitool_path, "ipmitool"))
     command.append("-H")
     command.append(crate.host)
     command.append("-A")
