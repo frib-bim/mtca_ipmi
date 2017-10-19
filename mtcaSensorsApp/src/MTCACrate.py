@@ -45,7 +45,7 @@ COMMS_ERROR = 0
 COMMS_OK = 1
 COMMS_NONE = 2
 
-COMMS_TIMEOUT = 2.0
+COMMS_TIMEOUT = 5.0
 
 MIN_GOOD_IPMI_MSG_LEN = 40
 
@@ -396,6 +396,7 @@ class FRU():
             self.alarm_level = max_alarm_level
 
         except TimeoutExpired as e:
+            print("read_sensors: Caught TimeoutExpired exception: {}".format(e)")
             self.comms_ok = False
 
 
@@ -433,6 +434,8 @@ class FRU():
             #print ("Caught subprocess.CalledProcessError: {}".format(e))
             # Be silent
             pass
+        except TimeoutExpired as e:
+            print("set_alarms: Caught TimeoutExpired exception: {}".format(e)")
 
     def reset(self):
         """
@@ -451,8 +454,14 @@ class FRU():
         command.append("deactivate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
-        result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+        try:
+            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+        except TimeoutExpired as e:
+            print("reset: Caught TimeoutExpired exception: {}".format(e)")
         
+        # TODO: Add a resetting status here to allow other reads to wait
+        # See DIAG-68.
+
         # Wait for the card to shut down
         time.sleep(2.0)
 
@@ -462,7 +471,10 @@ class FRU():
         command.append("activate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
-        result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+        try:
+            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+        except TimeoutExpired as e:
+            print("reset: Caught TimeoutExpired exception: {}".format(e)")
 
 class MTCACrate():
     """
@@ -517,7 +529,10 @@ class MTCACrate():
             command.append("elist")
             command.append("fru")
 
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+            try:
+                result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+            except TimeoutExpired as e:
+                print("populate_fru_list: Caught TimeoutExpired exception: {}".format(e)")
             
             for line in result.splitlines():
                 try:
@@ -603,6 +618,8 @@ class MTCACrate():
             except CalledProcessError as e:
                         self.mch_fw_ver[mch] = "Unknown"
                         self.mch_fw_date[mch] = "Unknown"
+            except TimeoutExpired as e:
+                print("read_fw_version: Caught TimeoutExpired exception: {}".format(e)")
 
     def reset(self):
         """
@@ -624,8 +641,10 @@ class MTCACrate():
         # Issue the reset command
         try:
             check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
-        except (CalledProcessError, TimeoutExpired):
+        except CalledProcessError:
             pass
+        except TimeoutExpired as e:
+            print("reset: Caught TimeoutExpired exception: {}".format(e)")
 
 _crate = MTCACrate()
 
