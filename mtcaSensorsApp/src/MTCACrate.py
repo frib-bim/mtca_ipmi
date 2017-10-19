@@ -7,6 +7,7 @@
 #
 # Changes:
 # 2017-09-27 WL  Convert to Python3
+# 2017-10-19 WL  Add TimeoutExpired execption handling
 
 import math
 import re
