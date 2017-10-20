@@ -26,9 +26,9 @@ else:
     from subprocess import TimeoutExpired
 
 # Use this to suppress ipmitool/ipmiutil errors
-#DEV_NULL = open(os.devnull, 'w')
+ERR_FILE = open(os.devnull, 'w')
 # Use this to report ipmitool/ipmiutil errors
-DEV_NULL = sys.stderr
+#ERR_FILE = sys.stderr
 
 SLOT_OFFSET = 96
 PICMG_SLOT_OFFSET = 4
@@ -321,7 +321,7 @@ class FRU():
         command.append(self.id)
 
         try:
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
             
             # Check if we got a good response from ipmitool
             # First test checks for an unplugged card
@@ -417,7 +417,7 @@ class FRU():
         command.append(name)
 
         try:
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
             for line in result.splitlines():
                 try:
                     description, value = [x.strip() for x in line.split(':',1)]
@@ -456,7 +456,7 @@ class FRU():
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
         try:
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
         except TimeoutExpired as e:
             print("reset: Caught TimeoutExpired exception: {}".format(e))
         
@@ -473,7 +473,7 @@ class FRU():
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
         try:
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
         except TimeoutExpired as e:
             print("reset: Caught TimeoutExpired exception: {}".format(e))
 
@@ -531,7 +531,7 @@ class MTCACrate():
             command.append("fru")
 
             try:
-                result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+                result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
             except TimeoutExpired as e:
                 print("populate_fru_list: Caught TimeoutExpired exception: {}".format(e))
             
@@ -605,7 +605,7 @@ class MTCACrate():
             command.append(str(mch + MCH_FRU_ID_OFFSET))
 
             try:
-                result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+                result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
 
                 for line in result.splitlines():
                     if FW_TAG in line:
@@ -641,7 +641,7 @@ class MTCACrate():
 
         # Issue the reset command
         try:
-            check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
+            check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
         except CalledProcessError:
             pass
         except TimeoutExpired as e:
