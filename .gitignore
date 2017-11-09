@@ -1,6 +1,6 @@
 *.sw?
 *.pyc
-bin/
+bin/linux*
 /db/
 dbd/
 lib/
