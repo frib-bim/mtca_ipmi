@@ -41,6 +41,10 @@ HOT_SWAP_OK = 1
 HOT_SWAP_FAULT = 2
 
 HOT_SWAP_NORMAL_STS = ['lnc', 'ok']
+HOT_SWAP_NO_VALUE_NORMAL_STS = 'lnc'
+HOT_SWAP_VALUE_STS = 'ok'
+HOT_SWAP_NORMAL_VALUE = ['Module Handle Closed']
+HOT_SWAP_FAULT_VALUE = ['Quiesced']
 
 COMMS_ERROR = 0
 COMMS_OK = 1
@@ -348,7 +352,13 @@ class FRU():
                                 egu = ''
                                 if sensor_type == 'HOT_SWAP':
                                     if status in HOT_SWAP_NORMAL_STS:
-                                        value = HOT_SWAP_OK
+                                        if status == HOT_SWAP_NO_VALUE_NORMAL_STS:
+                                            value = HOT_SWAP_OK
+                                        else:
+                                            if val in HOT_SWAP_NORMAL_VALUE:
+                                                value = HOT_SWAP_OK
+                                            else:
+                                                value = HOT_SWAP_FAULT
                                     else:
                                         value = HOT_SWAP_FAULT
                             else:
