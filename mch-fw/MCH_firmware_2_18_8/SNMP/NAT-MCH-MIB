@@ -1,0 +1,452 @@
+NAT-MCH-MIB DEFINITIONS ::= BEGIN
+
+
+-- ****************************************************************************
+-- ****************************************************************************
+-- *                                                                          *
+-- *     NNNNNN         N                A             TTTTTTT TTTTTTTTTT     *
+-- *     N NNNNN        N               AAA                  T TTTTT          *
+-- *     NN NNNNN       N              AAAAA                 T TTTTT          *
+-- *     N N NNNNN      N             A AAAAA                T TTTTT          *
+-- *     N  N NNNNN     N            A A AAAAA               T TTTTT          *
+-- *     N   N NNNNN    N           A   A AAAAA              T TTTTT          *
+-- *     N    N NNNNN   N          A     A AAAAA             T TTTTT          *
+-- *     N     N NNNNN  N         AAAAAAAAA AAAAA            T TTTTT          *
+-- *     N      N NNNNN N        A         A AAAAA           T TTTTT          *
+-- *     N       N NNNNNN       A           A AAAAA          T TTTTT          *
+-- *     N        N NNNNN  OO  A             A AAAAA  OO     T TTTTT     OO   *
+-- *                       OO                         OO                 OO   *
+-- *                                                                          *
+-- *     Gesellschaft fuer Netzwerk- und Automatisierungstechnologie m.b.H    *
+-- *     Konrad-Zuse Platz 9, D-53227 Bonn , Tel.: ++228/965-846-0            *
+-- *                                                                          *
+-- ****************************************************************************
+-- ****************************************************************************
+-- *
+-- * Module      : NAT-MCH-MIB
+-- *
+-- * Description :
+-- *
+-- * Author      : Anton Lavrov
+-- *
+-- ****************************************************************************
+-- ****************************************************************************
+-- *
+-- *                    Copyright (c) by N.A.T. GmbH
+-- *
+-- *       All rights reserved. Copying, compilation, modification,
+-- *       distribution or any other use whatsoever of this material
+-- *       is strictly prohibited except in accordance with a Software
+-- *       License Agreement with N.A.T. GmbH.
+-- *
+-- ****************************************************************************
+-- ****************************************************************************
+-- *
+-- * Module's Description Record:
+-- * ============================
+-- *
+-- * $ProjectRevision: null $
+-- * $Source: //Natone/natsrc/tcpip_lwip/doc/mibs/rcs/NAT-MCH-MIB $
+-- * $State: Engineering $
+-- * $Revision: 1.4 $ $Name: $
+-- * $Date: 2015/04/07 10:03:47Z $
+-- * $Locker: $
+-- *
+-- * Module's revision history:
+-- * ==========================
+-- *
+-- * --------- $Log: NAT-MCH-MIB $
+-- * --------- Revision 1.4  2015/04/07 10:03:47Z  anton
+-- * 150312 al Added commentar from Revision 1.3 to MIB revision history;
+-- * --------- Revision 1.3  2015/04/07 09:55:43Z  anton
+-- * 150312 al Removed subtrees historyBufer and fruInfo - not supported up fw v2.17;
+-- * --------- Revision 1.2  2014/09/03 14:52:47Z  anton
+-- * 140903 al Added node from NAT-GMBH-MIB and changed the sequence of the node descriptions;
+-- * --------- Revision 1.1  2014/09/02 14:31:04Z  anton
+-- * --------- Initial revision
+-- *
+-- ****************************************************************************
+-- ****************************************************************************
+-- 
+-- ----------------------------------------------------------------------------
+-- GENERAL NOTES
+--
+-- MIB objects for NAT-MCH agent module implementations
+--
+--
+-- **********************************************************
+--   |_ itu-t(0)
+--   |_ iso(1)
+--   |_ dod(6)
+--   . |_ internet(1)
+--   .   |_ private(4)
+--   .     |_ enterprise(1)
+--   .       |_ nateurope
+--   .         |_ products(1)
+--   .           |_ natMCH(1)
+--   .             |_ VersionInfo(1)
+--   .             . |_ nmchBaseMdlVer(1)
+--   .             . . |_ nmchBaseFwVer(1)
+--   .             . . |_ nmchBaseFpgaVer(2)
+--   .             . . |_ nmchBaseMcVer(3)
+--   .             . . |_ nmchBaseAssmblOpt(4)
+--   .             . . |_ nmchBaseBrdSn(5)
+--   .             . . |_ nmchBaseBrdRev(6)
+--   .             . | |_ nmchBasePcbVer(7)
+--   .             . |
+--   .             . |_ nmchClkMdlVer(2)
+--   .             . . |_ nmchClkPcbVer(1)
+--   .             . . |_ nmchClkMcVer(2)
+--   .             . . |_ nmchClkFpgaVer(3)
+--   .             . . |_ nmchClkAssmblOpt(4)
+--   .             . . |_ nmchClkBrdSn(5)
+--   .             . | |_ nmchClkBrdRev(6)
+--   .             . |
+--   .             . |_ nmchHubMdlVer(3)
+--   .             . . |_ nmchHubMdlType(1)
+--   .             . . |_ nmchHubPcbVer(2)
+--   .             . . |_ nmchHubFpgaVer(3)
+--   .             . . |_ nmchHubMcVer(4)
+--   .             . . |_ nmchHubUplType(5)
+--   .             . . |_ nmchHubBrdSn(6)
+--   .             | . |_ nmchHubBrdRev(7)
+--   .             |
+--   .             |_ fru(4)
+--   .
+--   .
+--   .
+--   |
+--   |
+--   |_ join-iso-itu-t
+--
+--
+--
+-- ----------------------------------------------------------------------------
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+          Integer32, Counter32, Gauge32            FROM SNMPv2-SMI
+    DisplayString                                  FROM RFC1213-MIB
+    SnmpAdminString                                FROM SNMP-FRAMEWORK-MIB
+    RowStatus, StorageType                         FROM SNMPv2-TC
+    InetAddressType, InetAddress                   FROM INET-ADDRESS-MIB
+    TRAP-TYPE                                      FROM RFC-1215
+    NOTIFICATION-TYPE                              FROM SNMPv2-SMI
+    enterprises                                    FROM RFC1155-SMI
+    NOTIFICATION-GROUP                             FROM SNMPv2-CONF
+;
+
+
+-- MODULE IDENTIFICATION
+--
+--  NAT-MCH private MIB MODULE-IDENTITY
+--  LAST-UPDATED "September 3, 2014"
+--  ORGANIZATION "N.A.T. GmbH"
+--  CONTACT-INFO    
+--  "postal:   Helmut Laufkoeter
+--                  Konrad-Zuse-Platz 9
+--                  NRW Bonn 53227
+--                  Germany"
+--
+--        phone:    +49 228 965864 0
+--        fax:      +49 228 965864 10
+--        email:    helau@nateurope.com"
+--  DESCRIPTION
+--  "The private MIB objects of SNMPv1.0 for NAT-MCH  MTCA product"
+--  
+--  REVISION     "201503111000Z"
+--  DESCRIPTION  "Removed subtrees historyBufer and fruInfo - not supported up fw v2.17"
+--  
+--  REVISION     "201409031000Z"
+--  DESCRIPTION  "Bug fix"
+--
+--  REVISION     "201401061000Z"
+--  DESCRIPTION  "Bug fix"
+-- 
+--  REVISION     "201312191452Z"
+--  DESCRIPTION  "Bug fix"
+--
+--  REVISION     "201312181200Z"
+--  DESCRIPTION  "Initial version, published as RFC2274"
+--
+
+
+
+-- ******************************
+--      top level structure
+-- ******************************
+
+nateurope   OBJECT IDENTIFIER ::= { enterprises 27768 }
+products    OBJECT IDENTIFIER ::= { nateurope 1 }
+natMCH      OBJECT IDENTIFIER ::= { products 1 }
+
+
+-- ******************************************************
+--   1-st level structure: natMCH(1)
+-- ******************************************************
+
+--   .           |_ natMCH(1)
+--   .             |_ VersionInfo(1)
+
+
+nmchVerInfo          OBJECT IDENTIFIER ::= { natMCH 1 }
+
+
+
+
+-- ******************************************************
+--   2nd level structure: natMCH(1).VersionInfo(1)
+-- ******************************************************
+
+--   .             |_ VersionInfo(1)
+--   .             . |_ nmchBaseMdlVer(1)
+--   .             . |_ nmchClkMdlVer(2)
+--   .             . |_ nmchHubMdlVer(3)
+
+nmchBaseMdlVer          OBJECT IDENTIFIER ::= { nmchVerInfo 1 }
+nmchClkMdlVer           OBJECT IDENTIFIER ::= { nmchVerInfo 2 }
+nmchHubMdlVer           OBJECT IDENTIFIER ::= { nmchVerInfo 3 }
+
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).VersionInfo(1).nmchBaseMdlVer(1)
+-- *******************************************************************
+--   |             . |_ nmchBaseMdlVer(1)
+--   .             . . |_ nmchBaseFwVer(1)
+--   .             . . |_ nmchBaseFpgaVer(2)
+--   .             . . |_ nmchBaseMcVer(3)
+--   .             . . |_ nmchBaseAssmblOpt(4)
+--   .             . . |_ nmchBaseBrdSn(5)
+--   .             . . |_ nmchBaseBrdRev(6)
+--   .             . | |_ nmchBasePcbVer(7)
+
+
+nmchBaseFwVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+         "NAT-MCH Frimware Version"
+    ::= {  nmchBaseMdlVer 1 }
+
+
+nmchBaseFpgaVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 2 }
+
+
+nmchBaseMcVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 3 }
+
+
+nmchBaseAssmblOpt OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 4 }
+
+
+nmchBaseBrdSn OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Baord serial Number of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 5 }
+
+nmchBaseBrdRev OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Revision Number of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 6 }
+
+nmchBasePcbVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "PCB bersionNumber of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 7 }
+
+
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).VersionInfo(1).nmchClkMdlVer(2)
+-- *******************************************************************
+--   |             . |_ nmchClkMdlVer(2)
+--   |             . . |_ nmchClkPcbVer(1)
+--   |             . . |_ nmchClkMcVer(2)
+--   |             . . |_ nmchClkFpgaVer(3)
+--   |             . . |_ nmchClkAssmblOpt(4)
+--   |             . . |_ nmchClkBrdSn(5)
+--   |             . . |_ nmchClkBrdRev(6)
+
+
+
+nmchClkPcbVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "PCB version of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 1 }
+
+
+nmchClkMcVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Microcontrolle version of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 2 }
+
+nmchClkFpgaVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 3 }
+
+
+nmchClkAssmblOpt OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Assambly options of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 4 }
+
+
+nmchClkBrdSn OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Serial Number of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 5 }
+
+
+nmchClkBrdRev OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Revision number of the NAT-MCH Clock module"
+    ::= {  nmchClkMdlVer 6 }
+
+
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).VersionInfo(1).nmchHubMdlVer(3)
+-- *******************************************************************
+--   |             . |_ nmchHubMdlVer(3)
+--   |             . . |_ nmchHubMdlType(1)
+--   |             . . |_ nmchHubPcbVer(2)
+--   |             . . |_ nmchHubFpgaVer(3)
+--   |             . . |_ nmchHubMcVer(4)
+--   |             . . |_ nmchHubUplType(5)
+--   |             . . |_ nmchHubBrdSn(6)
+--   |             . . |_ nmchHubBrdRev(7)
+
+NmchHubType ::= INTEGER{none(1), pcie(2), srio(3), xaui(4)}
+NmchHubUplType ::= INTEGER{none(1), sfp(2), cx4(3)}
+
+nmchHubMdlType OBJECT-TYPE
+    SYNTAX      NmchHubType
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Type of the NAT-MCH Hub module"
+    DEFVAL { 1}
+    ::= {  nmchHubMdlVer 1 }
+
+
+
+nmchHubPcbVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "PCB version of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 2 }
+
+
+nmchHubFpgaVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 3 }
+
+
+
+nmchHubMcVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Microcontroller version of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 4 }
+
+
+
+nmchHubUplType OBJECT-TYPE
+    SYNTAX      NmchHubUplType
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Uplink Type of the NAT-MCH Hub module"
+    DEFVAL { 1}
+       ::= {  nmchHubMdlVer 5 }
+
+
+
+nmchHubBrdSn OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Board serail number of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 6 }
+
+
+nmchHubBrdRev OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Revision number of the NAT-MCH Hub module"
+        ::= {  nmchHubMdlVer 7 }
+
+
+END

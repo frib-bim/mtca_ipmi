@@ -1,0 +1,981 @@
+head 1.2;
+branch ;
+access ;
+symbols ;
+locks ; strict;
+comment @@;
+
+
+1.2
+date 2014.09.03.14.52.47; author anton; state Engineering;
+branches ;
+next 1.1;
+
+1.1
+date 2014.09.02.14.31.04; author anton; state Engineering;
+branches ;
+next ;
+
+ext
+@project //Natone/natsrc/tcpip_lwip/doc/mibs/nmch_mib.pj;
+@
+
+desc
+@@
+
+
+1.2
+log
+@@
+text
+@NAT-MCH-MIB DEFINITIONS ::= BEGIN
+
+
+-- ****************************************************************************
+-- ****************************************************************************
+-- *                                                                          *
+-- *     NNNNNN         N                A             TTTTTTT TTTTTTTTTT     *
+-- *     N NNNNN        N               AAA                  T TTTTT          *
+-- *     NN NNNNN       N              AAAAA                 T TTTTT          *
+-- *     N N NNNNN      N             A AAAAA                T TTTTT          *
+-- *     N  N NNNNN     N            A A AAAAA               T TTTTT          *
+-- *     N   N NNNNN    N           A   A AAAAA              T TTTTT          *
+-- *     N    N NNNNN   N          A     A AAAAA             T TTTTT          *
+-- *     N     N NNNNN  N         AAAAAAAAA AAAAA            T TTTTT          *
+-- *     N      N NNNNN N        A         A AAAAA           T TTTTT          *
+-- *     N       N NNNNNN       A           A AAAAA          T TTTTT          *
+-- *     N        N NNNNN  OO  A             A AAAAA  OO     T TTTTT     OO   *
+-- *                       OO                         OO                 OO   *
+-- *                                                                          *
+-- *     Gesellschaft fuer Netzwerk- und Automatisierungstechnologie m.b.H    *
+-- *     Konrad-Zuse Platz 9, D-53227 Bonn , Tel.: ++228/965-846-0            *
+-- *                                                                          *
+-- ****************************************************************************
+-- ****************************************************************************
+-- *
+-- * Module      : NAT-MCH-MIB
+-- *
+-- * Description :
+-- *
+-- * Author      : Anton Lavrov
+-- *
+-- ****************************************************************************
+-- ****************************************************************************
+-- *
+-- *                    Copyright (c) by N.A.T. GmbH
+-- *
+-- *       All rights reserved. Copying, compilation, modification,
+-- *       distribution or any other use whatsoever of this material
+-- *       is strictly prohibited except in accordance with a Software
+-- *       License Agreement with N.A.T. GmbH.
+-- *
+-- ****************************************************************************
+-- ****************************************************************************
+-- *
+-- * Module's Description Record:
+-- * ============================
+-- *
+-- * $ProjectRevision: null $
+-- * $Source: //Natone/natsrc/tcpip_lwip/doc/mibs/rcs/NAT-MCH-MIB $
+-- * $State: Engineering $
+-- * $Revision: 1.1 $ $Name: $
+-- * $Date: 2014/09/02 14:31:04Z $
+-- * $Locker: anton $
+-- *
+-- * Module's revision history:
+-- * ==========================
+-- *
+-- * --------- $Log: NAT-MCH-MIB $
+-- * 030914 al Added node from NAT-GMBH-MIB and changed the sequence of the node descriptions;
+-- * --------- Revision 1.1  2014/09/02 14:31:04Z  anton
+-- * --------- Initial revision
+-- *
+-- ****************************************************************************
+-- ****************************************************************************
+-- 
+-- ----------------------------------------------------------------------------
+-- GENERAL NOTES
+--
+-- MIB objects for NAT-MCH agent module implementations
+--
+--
+-- **********************************************************
+--   |_ itu-t(0)
+--   |_ iso(1)
+--   |_ dod(6)
+--   . |_ internet(1)
+--   .   |_ private(4)
+--   .     |_ enterprise(1)
+--   .       |_ nateurope
+--   .         |_ products(1)
+--   .           |_ natMCH(1)
+--   .             |_ VersionInfo(1)
+--   .             . |_ nmchBaseMdlVer(1)
+--   .             . . |_ nmchBaseFwVer(1)
+--   .             . . |_ nmchBaseFpgaVer(2)
+--   .             . . |_ nmchBaseMcVer(3)
+--   .             . . |_ nmchBaseAssmblOpt(4)
+--   .             . . |_ nmchBaseBrdSn(5)
+--   .             . . |_ nmchBaseBrdRev(6)
+--   .             . | |_ nmchBasePcbVer(7)
+--   .             . |
+--   .             . |_ nmchClkMdlVer(2)
+--   .             . . |_ nmchClkPcbVer(1)
+--   .             . . |_ nmchClkMcVer(2)
+--   .             . . |_ nmchClkFpgaVer(3)
+--   .             . . |_ nmchClkAssmblOpt(4)
+--   .             . . |_ nmchClkBrdSn(5)
+--   .             . | |_ nmchClkBrdRev(6)
+--   .             . |
+--   .             . |_ nmchHubMdlVer(3)
+--   .             . . |_ nmchHubMdlType(1)
+--   .             . . |_ nmchHubPcbVer(2)
+--   .             . . |_ nmchHubFpgaVer(3)
+--   .             . . |_ nmchHubMcVer(4)
+--   .             . . |_ nmchHubUplType(5)
+--   .             . . |_ nmchHubBrdSn(6)
+--   .             | . |_ nmchHubBrdRev(7)
+--   .             | .
+--   .             |_ historyBufer(2)
+--   .             . |_ historyBuferTab(1)
+--   .             . . |_ historyBufferEntry(1)
+--   .             . . . |_ historyBufferLineIndex(1)
+--   .             . . . |_ historyBufferLine(2)
+--   .             | .
+--   .             |_ fruInfo(3)
+--   .             . |_ fruShowTab(1)
+--   .             . . |_ fruShowEntry(1)
+--   .             . . . |_ fruShowLineIndex(1)
+--   .             . . . |_ fruShowLine(2)
+--   .             |_ fru(4)
+--   .
+--   .
+--   .
+--   |
+--   |
+--   |_ join-iso-itu-t
+--
+--
+--
+-- ----------------------------------------------------------------------------
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+          Integer32, Counter32, Gauge32            FROM SNMPv2-SMI
+    DisplayString                                  FROM RFC1213-MIB
+    SnmpAdminString                                FROM SNMP-FRAMEWORK-MIB
+    RowStatus, StorageType                         FROM SNMPv2-TC
+    InetAddressType, InetAddress                   FROM INET-ADDRESS-MIB
+    TRAP-TYPE                                      FROM RFC-1215
+    NOTIFICATION-TYPE                              FROM SNMPv2-SMI
+    enterprises                                    FROM RFC1155-SMI
+    NOTIFICATION-GROUP                             FROM SNMPv2-CONF
+;
+
+
+-- MODULE IDENTIFICATION
+--
+--  NAT-MCH private MIB MODULE-IDENTITY
+--  LAST-UPDATED "September 3, 2014"
+--  ORGANIZATION "N.A.T. GmbH"
+--  CONTACT-INFO    
+--  "postal:   Helmut Laufkoeter
+--                  Konrad-Zuse-Platz 9
+--                  NRW Bonn 53227
+--                  Germany"
+--
+--        phone:    +49 228 965864 0
+--        fax:      +49 228 965864 10
+--        email:    helau@@nateurope.com"
+--  DESCRIPTION
+--  "The private MIB objects of SNMPv1.0 for NAT-MCH  MTCA product"
+--  
+--  REVISION     "201409031000Z"
+--  DESCRIPTION  "Bug fix"
+--
+--  REVISION     "201401061000Z"
+--  DESCRIPTION  "Bug fix"
+-- 
+--  REVISION     "201312191452Z"
+--  DESCRIPTION  "Bug fix"
+--
+--  REVISION     "201312181200Z"
+--  DESCRIPTION  "Initial version, published as RFC2274"
+--
+
+
+
+-- ******************************
+--      top level structure
+-- ******************************
+
+nateurope   OBJECT IDENTIFIER ::= { enterprises 27768 }
+products    OBJECT IDENTIFIER ::= { nateurope 1 }
+natMCH      OBJECT IDENTIFIER ::= { products 1 }
+
+
+-- ******************************************************
+--   1-st level structure: natMCH(1)
+-- ******************************************************
+
+--   .           |_ natMCH(1)
+--   .             |_ VersionInfo(1)
+--   .             |_ historyBufer(2)
+--   .             |_ fruInfo(3)
+
+nmchVerInfo          OBJECT IDENTIFIER ::= { natMCH 1 }
+historyBuffer        OBJECT IDENTIFIER ::= { natMCH 2 }
+fruInfo              OBJECT IDENTIFIER ::= { natMCH 3 }
+
+
+
+
+-- ******************************************************
+--   2nd level structure: natMCH(1).VersionInfo(1)
+-- ******************************************************
+
+--   .             |_ VersionInfo(1)
+--   .             . |_ nmchBaseMdlVer(1)
+--   .             . |_ nmchClkMdlVer(2)
+--   .             . |_ nmchHubMdlVer(3)
+
+nmchBaseMdlVer          OBJECT IDENTIFIER ::= { nmchVerInfo 1 }
+nmchClkMdlVer           OBJECT IDENTIFIER ::= { nmchVerInfo 2 }
+nmchHubMdlVer           OBJECT IDENTIFIER ::= { nmchVerInfo 3 }
+
+
+
+-- ******************************************************
+--   2nd level structure: natMCH(1).historyBufferTab(2)
+-- ******************************************************
+
+--   .             |_ historyBufer(2)
+--   .             . |_ historyBuferTab(1)
+--   .             . . |_ historyBufferEntry(1)
+--   .             . . . |_ historyBufferLineIndex(1)
+--   .             . . . |_ historyBufferLine(2)
+
+
+historyBufferTab OBJECT-TYPE
+	SYNTAX      SEQUENCE OF HistoryBufferEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION
+	"History Buffer Dumping"
+	::= { historyBuffer 1 }
+
+
+
+historyBufferEntry OBJECT-TYPE
+	SYNTAX  HistoryBufferEntry
+	MAX-ACCESS not-accessible
+	STATUS      current
+	DESCRIPTION
+	"One Entry of the History Buffer Table"
+	INDEX   { historyBufferLineIndex }
+	::= {  historyBufferTab 1  }
+
+
+
+HistoryBufferEntry ::= SEQUENCE {
+	historyBufferLineIndex Counter32,
+	historyBufferLine   DisplayString
+}
+
+
+
+historyBufferLineIndex OBJECT-TYPE
+	SYNTAX  Counter32
+	MAX-ACCESS  read-only
+	STATUS  current
+	DESCRIPTION 
+	"history buffer index"
+	::= {  historyBufferEntry 1  }
+
+
+
+historyBufferLine OBJECT-TYPE
+	SYNTAX  DisplayString
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION
+	"One line of the history buffer"
+	::= {  historyBufferEntry 2  }
+
+
+HistoryBufferEntry ::= SEQUENCE {
+	historyBufferLineIndex Counter32,
+	historyBufferLine   DisplayString
+}
+
+
+
+-- ******************************************************
+--     2nd level structure: natMCH(1).fruInfo(3)
+-- ******************************************************
+
+--   .             |_ fruInfo(3)
+--   .             . |_ fruShowTab(1)
+--   .             . . |_ fruShowEntry(1)
+--   .             . . . |_ fruShowLineIndex(1)
+--   .             . . . |_ fruShowLine(2)
+
+
+fruShowTab OBJECT-TYPE
+	SYNTAX      SEQUENCE OF FruShowEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION
+	"History Buffer Dumping"
+    ::= { fruInfo 1 }
+
+
+fruShowLineIndex OBJECT-TYPE
+	SYNTAX  Counter32
+	MAX-ACCESS  read-only
+	STATUS  current
+	DESCRIPTION 
+	"history buffer index"
+	::= {  fruShowEntry 1  }
+
+
+fruShowLine OBJECT-TYPE
+	SYNTAX  DisplayString
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION
+	"One line of the history buffer"
+	::= {  fruShowEntry 2  }
+
+
+FruShowEntry ::= SEQUENCE {
+	fruShowLineIndex Counter32,
+	fruShowLine   DisplayString
+}
+
+
+
+fruShowEntry OBJECT-TYPE
+	SYNTAX  FruShowEntry
+	MAX-ACCESS not-accessible
+	STATUS      current
+	DESCRIPTION
+	"One Entry of the History Buffer Table"
+	INDEX   { fruShowLineIndex }
+	::= { fruShowTab 1  }
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).VersionInfo(1).nmchBaseMdlVer(1)
+-- *******************************************************************
+--   |             . |_ nmchBaseMdlVer(1)
+--   .             . . |_ nmchBaseFwVer(1)
+--   .             . . |_ nmchBaseFpgaVer(2)
+--   .             . . |_ nmchBaseMcVer(3)
+--   .             . . |_ nmchBaseAssmblOpt(4)
+--   .             . . |_ nmchBaseBrdSn(5)
+--   .             . . |_ nmchBaseBrdRev(6)
+--   .             . | |_ nmchBasePcbVer(7)
+
+
+nmchBaseFwVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+         "NAT-MCH Frimware Version"
+    ::= {  nmchBaseMdlVer 1 }
+
+
+nmchBaseFpgaVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 2 }
+
+
+nmchBaseMcVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 3 }
+
+
+nmchBaseAssmblOpt OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 4 }
+
+
+nmchBaseBrdSn OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Baord serial Number of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 5 }
+
+nmchBaseBrdRev OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Revision Number of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 6 }
+
+nmchBasePcbVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "PCB bersionNumber of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 7 }
+
+
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).VersionInfo(1).nmchClkMdlVer(2)
+-- *******************************************************************
+--   |             . |_ nmchClkMdlVer(2)
+--   |             . . |_ nmchClkPcbVer(1)
+--   |             . . |_ nmchClkMcVer(2)
+--   |             . . |_ nmchClkFpgaVer(3)
+--   |             . . |_ nmchClkAssmblOpt(4)
+--   |             . . |_ nmchClkBrdSn(5)
+--   |             . . |_ nmchClkBrdRev(6)
+
+
+
+nmchClkPcbVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "PCB version of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 1 }
+
+
+nmchClkMcVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Microcontrolle version of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 2 }
+
+nmchClkFpgaVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 3 }
+
+
+nmchClkAssmblOpt OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Assambly options of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 4 }
+
+
+nmchClkBrdSn OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Serial Number of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 5 }
+
+
+nmchClkBrdRev OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Revision number of the NAT-MCH Clock module"
+    ::= {  nmchClkMdlVer 6 }
+
+
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).VersionInfo(1).nmchHubMdlVer(3)
+-- *******************************************************************
+--   |             . |_ nmchHubMdlVer(3)
+--   |             . . |_ nmchHubMdlType(1)
+--   |             . . |_ nmchHubPcbVer(2)
+--   |             . . |_ nmchHubFpgaVer(3)
+--   |             . . |_ nmchHubMcVer(4)
+--   |             . . |_ nmchHubUplType(5)
+--   |             . . |_ nmchHubBrdSn(6)
+--   |             . . |_ nmchHubBrdRev(7)
+
+NmchHubType ::= INTEGER{none(1), pcie(2), srio(3), xaui(4)}
+NmchHubUplType ::= INTEGER{none(1), sfp(2), cx4(3)}
+
+nmchHubMdlType OBJECT-TYPE
+    SYNTAX      NmchHubType
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Type of the NAT-MCH Hub module"
+    DEFVAL { 1}
+    ::= {  nmchHubMdlVer 1 }
+
+
+
+nmchHubPcbVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "PCB version of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 2 }
+
+
+nmchHubFpgaVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 3 }
+
+
+
+nmchHubMcVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Microcontroller version of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 4 }
+
+
+
+nmchHubUplType OBJECT-TYPE
+    SYNTAX      NmchHubUplType
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Uplink Type of the NAT-MCH Hub module"
+    DEFVAL { 1}
+       ::= {  nmchHubMdlVer 5 }
+
+
+
+nmchHubBrdSn OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Board serail number of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 6 }
+
+
+nmchHubBrdRev OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Revision number of the NAT-MCH Hub module"
+        ::= {  nmchHubMdlVer 7 }
+
+
+END@
+
+
+1.1
+log
+@Initial revision@
+text
+@d59 3
+d80 1
+a80 3
+--   .         |_ products(1)            <-imports
+-- **********************************************************
+--   .           
+a136 1
+    products                                       FROM NAT-GMBH-MIB
+d140 3
+a142 2
+--  TRAP-TYPE                                      FROM RFC-1215
+	NOTIFICATION-TYPE                              FROM SNMPv2-SMI
+d147 29
+d177 2
+d183 3
+a185 1
+natMCH          OBJECT IDENTIFIER ::= { products 1 }
+d188 3
+a190 3
+-- ******************************
+--         1-st level structure
+-- ******************************
+d192 5
+d198 2
+a201 7
+-- example OBJECT-TYPE
+--     SYNTAX      INTEGER
+--     MAX-ACCESS  read-only
+--     STATUS      current
+--     DESCRIPTION
+--     "NAT-MCH Frimware Version"
+--     ::= {  natMCH 2 }
+d204 3
+a206 2
+--   .             |__historyBuferTab(2)
+--   .             . . |__historyBufferEntry(1) 
+d208 4
+d213 3
+a216 7
+--historyBufferLineIndex OBJECT-TYPE
+--	SYNTAX  Counter32
+--	MAX-ACCESS  read-only
+--	STATUS  current
+--	DESCRIPTION 
+--	"hisdory buffer index"
+--	::= {  historyBufferEntry 1  }
+d219 3
+d223 10
+a232 3
+historyBufferLine OBJECT-TYPE
+	SYNTAX  DisplayString
+	MAX-ACCESS  read-only
+d235 2
+a236 2
+	"One line of the history buffer"
+	::= {  historyBufferEntry 1  }
+a238 4
+HistoryBufferEntry ::= SEQUENCE {
+	historyBufferLineIndex Counter32,
+	historyBufferLine   DisplayString
+}
+a239 2
+
+
+d251 4
+d258 7
+a264 7
+historyBufferTab OBJECT-TYPE
+	SYNTAX      SEQUENCE OF HistoryBufferEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION
+	"History Buffer Dumping"
+    ::= { historyBuffer 1 }
+a265 5
+--   .             |_ historyBufer(2)
+--   .             . |_ historyBuferTab(1)
+--   .             . . |_ historyBufferEntry(1)
+--   .             . . . |_ historyBufferLineIndex(1)
+--   .             . . . |_ historyBufferLine(2)
+d268 1
+a268 2
+
+fruShowLine OBJECT-TYPE
+d274 1
+a274 1
+	::= {  fruShowEntry 1  }
+d277 3
+a279 3
+FruShowEntry ::= SEQUENCE {
+	fruShowLineIndex Counter32,
+	fruShowLine   DisplayString
+d284 3
+a286 8
+fruShowEntry OBJECT-TYPE
+	SYNTAX  FruShowEntry
+	MAX-ACCESS not-accessible
+	STATUS      current
+	DESCRIPTION
+	"One Entry of the History Buffer Table"
+	INDEX   { historyBufferLineIndex }
+	::= { fruShowTab 1  }
+d288 5
+a294 1
+
+d296 1
+a296 1
+	SYNTAX      SEQUENCE OF fruShowEntry
+d304 7
+a310 5
+--   .             |_ fruInfo(3)
+--   .             . |_ fruShowTab(1)
+--   .             . . |_ fruShowEntry(1)
+--   .             . . . |_ fruShowLineIndex(1)
+--   .             . . . |_ fruShowLine(2)
+d313 7
+a319 2
+historyBuffer     OBJECT IDENTIFIER ::= { natMCH 2 }
+fruInfo           OBJECT IDENTIFIER ::= { natMCH 3 }
+d322 4
+a325 3
+-- ******************************
+--     3d level structure
+-- ******************************
+a326 3
+nmchBaseMdlVer          OBJECT IDENTIFIER ::= { nmchVerInfo 1 }
+nmchClkMdlVer           OBJECT IDENTIFIER ::= { nmchVerInfo 2 }
+nmchHubMdlVer           OBJECT IDENTIFIER ::= { nmchVerInfo 3 }
+d329 8
+d339 4
+a342 4
+-- ******************************
+--   4th level structure:
+-- ******************************
+--   |             . |_ nmchBaseMdlVer
+d420 4
+a423 3
+-- ******************************
+-- 4th level structure: 
+-- ******************************
+d494 3
+a496 3
+-- ******************************
+--     4th level structure: 
+-- ******************************
+d578 1
+a578 219
+
+
+--
+-- Example scalars
+--
+
+--  mchFruInfoTable OBJECT-TYPE
+--      SYNTAX      SEQUENCE OF fruInfoMchEntry
+--      MAX-ACCESS read-only
+--      STATUS      current
+--      DESCRIPTION
+--      "MCH FRU Info Table"
+--      INDEX { fruInfoMchEntry}
+--      ::= { fruInfo 1 }
+--
+--  fruInfoMchNode OBJECT IDENTIFIER ::= { mchFruInfoTable 1 }
+--
+--fruInfoMchEntry OBJECT-TYPE
+--    SYNTAX      fruAttr
+--    MAX-ACCESS read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "Fru Infomation Entry"
+--    DEFVAL { "NAT-MCH" }
+--    ::= {  mchFruInfoTable 1  }
+--
+--
+--fruInfoMchXAUI OBJECT-TYPE
+--    SYNTAX      Interger32
+--    MAX-ACCESS read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "Fru Infomation Entry XAUI Hub"
+--    DEFVAL { 0 }
+--    ::= {  fruInfoMchEntry 0  }
+--
+--
+--
+--fruInfoMchSRIO OBJECT-TYPE
+--    SYNTAX      Interger32
+--    MAX-ACCESS read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "Fru Infomation Entry SRIO Hub"
+--    DEFVAL { 0 }
+--    ::= {  fruInfoMchEntry 1  }
+--
+--
+--
+--fruInfoMchPCIe OBJECT-TYPE
+--    SYNTAX      Interger32
+--    MAX-ACCESS  read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "Fru Infomation Entry PCIe Hub"
+--    DEFVAL { 0 }
+--    ::= {  fruInfoMchEntry 2  }
+--
+--
+--
+--amcFruInfoTable OBJECT-TYPE
+--    SYNTAX      SEQUENCE OF fruInfoAmcEntry
+--    MAX-ACCESS  read-only
+--    STATUS      current
+--    DESCRIPTION
+--	"AMC FRU Info Table"
+--	 INDEX { fruInfoAmcEntry}
+--    ::= { fruInfo 2 }
+--
+--
+--
+--fruInfoAmcEntry OBJECT-TYPE
+--    SYNTAX      FruInfoAmcEntry
+--    MAX-ACCESS  read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "AMC Fru Infomation Entry"
+--    DEFVAL { "NAT-MCH" }
+--    ::= {  amcFruInfoTable 1  }
+--
+--
+--SlotNr ::= INTEGER(0..14)
+--FruId ::= INTEGER(0..255)
+--FruState ::= INTEGER{m1(1), m2(2), m3(3), m4(4)}
+--
+--fruInfoAmcSlot OBJECT-TYPE
+--    SYNTAX      SlotNr
+--    MAX-ACCESS  read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "FRU id of AMC"
+--    ::= {  fruInfoAmcEntry 1  }
+--
+--
+--
+--fruInfoAmcFruId OBJECT-TYPE
+--    SYNTAX      FruId
+--    MAX-ACCESS  read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "FRU id of AMC"
+--    ::= {  fruInfoAmcEntry 2  }
+--
+--
+--fruInfoAmcDevice OBJECT-TYPE
+--    SYNTAX      OCTET STRING
+--    MAX-ACCESS  read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "FRU id of AMC"
+--    ::= {  fruInfoAmcEntry 3  }
+--
+--
+--fruInfoDeviceState OBJECT-TYPE
+--    SYNTAX      FruState
+--    MAX-ACCESS  read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "FRU id of AMC"
+--    ::= {  fruInfoAmcEntry 4  }
+--
+--
+--fruInfoDeviceName OBJECT-TYPE
+--    SYNTAX      OCTET STRING
+--    MAX-ACCESS  read-only
+--    STATUS      current
+--    DESCRIPTION
+--    "FRU id of AMC"
+--    ::= {  fruInfoAmcEntry 5  }
+--
+--
+--FruInfoAmcEntry ::= SEQUENCE {
+--	fruInfoAmcSlot		SlotNr,
+--	fruInfoAmcFruId		FruId
+--	fruInfoAmcDevice	OCTET STRING
+--	fruInfoDeviceState	FruState,
+--	fruInfoDeviceName	OCTET STRING,
+--	port0	AmcPortType,
+--	port1	AmcPortType,
+--	port2	AmcPortType,
+--	port3	AmcPortType,
+--	port4	AmcPortType,
+--	port5	AmcPortType,
+--	port6	AmcPortType,
+--	port7	AmcPortType,
+--	port8	AmcPortType,
+--	port9	AmcPortType,
+--	port10	AmcPortType,
+--	port11	AmcPortType,
+--	port12	AmcPortType,
+--	port13	AmcPortType,
+--	port14	AmcPortType,
+--	port15	AmcPortType,
+--	port16	AmcPortType,
+--	port17	AmcPortType,
+--	port18	AmcPortType,
+--	port19	AmcPortType,
+--	port20	AmcPortType
+--}
+--
+--
+--AmcPortType ::= INTEGER {gbe(0), xaui(1), pcie(2), srio(3), sata(4), sas(5)}
+--
+--
+--
+--
+--
+--
+--cuFruInfoTable OBJECT-TYPE
+--    SYNTAX      SEQUENCE OF fruInfoMchEntry
+--    MAX-ACCESS  not-accessible
+--    STATUS      current
+--    DESCRIPTION
+--	""
+--	 INDEX { fruInfoCuEntry}
+--    ::= { fruInfo 3 }
+--
+--
+--
+--fruInfoCuEntry OBJECT-TYPE
+--    SYNTAX      fruAttr
+--    MAX-ACCESS "read-write"
+--    STATUS      current
+--    DESCRIPTION
+--    "Fru Infomation Entry"
+--    DEFVAL { "NAT-MCH" }
+--    ::= {  cuFruInfoTable 1  }
+--
+--
+--
+--pmFruInfoTable OBJECT-TYPE
+--    SYNTAX      SEQUENCE OF fruInfoMchEntry
+--    MAX-ACCESS  not-accessible
+--    STATUS      current
+--    DESCRIPTION
+--	"Power module FRU Info Table"
+--	 INDEX { pmFruInfoTable}
+--    ::= { fruInfo 4 }
+--
+--
+--fruInfoPmEntry OBJECT-TYPE
+--    SYNTAX      fruAttr
+--    MAX-ACCESS  read-write
+--    STATUS      current
+--    DESCRIPTION
+--    "Fru Infomation Entry of Power Module"
+--    DEFVAL { "Power Module" }
+--    ::= {  pmFruInfoTable 1  }
+--
+--
+--
+--fruAttr ::= SEQUENCE {
+--    Id      Integer32,
+--    Device  OCTET STRING,
+--    State   Integer32,
+--    Name    OCTET STRING
+--}
+END
+
+@
