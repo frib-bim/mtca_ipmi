@@ -42,7 +42,6 @@ HOT_SWAP_FAULT = 2
 
 HOT_SWAP_NORMAL_STS = ['lnc', 'ok']
 HOT_SWAP_NO_VALUE_NORMAL_STS = 'lnc'
-HOT_SWAP_VALUE_STS = 'ok'
 HOT_SWAP_NORMAL_VALUE = ['Module Handle Closed']
 HOT_SWAP_FAULT_VALUE = ['Quiesced']
 
@@ -517,6 +516,21 @@ class MTCACrate():
 
         # Create scan list for I/O Intr records
         self.scan_list = IOScanListBlock()
+
+        # Print ipmitool information
+        ipmitool_path = os.environ['IPMITOOL']
+        command = []
+        command.append(os.path.join(ipmitool_path, "ipmitool"))
+        command.append("-V")
+
+        try:
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+            print(result)
+            print("ipmitool path = {}".format(ipmitool_path))
+        except CalledProcessError:
+            pass
+        except TimeoutExpired as e:
+            print("MTCACrate::__init__: Caught TimeoutExpired exception: {}".format(e))
 
     def populate_fru_list(self):
         """ 
