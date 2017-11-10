@@ -24,8 +24,10 @@ TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 # If using the sequencer, point SNCSEQ at its top directory:
 #SNCSEQ=$(EPICS_BASE)/../modules/soft/seq
 
+#IPMITOOL=/usr/local/bin
 #IPMITOOL=/usr/local/lib/iocapps/ipmitool/build/bin
-IPMITOOL=/user/lewisw/src/ipmitool-1.8.18/src
+#IPMITOOL=/user/lewisw/src/ipmitool-1.8.18/src
+IPMITOOL=/usr/bin
 PYDEVSUP=/etc/epics
 PYDEV_BASE=$(EPICS_BASE)
 
