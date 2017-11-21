@@ -42,7 +42,9 @@ HOT_SWAP_FAULT = 2
 
 HOT_SWAP_NORMAL_STS = ['lnc', 'ok']
 HOT_SWAP_NO_VALUE_NORMAL_STS = 'lnc'
-HOT_SWAP_NORMAL_VALUE = ['Module Handle Closed']
+HOT_SWAP_NORMAL_VALUE = [
+        'Module Handle Closed'
+       , 'Device Absent']
 HOT_SWAP_FAULT_VALUE = ['Quiesced']
 
 COMMS_ERROR = 0
@@ -354,6 +356,7 @@ class FRU():
                                         if status == HOT_SWAP_NO_VALUE_NORMAL_STS:
                                             value = HOT_SWAP_OK
                                         else:
+                                            print(val)
                                             if val in HOT_SWAP_NORMAL_VALUE:
                                                 value = HOT_SWAP_OK
                                             else:
