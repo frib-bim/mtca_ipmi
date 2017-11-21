@@ -356,7 +356,6 @@ class FRU():
                                         if status == HOT_SWAP_NO_VALUE_NORMAL_STS:
                                             value = HOT_SWAP_OK
                                         else:
-                                            print(val)
                                             if val in HOT_SWAP_NORMAL_VALUE:
                                                 value = HOT_SWAP_OK
                                             else:
