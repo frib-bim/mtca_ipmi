@@ -7,6 +7,7 @@
 #
 # Changes:
 # 2017-09-27 WL  Convert to Python3
+# 2017-10-19 WL  Add TimeoutExpired execption handling
 
 import math
 import re
@@ -25,9 +26,9 @@ else:
     from subprocess import TimeoutExpired
 
 # Use this to suppress ipmitool/ipmiutil errors
-#DEV_NULL = open(os.devnull, 'w')
+ERR_FILE = open(os.devnull, 'w')
 # Use this to report ipmitool/ipmiutil errors
-DEV_NULL = sys.stderr
+#ERR_FILE = sys.stderr
 
 SLOT_OFFSET = 96
 PICMG_SLOT_OFFSET = 4
@@ -40,12 +41,17 @@ HOT_SWAP_OK = 1
 HOT_SWAP_FAULT = 2
 
 HOT_SWAP_NORMAL_STS = ['lnc', 'ok']
+HOT_SWAP_NO_VALUE_NORMAL_STS = 'lnc'
+HOT_SWAP_NORMAL_VALUE = [
+        'Module Handle Closed'
+       , 'Device Absent']
+HOT_SWAP_FAULT_VALUE = ['Quiesced']
 
 COMMS_ERROR = 0
 COMMS_OK = 1
 COMMS_NONE = 2
 
-COMMS_TIMEOUT = 2.0
+COMMS_TIMEOUT = 5.0
 
 MIN_GOOD_IPMI_MSG_LEN = 40
 
@@ -320,7 +326,7 @@ class FRU():
         command.append(self.id)
 
         try:
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
             
             # Check if we got a good response from ipmitool
             # First test checks for an unplugged card
@@ -347,7 +353,13 @@ class FRU():
                                 egu = ''
                                 if sensor_type == 'HOT_SWAP':
                                     if status in HOT_SWAP_NORMAL_STS:
-                                        value = HOT_SWAP_OK
+                                        if status == HOT_SWAP_NO_VALUE_NORMAL_STS:
+                                            value = HOT_SWAP_OK
+                                        else:
+                                            if val in HOT_SWAP_NORMAL_VALUE:
+                                                value = HOT_SWAP_OK
+                                            else:
+                                                value = HOT_SWAP_FAULT
                                     else:
                                         value = HOT_SWAP_FAULT
                             else:
@@ -396,6 +408,7 @@ class FRU():
             self.alarm_level = max_alarm_level
 
         except TimeoutExpired as e:
+            print("read_sensors: Caught TimeoutExpired exception: {}".format(e))
             self.comms_ok = False
 
 
@@ -415,7 +428,7 @@ class FRU():
         command.append(name)
 
         try:
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
             for line in result.splitlines():
                 try:
                     description, value = [x.strip() for x in line.split(':',1)]
@@ -433,6 +446,8 @@ class FRU():
             #print ("Caught subprocess.CalledProcessError: {}".format(e))
             # Be silent
             pass
+        except TimeoutExpired as e:
+            print("set_alarms: Caught TimeoutExpired exception: {}".format(e))
 
     def reset(self):
         """
@@ -451,8 +466,14 @@ class FRU():
         command.append("deactivate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
-        result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+        try:
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+        except TimeoutExpired as e:
+            print("reset: Caught TimeoutExpired exception: {}".format(e))
         
+        # TODO: Add a resetting status here to allow other reads to wait
+        # See DIAG-68.
+
         # Wait for the card to shut down
         time.sleep(2.0)
 
@@ -462,7 +483,10 @@ class FRU():
         command.append("activate")
         command.append(str(self.slot + PICMG_SLOT_OFFSET))
 
-        result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+        try:
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+        except TimeoutExpired as e:
+            print("reset: Caught TimeoutExpired exception: {}".format(e))
 
 class MTCACrate():
     """
@@ -495,6 +519,21 @@ class MTCACrate():
         # Create scan list for I/O Intr records
         self.scan_list = IOScanListBlock()
 
+        # Print ipmitool information
+        ipmitool_path = os.environ['IPMITOOL']
+        command = []
+        command.append(os.path.join(ipmitool_path, "ipmitool"))
+        command.append("-V")
+
+        try:
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+            print(result)
+            print("ipmitool path = {}".format(ipmitool_path))
+        except CalledProcessError:
+            pass
+        except TimeoutExpired as e:
+            print("MTCACrate::__init__: Caught TimeoutExpired exception: {}".format(e))
+
     def populate_fru_list(self):
         """ 
         Call MCH and get list of AMC slots
@@ -517,7 +556,10 @@ class MTCACrate():
             command.append("elist")
             command.append("fru")
 
-            result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+            try:
+                result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+            except TimeoutExpired as e:
+                print("populate_fru_list: Caught TimeoutExpired exception: {}".format(e))
             
             for line in result.splitlines():
                 try:
@@ -589,7 +631,7 @@ class MTCACrate():
             command.append(str(mch + MCH_FRU_ID_OFFSET))
 
             try:
-                result = check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT).decode('utf-8')
+                result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
 
                 for line in result.splitlines():
                     if FW_TAG in line:
@@ -603,6 +645,8 @@ class MTCACrate():
             except CalledProcessError as e:
                         self.mch_fw_ver[mch] = "Unknown"
                         self.mch_fw_date[mch] = "Unknown"
+            except TimeoutExpired as e:
+                print("read_fw_version: Caught TimeoutExpired exception: {}".format(e))
 
     def reset(self):
         """
@@ -623,9 +667,11 @@ class MTCACrate():
 
         # Issue the reset command
         try:
-            check_output(command, stderr=DEV_NULL, timeout=COMMS_TIMEOUT)
-        except (CalledProcessError, TimeoutExpired):
+            check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+        except CalledProcessError:
             pass
+        except TimeoutExpired as e:
+            print("reset: Caught TimeoutExpired exception: {}".format(e))
 
 _crate = MTCACrate()
 
