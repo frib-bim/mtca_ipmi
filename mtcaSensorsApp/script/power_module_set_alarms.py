@@ -28,7 +28,7 @@ def main():
     # Get the arguments
     parser = argparse.ArgumentParser(description = 'Set power module alarms')
     parser.add_argument('--mch',required=True, help='MCH host name or IP address')
-    parser.add_argument('--lnc',default=0.1,required=False, help='Channel lower non-critical thresold')
+    parser.add_argument('--lnc',default=0.0001,required=False, help='Channel lower non-critical thresold')
     parser.add_argument('--unc',default=3.9,required=False, help='Channel upper non-critical thresold')
     parser.add_argument('--ucr',default=4.0,required=False, help='Channel upper critical thresold')
     parser.add_argument('--unr',default=4.1,required=False, help='Channel upper non-recoverable thresold')
