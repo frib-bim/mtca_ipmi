@@ -11,17 +11,6 @@ import argparse
 import subprocess
 import time 
 
-# Adjust these variables as required
-#mtcamch="mtcamch99"
-#lnc=0.0
-#unc=3.9
-#ucr=4.0
-#unr=4.1
-total_lnc=1.0
-total_unc=15
-total_ucr=16
-total_unr=18
-
 thresholds = ["lnc", "unr", "ucr", "unc"]
 
 def main():
