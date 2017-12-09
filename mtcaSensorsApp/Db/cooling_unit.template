@@ -8,9 +8,12 @@
 # Macros:
 # P:    PV prefix
 # UNIT: Cooling unit number 
-
+#
 # This record is scanned and triggers the device support to read the values.
 # Device support then processes all the I/O Intr records.
+#
+# Modifications:
+# 2017-12-08	WL	Add fan averages
 
 record(ai, "$(P)$(S)12V0") {
     field(DESC, "12 V supply (0)")
@@ -120,6 +123,72 @@ record(ai, "$(P)$(S)FAN6") {
     field(PREC, "0")
 
     info(archive,"monitor:5.0")
+}
+
+# Calculate fan speed averages
+record(calcout, "$(P)$(S)FAN_FRONT_AVG_CALC") {
+		field(DESC, "Front fan average calculation")
+		field(INPA, "$(P)$(S)FAN1 CPP")
+		field(INPB, "$(P)$(S)FAN2 CPP")
+		field(INPC, "$(P)$(S)FAN3 CPP")
+		field(CALC, "(A+B+C)/3")
+		field(OOPT, "On Change")
+		field(DOPT, "Use CALC")
+		field(OUT,  "$(P)$(S)FAN_FRONT_AVG PP")
+		field(PINI, "YES")
+}
+
+record(ai, "$(P)$(S)FAN_FRONT_AVG") {
+		field(DESC, "Front fan average")
+		field(EGU,  "RPM")
+		field(LOLO, "500")
+		field(LOW,  "1000")
+		field(HIGH, "3500")
+		field(HIHI, "4000")
+}
+
+record(calcout, "$(P)$(S)FAN_REAR_AVG_CALC") {
+		field(DESC, "Rear fan average calculation")
+		field(INPA, "$(P)$(S)FAN4 CPP")
+		field(INPB, "$(P)$(S)FAN5 CPP")
+		field(INPC, "$(P)$(S)FAN6 CPP")
+		field(CALC, "(A+B+C)/3")
+		field(OOPT, "On Change")
+		field(DOPT, "Use CALC")
+		field(OUT,  "$(P)$(S)FAN_REAR_AVG PP")
+		field(PINI, "YES")
+}
+
+record(ai, "$(P)$(S)FAN_REAR_AVG") {
+		field(DESC, "Rear fan average")
+		field(EGU,  "RPM")
+		field(LOLO, "500")
+		field(LOW,  "1000")
+		field(HIGH, "3500")
+		field(HIHI, "4000")
+}
+
+# Calculate overall average from front and rear average.
+# No need to PINI this record as it will be triggered by the 
+# other two records on initialization.
+record(calcout, "$(P)$(S)FAN_AVG_CALC") {
+		field(DESC, "All fan average calculation")
+		field(INPA, "$(P)$(S)FAN_FRONT_AVG CPP")
+		field(INPB, "$(P)$(S)FAN_REAR_AVG CPP")
+		field(CALC, "(A+B)/2")
+		field(OOPT, "On Change")
+		field(DOPT, "Use CALC")
+		field(OUT,  "$(P)$(S)FAN_AVG PP")
+		field(PINI, "NO")
+}
+
+record(ai, "$(P)$(S)FAN_AVG") {
+		field(DESC, "All fan average")
+		field(EGU,  "RPM")
+		field(LOLO, "500")
+		field(LOW,  "1000")
+		field(HIGH, "3500")
+		field(HIHI, "4000")
 }
 
 record(stringin, "$(P)$(S)NAME") {
