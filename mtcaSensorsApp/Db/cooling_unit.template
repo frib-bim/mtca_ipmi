@@ -145,6 +145,10 @@ record(ai, "$(P)$(S)FAN_FRONT_AVG") {
 		field(LOW,  "1000")
 		field(HIGH, "3500")
 		field(HIHI, "4000")
+		field(LLSV, "MAJOR")
+		field(LSV,  "MINOR")
+		field(HSV,  "MINOR")
+		field(HHSV, "MAJOR")
 }
 
 record(calcout, "$(P)$(S)FAN_REAR_AVG_CALC") {
@@ -166,6 +170,10 @@ record(ai, "$(P)$(S)FAN_REAR_AVG") {
 		field(LOW,  "1000")
 		field(HIGH, "3500")
 		field(HIHI, "4000")
+		field(LLSV, "MAJOR")
+		field(LSV,  "MINOR")
+		field(HSV,  "MINOR")
+		field(HHSV, "MAJOR")
 }
 
 # Calculate overall average from front and rear average.
@@ -189,6 +197,10 @@ record(ai, "$(P)$(S)FAN_AVG") {
 		field(LOW,  "1000")
 		field(HIGH, "3500")
 		field(HIHI, "4000")
+		field(LLSV, "MAJOR")
+		field(LSV,  "MINOR")
+		field(HSV,  "MINOR")
+		field(HHSV, "MAJOR")
 }
 
 record(stringin, "$(P)$(S)NAME") {
