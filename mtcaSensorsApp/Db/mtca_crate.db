@@ -75,3 +75,76 @@ record(stringin, "$(P)RACK") {
     field(PINI, "YES")
 }
 
+# Calculate fan speed averages
+record(calcout, "$(P)FAN_FRONT_AVG_CALC") {
+		field(DESC, "Front fan average calculation")
+		field(INPA, "$(P)$(CU1=CU01:)FAN_FRONT_AVG CPP")
+		field(INPB, "$(P)$(CU2=CU02:)FAN_FRONT_AVG CPP")
+		field(CALC, "(A+B)/2")
+		field(OOPT, "On Change")
+		field(DOPT, "Use CALC")
+		field(OUT,  "$(P)FAN_FRONT_AVG PP")
+		field(PINI, "NO")
+}
+
+record(ai, "$(P)FAN_FRONT_AVG") {
+		field(DESC, "Front fan average")
+		field(EGU,  "RPM")
+		field(LOLO, "500")
+		field(LOW,  "1000")
+		field(HIGH, "3500")
+		field(HIHI, "4000")
+		field(LLSV, "MAJOR")
+		field(LSV,  "MINOR")
+		field(HSV,  "MINOR")
+		field(HHSV, "MAJOR")
+}
+
+record(calcout, "$(P)FAN_REAR_AVG_CALC") {
+		field(DESC, "Rear fan average calculation")
+		field(INPA, "$(P)$(CU1=CU01:)FAN_REAR_AVG CPP")
+		field(INPB, "$(P)$(CU2=CU02:)FAN_REAR_AVG CPP")
+		field(CALC, "(A+B)/2")
+		field(OOPT, "On Change")
+		field(DOPT, "Use CALC")
+		field(OUT,  "$(P)FAN_REAR_AVG PP")
+		field(PINI, "NO")
+}
+
+record(ai, "$(P)FAN_REAR_AVG") {
+		field(DESC, "Rear fan average")
+		field(EGU,  "RPM")
+		field(LOLO, "500")
+		field(LOW,  "1000")
+		field(HIGH, "3500")
+		field(HIHI, "4000")
+		field(LLSV, "MAJOR")
+		field(LSV,  "MINOR")
+		field(HSV,  "MINOR")
+		field(HHSV, "MAJOR")
+}
+
+record(calcout, "$(P)FAN_AVG_CALC") {
+		field(DESC, "Crate fan average calculation")
+		field(INPA, "$(P)$(CU1=CU01:)FAN_AVG CPP")
+		field(INPB, "$(P)$(CU2=CU02:)FAN_AVG CPP")
+		field(CALC, "(A+B)/2")
+		field(OOPT, "On Change")
+		field(DOPT, "Use CALC")
+		field(OUT,  "$(P)FAN_AVG PP")
+		field(PINI, "NO")
+}
+
+record(ai, "$(P)FAN_AVG") {
+		field(DESC, "Crate fan average")
+		field(EGU,  "RPM")
+		field(LOLO, "500")
+		field(LOW,  "1000")
+		field(HIGH, "3500")
+		field(HIHI, "4000")
+		field(LLSV, "MAJOR")
+		field(LSV,  "MINOR")
+		field(HSV,  "MINOR")
+		field(HHSV, "MAJOR")
+}
+
