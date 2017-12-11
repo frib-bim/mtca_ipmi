@@ -13,9 +13,11 @@ dbLoadDatabase "dbd/mtcaSensors.dbd"
 mtcaSensors_registerRecordDeviceDriver pdbbase
 
 ## Load record instances
-dbLoadRecords("db/mtca_crate.db","P=$(CRATE),MCH_HOST=$(MCH_HOST),CRATE_ID=$(CRATE_ID),RACK_ID=$(RACK_ID)")
+# Set CU1, CU2 environment variables to override default cooling unit names.
+dbLoadRecords("db/mtca_crate.db","P=$(CRATE),MCH_HOST=$(MCH_HOST),CRATE_ID=$(CRATE_ID),RACK_ID=$(RACK_ID),CU1=$(CU1=CU01:),CU2=$(CU2=CU02:)")
 dbLoadRecords("db/amc_cards.db","P=$(CRATE)")
-dbLoadRecords("db/cooling_units.db","P=$(CRATE)")
+dbLoadRecords("db/cooling_unit.template","P=$(CRATE),S=$(CU1=CU01:),UNIT=1")
+dbLoadRecords("db/cooling_unit.template","P=$(CRATE),S=$(CU2=CU02:),UNIT=2")
 dbLoadRecords("db/power_modules.db","P=$(CRATE)")
 dbLoadRecords("db/mch.db","P=$(CRATE)")
 dbLoadRecords("db/save_restoreStatus.db","P=$(CRATE)")
