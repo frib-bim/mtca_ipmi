@@ -186,6 +186,13 @@ ALARM_STATES = [
     ,'NON_RECOVERABLE'
 ]
 
+FAN_ALARMS = {
+    'lolo': 500
+    ,'low': 1000
+    ,'high': 3500
+    ,'hihi': 4000
+}
+
 def get_crate():
     """
     Find existing crate object, or create new one.
@@ -428,16 +435,24 @@ class FRU():
         command.append(name)
 
         try:
-            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
-            for line in result.splitlines():
-                try:
-                    description, value = [x.strip() for x in line.split(':',1)]
-                    if description in ALARMS.keys():
-                        sensor_type = SENSOR_NAMES[name]
-                        setattr(self.sensors[sensor_type], ALARMS[description], float(value))
-                        self.sensors[sensor_type].alarms_valid = True       
-                except ValueError:
-                    pass
+            # Special treatment for fan sensors
+            if "Fan" in name:
+                for alarm_level in FAN_ALARMS.keys():
+                    sensor_type = SENSOR_NAMES[name]
+                    setattr(self.sensors[sensor_type], alarm_level, FAN_ALARMS[alarm_level])
+                    self.sensors[sensor_type].alarms_valid = True       
+            # All other sensors
+            else:
+                result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+                for line in result.splitlines():
+                    try:
+                        description, value = [x.strip() for x in line.split(':',1)]
+                        if description in ALARMS.keys():
+                            sensor_type = SENSOR_NAMES[name]
+                            setattr(self.sensors[sensor_type], ALARMS[description], float(value))
+                            self.sensors[sensor_type].alarms_valid = True       
+                    except ValueError:
+                        pass
         except CalledProcessError as e:
             # This traps any errors thrown by the call to ipmitool. 
             # This occurs if all alarm thresholds are not set. 
