@@ -259,6 +259,7 @@ record(ai, "$(P)$(S)UPTIME") {
     field(DTYP, "Python Device")
     field(SCAN, "I/O Intr")
 		field(PREC, "2")
+		field(EGU,  "days")
     field(INP,  "@MTCACrate get_uptime mch $(MCH_SLOT)")
 }
 
