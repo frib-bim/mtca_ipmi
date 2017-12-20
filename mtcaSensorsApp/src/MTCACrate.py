@@ -12,6 +12,7 @@
 import math
 import re
 import time
+import datetime
 import os
 import sys
 from devsup.db import IOScanListBlock
@@ -192,6 +193,8 @@ FAN_ALARMS = {
     ,'high': 3500
     ,'hihi': 4000
 }
+
+MCH_START_TIME = datetime.datetime(1970,1,1,0,0,0)
 
 def get_crate():
     """
@@ -531,6 +534,9 @@ class MTCACrate():
         self.mch_fw_ver = {}
         self.mch_fw_date = {}
 
+        # Store IOC process start time
+        self.ioc_start_time = datetime.datetime.now()
+
         # Create scan list for I/O Intr records
         self.scan_list = IOScanListBlock()
 
@@ -662,6 +668,41 @@ class MTCACrate():
                         self.mch_fw_date[mch] = "Unknown"
             except TimeoutExpired as e:
                 print("read_fw_version: Caught TimeoutExpired exception: {}".format(e))
+
+    def read_mch_uptime(self):
+        """ 
+        Get MCH uptime
+
+        Args: 
+            None
+
+        Returns:
+            Nothing
+        """
+
+        # Assemble the crate reset command
+        command = create_ipmitool_command()
+        command.append("sel")
+        command.append("time")
+        command.append("get")
+
+        # Read the current MCH time
+        try:
+            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+            # Check that the result is the expected format
+            if re.match('\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d', result):
+                mch_now = datetime.datetime.strptime(result.strip(), '%m/%d/%Y %H:%M:%S')
+
+                # Calculate the uptime
+                mch_uptime_diff = mch_now - MCH_START_TIME
+
+                self.mch_uptime = mch_uptime_diff.days + mch_uptime_diff.seconds/(24*60*60)
+
+        except CalledProcessError:
+            pass
+        except TimeoutExpired as e:
+            print("read_mch_uptime: Caught TimeoutExpired exception: {}".format(e))
+
 
     def reset(self):
         """
@@ -814,6 +855,7 @@ class MTCACrateReader():
         if self.crate.frus_inited:
             try:
                 self.crate.read_sensors()
+                self.crate.read_mch_uptime()
                 self.crate.scan_list.interrupt()
             except AttributeError as e:
                 # TODO: Work out why we get this exception
@@ -1000,6 +1042,18 @@ class MTCACrateReader():
             Nothing
         """
         rec.VAL = self.crate.mch_fw_date[self.slot]
+
+    def get_uptime(self, rec, report):
+        """
+        Get MCH uptime 
+
+        Args:
+            rec: pyDevSup record object
+
+        Returns:
+            Nothing
+        """
+        rec.VAL = self.crate.mch_uptime
 
     def reset(self, rec, report):
         """
