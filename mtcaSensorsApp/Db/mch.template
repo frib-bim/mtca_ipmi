@@ -254,3 +254,12 @@ record(stringin, "$(P)$(S)FW_DATE") {
     field(INP,  "@MTCACrate get_fw_date mch $(MCH_SLOT)")
 }
 
+record(ai, "$(P)$(S)UPTIME") {
+    field(DESC, "MCH uptime")
+    field(DTYP, "Python Device")
+    field(SCAN, "I/O Intr")
+		field(PREC, "2")
+		field(EGU,  "days")
+    field(INP,  "@MTCACrate get_uptime mch $(MCH_SLOT)")
+}
+
