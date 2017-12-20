@@ -1054,6 +1054,7 @@ class MTCACrateReader():
             Nothing
         """
         rec.VAL = self.crate.mch_uptime
+        rec.UDF = 0
 
     def reset(self, rec, report):
         """
