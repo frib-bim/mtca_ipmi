@@ -417,6 +417,8 @@ class FRU():
 
             self.alarm_level = max_alarm_level
 
+        except CalledProcessError:
+            pass
         except TimeoutExpired as e:
             print("read_sensors: Caught TimeoutExpired exception: {}".format(e))
             self.comms_ok = False
@@ -486,6 +488,8 @@ class FRU():
 
         try:
             result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+        except CalledProcessError:
+            pass
         except TimeoutExpired as e:
             print("reset: Caught TimeoutExpired exception: {}".format(e))
         
@@ -503,6 +507,8 @@ class FRU():
 
         try:
             result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+        except CalledProcessError:
+            pass
         except TimeoutExpired as e:
             print("reset: Caught TimeoutExpired exception: {}".format(e))
 
@@ -579,6 +585,8 @@ class MTCACrate():
 
             try:
                 result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+            except CalledProcessError:
+                pass
             except TimeoutExpired as e:
                 print("populate_fru_list: Caught TimeoutExpired exception: {}".format(e))
             
