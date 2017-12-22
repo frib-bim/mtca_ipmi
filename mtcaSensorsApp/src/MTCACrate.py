@@ -8,6 +8,7 @@
 # Changes:
 # 2017-09-27 WL  Convert to Python3
 # 2017-10-19 WL  Add TimeoutExpired execption handling
+# 2017-12-22 WL  Add card rescan after crate reset
 
 import math
 import re
@@ -688,7 +689,7 @@ class MTCACrate():
             Nothing
         """
 
-        # Assemble the crate reset command
+        # Assemble the command to read current crate time
         command = create_ipmitool_command()
         command.append("sel")
         command.append("time")
@@ -736,6 +737,30 @@ class MTCACrate():
             pass
         except TimeoutExpired as e:
             print("reset: Caught TimeoutExpired exception: {}".format(e))
+
+        # Wait for the crate to come back up, and then rescan the card list
+        crate_up = False
+        retries = 0
+        MAX_RETRIES = 10
+
+        # Assemble the crate status check command
+        command = create_ipmitool_command()
+        command.append("mc")
+        command.append("info")
+        while crate_up == False and retries < MAX_RETRIES:
+            try:
+                print ("Number of attempts = {}".format(retries))
+                check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+                # If we don't throw an exception, assume the crate is up
+                crate_up = True
+                # Reread the card list
+                print("Updating card list")
+                self.populate_fru_list()
+            except CalledProcessError:
+                retries+=1
+            except TimeoutExpired as e:
+                # OK to get timeout exceptions here. Be silent.
+                retries+=1
 
 _crate = MTCACrate()
 
