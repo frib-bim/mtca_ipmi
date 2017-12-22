@@ -336,93 +336,98 @@ class FRU():
         command.append("entity")
         command.append(self.id)
 
-        try:
-            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
-            
-            # Check if we got a good response from ipmitool
-            # First test checks for an unplugged card
-            # Second test checks for MCH comms failure
-            if len(result) < MIN_GOOD_IPMI_MSG_LEN \
-                or result.find('Error') >= 0:
-                self.comms_ok = False
-                max_alarm_level = ALARM_STATES.index('NON_RECOVERABLE')
-            else:
-                self.comms_ok = True
-                max_alarm_level = ALARM_STATES.index('NO_ALARM')
+        if self.crate.crate_resetting == False:
+            try:
+                result = check_output(
+                        command, 
+                        stderr=ERR_FILE, 
+                        timeout=COMMS_TIMEOUT).decode('utf-8')
+                
+                # Check if we got a good response from ipmitool
+                # First test checks for an unplugged card
+                # Second test checks for MCH comms failure
+                if len(result) < MIN_GOOD_IPMI_MSG_LEN \
+                    or result.find('Error') >= 0:
+                    self.comms_ok = False
+                    max_alarm_level = ALARM_STATES.index('NON_RECOVERABLE')
+                else:
+                    self.comms_ok = True
+                    max_alarm_level = ALARM_STATES.index('NO_ALARM')
 
-                for line in result.splitlines():
-                    try:
-                        line_strip = [x.strip() for x in line.split('|')]
-                        sensor_name, sensor_id, status, fru_id, val = line_strip
+                    for line in result.splitlines():
+                        try:
+                            line_strip = [x.strip() for x in line.split('|')]
+                            sensor_name, sensor_id, status, fru_id, val = line_strip
 
-                        # Check if the sensor name is in the list of 
-                        # sensors we know about
-                        if sensor_name in SENSOR_NAMES.keys():
-                            sensor_type = SENSOR_NAMES[sensor_name]
-                            
-                            if sensor_type in DIGITAL_SENSORS:
-                                egu = ''
-                                if sensor_type == 'HOT_SWAP':
-                                    if status in HOT_SWAP_NORMAL_STS:
-                                        if status == HOT_SWAP_NO_VALUE_NORMAL_STS:
-                                            value = HOT_SWAP_OK
-                                        else:
-                                            if val in HOT_SWAP_NORMAL_VALUE:
+                            # Check if the sensor name is in the list of 
+                            # sensors we know about
+                            if sensor_name in SENSOR_NAMES.keys():
+                                sensor_type = SENSOR_NAMES[sensor_name]
+                                
+                                if sensor_type in DIGITAL_SENSORS:
+                                    egu = ''
+                                    if sensor_type == 'HOT_SWAP':
+                                        if status in HOT_SWAP_NORMAL_STS:
+                                            if status == HOT_SWAP_NO_VALUE_NORMAL_STS:
                                                 value = HOT_SWAP_OK
                                             else:
-                                                value = HOT_SWAP_FAULT
-                                    else:
-                                        value = HOT_SWAP_FAULT
-                            else:
-                                # If this fails, it will trigger an exception,
-                                # which we catch and allow to proceed
-                                value, egu = val.split(' ', 1)
+                                                if val in HOT_SWAP_NORMAL_VALUE:
+                                                    value = HOT_SWAP_OK
+                                                else:
+                                                    value = HOT_SWAP_FAULT
+                                        else:
+                                            value = HOT_SWAP_FAULT
+                                else:
+                                    # If this fails, it will trigger an exception,
+                                    # which we catch and allow to proceed
+                                    value, egu = val.split(' ', 1)
 
-                            # Check if we have already created this sensor
-                            if not sensor_type in self.sensors.keys():
-                                self.sensors[sensor_type] = Sensor(sensor_name)
-                        
-                            sensor = self.sensors[sensor_type]
+                                # Check if we have already created this sensor
+                                if not sensor_type in self.sensors.keys():
+                                    self.sensors[sensor_type] = Sensor(sensor_name)
+                            
+                                sensor = self.sensors[sensor_type]
 
-                            # Store the value
-                            sensor.value = float(value)
+                                # Store the value
+                                sensor.value = float(value)
 
-                            # Get the simplified engineering units
-                            if egu in EGU.keys():
-                                sensor.egu = EGU[egu]
-                            else:
-                                sensor.egu = egu
+                                # Get the simplified engineering units
+                                if egu in EGU.keys():
+                                    sensor.egu = EGU[egu]
+                                else:
+                                    sensor.egu = egu
 
-                            # Set the alarm thresholds if we haven't already
-                            if not sensor.alarm_values_read:
-                                self.set_alarms(sensor_name)
-                                sensor.alarm_values_read = True
+                                # Set the alarm thresholds if we haven't already
+                                if not sensor.alarm_values_read:
+                                    self.set_alarms(sensor_name)
+                                    sensor.alarm_values_read = True
 
-                        # Do the card overall status evaluation
-                        if sensor_name in SENSOR_NAMES.keys():
+                            # Do the card overall status evaluation
+                            if sensor_name in SENSOR_NAMES.keys():
 
-                            # Check the alarm status reported by the device
-                            status = status.strip()
-                            if status in ALARM_LEVELS.keys():
-                                alarm_level = ALARM_LEVELS[status]
-                                if alarm_level > max_alarm_level:
-                                    # Special case to ignore normal state of Hot Swap sensor
-                                    if sensor_name.strip() == 'Hot Swap' and status == 'lnc':
-                                        pass
-                                    else:
-                                        max_alarm_level = alarm_level
+                                # Check the alarm status reported by the device
+                                status = status.strip()
+                                if status in ALARM_LEVELS.keys():
+                                    alarm_level = ALARM_LEVELS[status]
+                                    if alarm_level > max_alarm_level:
+                                        # Special case to ignore normal state of Hot Swap sensor
+                                        if (sensor_name.strip() == 'Hot Swap' 
+                                                and status == 'lnc'):
+                                            pass
+                                        else:
+                                            max_alarm_level = alarm_level
 
-                    except ValueError as e:
-                        print("Caught ValueError: {}".format(e))
-                        pass
+                        except ValueError as e:
+                            print("Caught ValueError: {}".format(e))
+                            pass
 
-            self.alarm_level = max_alarm_level
+                self.alarm_level = max_alarm_level
 
-        except CalledProcessError:
-            pass
-        except TimeoutExpired as e:
-            print("read_sensors: Caught TimeoutExpired exception: {}".format(e))
-            self.comms_ok = False
+            except CalledProcessError:
+                pass
+            except TimeoutExpired as e:
+                print("read_sensors: Caught TimeoutExpired exception: {}".format(e))
+                self.comms_ok = False
 
 
     def set_alarms(self, name):
@@ -547,6 +552,9 @@ class MTCACrate():
         # Create scan list for I/O Intr records
         self.scan_list = IOScanListBlock()
 
+        # Flag to indicate whether crate is being reset
+        self.crate_resetting = False
+
         # Print ipmitool information
         ipmitool_path = os.environ['IPMITOOL']
         command = []
@@ -578,7 +586,10 @@ class MTCACrate():
         self.frus_inited = False
         self.frus = {}
 
-        if self.host != None and self.user != None and self.password != None:
+        if (self.host != None 
+                and self.user != None 
+                and self.password != None 
+                and self.crate_resetting == False):
             command = create_ipmitool_command()
             command.append("sdr")
             command.append("elist")
@@ -696,21 +707,27 @@ class MTCACrate():
         command.append("get")
 
         # Read the current MCH time
-        try:
-            result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
-            # Check that the result is the expected format
-            if re.match('\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d', result):
-                mch_now = datetime.datetime.strptime(result.strip(), '%m/%d/%Y %H:%M:%S')
+        if self.crate_resetting == False:
+            try:
+                result = check_output(
+                        command, 
+                        stderr=ERR_FILE, 
+                        timeout=COMMS_TIMEOUT).decode('utf-8')
+                # Check that the result is the expected format
+                if re.match('\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d', result):
+                    mch_now = datetime.datetime.strptime(result.strip(), '%m/%d/%Y %H:%M:%S')
 
-                # Calculate the uptime
-                mch_uptime_diff = mch_now - MCH_START_TIME
+                    # Calculate the uptime
+                    mch_uptime_diff = mch_now - MCH_START_TIME
 
-                self.mch_uptime = mch_uptime_diff.days + mch_uptime_diff.seconds/(24*60*60)
+                    self.mch_uptime = (
+                            mch_uptime_diff.days + 
+                            mch_uptime_diff.seconds/(24*60*60))
 
-        except CalledProcessError:
-            pass
-        except TimeoutExpired as e:
-            print("read_mch_uptime: Caught TimeoutExpired exception: {}".format(e))
+            except CalledProcessError:
+                pass
+            except TimeoutExpired as e:
+                print("read_mch_uptime: Caught TimeoutExpired exception: {}".format(e))
 
 
     def reset(self):
@@ -732,11 +749,17 @@ class MTCACrate():
 
         # Issue the reset command
         try:
+            self.crate_resetting = True
+            # Wait a few seconds to allow any existing ipmitool requests to complete
+            print("Waiting for queued requests to finish")
+            time.sleep(5.0)
+            print("Resetting crate now")
             check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
         except CalledProcessError:
             pass
         except TimeoutExpired as e:
-            print("reset: Caught TimeoutExpired exception: {}".format(e))
+            # Be silent. We expect this command to timeout.
+            pass
 
         # Wait for the crate to come back up, and then rescan the card list
         crate_up = False
@@ -747,12 +770,21 @@ class MTCACrate():
         command = create_ipmitool_command()
         command.append("mc")
         command.append("info")
+
+        # Wait for the crate to come back up
         while crate_up == False and retries < MAX_RETRIES:
             try:
-                print ("Number of attempts = {}".format(retries))
-                check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
+                print ("Checking comms to MCH, attempt number {}".format(retries+1))
+                check_output(
+                        command, 
+                        stderr=ERR_FILE, 
+                        timeout=COMMS_TIMEOUT).decode('utf-8')
                 # If we don't throw an exception, assume the crate is up
                 crate_up = True
+                self.crate_resetting = False
+                # Wait a few seconds
+                print("MCH is up. Short wait (15 s) before updating card list.")
+                time.sleep(15.0)
                 # Reread the card list
                 print("Updating card list")
                 self.populate_fru_list()
@@ -761,6 +793,11 @@ class MTCACrate():
             except TimeoutExpired as e:
                 # OK to get timeout exceptions here. Be silent.
                 retries+=1
+
+        if retries >= MAX_RETRIES:
+            # Reset this to allow other comms, even though they may fail
+            self.crate_resetting = False
+            print ("Reached maximum number of retries. Please try resetting crate again.")
 
 _crate = MTCACrate()
 
