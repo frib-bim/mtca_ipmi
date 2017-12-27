@@ -9,6 +9,7 @@
 # 2017-09-27 WL  Convert to Python3
 # 2017-10-19 WL  Add TimeoutExpired execption handling
 # 2017-12-22 WL  Add card rescan after crate reset
+# 2017-12-26 WL  Create utility function for calling ipmitool
 
 import math
 import re
