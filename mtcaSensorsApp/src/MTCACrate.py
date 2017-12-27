@@ -10,6 +10,7 @@
 # 2017-10-19 WL  Add TimeoutExpired execption handling
 # 2017-12-22 WL  Add card rescan after crate reset
 # 2017-12-26 WL  Create utility function for calling ipmitool
+# 2017-12-27 WL  Convert to ipmitool shell
 
 import math
 import re
@@ -17,6 +18,7 @@ import time
 import datetime
 import os
 import sys
+import threading
 from devsup.db import IOScanListBlock
 
 if os.name == 'posix' and sys.version_info[0] < 3:
@@ -24,11 +26,13 @@ if os.name == 'posix' and sys.version_info[0] < 3:
     from subprocess32 import check_output
     from subprocess32 import CalledProcessError
     from subprocess32 import TimeoutExpired
+    import Queue 
 else:
     import subprocess 
     from subprocess import check_output
     from subprocess import CalledProcessError
     from subprocess import TimeoutExpired
+    import queue as Queue
 
 # Use this to suppress ipmitool/ipmiutil errors
 ERR_FILE = open(os.devnull, 'w')
@@ -206,7 +210,7 @@ def get_crate():
     Find existing crate object, or create new one.
 
     Args:
-        host: host name of crate MCH
+        None
 
     Returns: 
         MTCACrate object
@@ -217,60 +221,122 @@ def get_crate():
     except:
         pass
 
-def create_ipmitool_command():
-    """
-    Creates common part of ipmitool command
-
-    Args:
-        None
-
-    Returns:
-        command (list): list of common command elements
+class MCH_comms():
+    """ 
+    Class to handle all comms to MCH
     """
 
-    # Get the path to ipmitool from the EPICS environment
-    ipmitool_path = os.environ['IPMITOOL'] 
-	
-    # Create the IPMI tool command
-    crate = get_crate()
-    command = []
-    command.append(os.path.join(ipmitool_path, "ipmitool"))
-    command.append("-H")
-    command.append(crate.host)
-    command.append("-A")
-    command.append("None")
-    
-    return command
+    def __init__(self, _crate):
+        self.ipmitool_shell = None
+        self.ipmitool_shell_stdin = None
+        self.ipmitool_shell_stdout = None
+        self.crate = _crate
+        self.connected = False
 
-def call_ipmitool_command(ipmitool_cmd):
-    """
-    Generate and call ipmitool command
+    def connect(self):
+        if not self.connected:
+            self.ipmitool_shell = self.ipmitool_shell_connect()
+            self.ipmitool_shell_stdin = self.ipmitool_shell.stdin
+            q = Queue.Queue()
+            t = threading.Thread(
+                    target=self.enqueue_output, 
+                    args=(self.ipmitool_shell.stdout, q))
+            t.start()
+            self.ipmitool_shell_stdout = q
+            self.connected = True
 
-    Args:
-        ipmitool_cmd: command string
+    def enqueue_output(self, out, queue):
+        for line in iter(out.readline, b''):
+            queue.put(line)
+        out.close()
 
-    Returns:
-        result (string): response of ipmitool to command
-    """
+    def create_ipmitool_command(self):
+        """
+        Creates common part of ipmitool command
 
-    command = create_ipmitool_command()
-    command.extend(ipmitool_cmd)
+        Args:
+            None
 
-    result = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=ERR_FILE)
-    output,error = result.communicate()
-    return output.decode('utf-8')
+        Returns:
+            command (list): list of common command elements
+        """
 
-def get_ipmitool_version():
-        # Print ipmitool information
-        ipmitool_path = os.environ['IPMITOOL']
+        # Get the path to ipmitool from the EPICS environment
+        ipmitool_path = os.environ['IPMITOOL'] 
+        
+        # Create the IPMI tool command
+        #crate = get_crate()
         command = []
         command.append(os.path.join(ipmitool_path, "ipmitool"))
-        command.append("-V")
+        command.append("-H")
+        command.append(self.crate.host)
+        command.append("-A")
+        command.append("None")
+        
+        return command
 
-        return check_output(
-                command, 
-                stderr=ERR_FILE, 
-                timeout=COMMS_TIMEOUT).decode('utf-8')
+    def ipmitool_shell_connect(self):
+        """
+        Connect to the ipmitool shell
+
+        Args: 
+            None
+        Returns:
+            shell (subprocess.Popen): Connection to the ipmitool shell
+        """
+
+        try:
+            self.connect()
+            command = self.create_ipmitool_command()
+            command.append("shell")
+        except AttributeError:
+            pass
+
+        try:
+            _shell
+        except NameError:
+            _shell = subprocess.Popen(
+                    command, 
+                    stdin=subprocess.PIPE, 
+                    stdout=subprocess.PIPE, 
+                    stderr=subprocess.PIPE)
+
+    def call_ipmitool_command(self, ipmitool_cmd):
+        """
+        Generate and call ipmitool command
+
+        Args:
+            ipmitool_cmd: command string
+
+        Returns:
+            result (string): response of ipmitool to command
+        """
+
+        command = ' '.join(str(e) for e in ipmitool_cmd)
+        command += '\n'
+        print(command)
+        
+        self.ipmitool_shell_stdin.write(command.encode('utf-8'))
+        self.ipmitool_shell_stdin.flush()
+        
+        result = ""
+        while not self.ipmitool_shell_stdout.empty():
+            line = self.ipmitool_shell_stdout.get_nowait()
+            result += line.decode('utf-8')
+
+        return result
+
+    def get_ipmitool_version(self):
+            # Print ipmitool information
+            ipmitool_path = os.environ['IPMITOOL']
+            command = []
+            command.append(os.path.join(ipmitool_path, "ipmitool"))
+            command.append("-V")
+
+            return check_output(
+                    command, 
+                    stderr=ERR_FILE, 
+                    timeout=COMMS_TIMEOUT).decode('utf-8')
 
 
 class Sensor():
@@ -311,6 +377,7 @@ class FRU():
         self.slot  = slot
         self.bus  = bus
         self.crate = crate
+        self.mch_comms = self.crate.mch_comms
         self.comms_ok = False
         self.alarm_level = ALARM_STATES.index('UNSET')
 
@@ -342,7 +409,7 @@ class FRU():
 
         if self.crate.crate_resetting == False:
             try:
-                result = call_ipmitool_command(["sdr", "entity", self.id])
+                result = self.mch_comms.call_ipmitool_command(["sdr", "entity", self.id])
                 
                 # Check if we got a good response from ipmitool
                 # First test checks for an unplugged card
@@ -449,7 +516,7 @@ class FRU():
         else:
             result = ""
             try:
-                result = call_ipmitool_command(["sensor", "get", name])
+                result = self.mch_comms.call_ipmitool_command(["sensor", "get", name])
             except CalledProcessError as e:
                 # This traps any errors thrown by the call to ipmitool. 
                 # This occurs if all alarm thresholds are not set. 
@@ -485,7 +552,7 @@ class FRU():
 
         # Deactivate the card
         try:
-            result = call_ipmitool_command(["picmg", "deactivate", (str(self.slot + PICMG_SLOT_OFFSET))])
+            result = self.mch_comms.call_ipmitool_command(["picmg", "deactivate", (str(self.slot + PICMG_SLOT_OFFSET))])
         except CalledProcessError:
             pass
         except TimeoutExpired as e:
@@ -499,7 +566,7 @@ class FRU():
 
         # Activate the card
         try:
-            result = call_ipmitool_command(["picmg", "activate", str(self.slot + PICMG_SLOT_OFFSET)])
+            result = self.mch_comms.call_ipmitool_command(["picmg", "activate", str(self.slot + PICMG_SLOT_OFFSET)])
         except CalledProcessError:
             pass
         except TimeoutExpired as e:
@@ -542,8 +609,11 @@ class MTCACrate():
         # Flag to indicate whether crate is being reset
         self.crate_resetting = False
 
+        # Create link for all comms
+        self.mch_comms = MCH_comms(self)
+
         try:
-            result = get_ipmitool_version()
+            result = self.mch_comms.get_ipmitool_version()
             #result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
             print(result)
             
@@ -575,7 +645,7 @@ class MTCACrate():
                 and self.password != None 
                 and self.crate_resetting == False):
             try:
-                result = call_ipmitool_command(["sdr", "elist", "fru"])
+                result = self.mch_comms.call_ipmitool_command(["sdr", "elist", "fru"])
             except CalledProcessError:
                 pass
             except TimeoutExpired as e:
@@ -645,7 +715,7 @@ class MTCACrate():
 
         for mch in range(1,3):
             try:
-                result = call_ipmitool_command(["fru", "print", str(mch + MCH_FRU_ID_OFFSET)])
+                result = self.mch_comms.call_ipmitool_command(["fru", "print", str(mch + MCH_FRU_ID_OFFSET)])
 
                 for line in result.splitlines():
                     if FW_TAG in line:
@@ -676,7 +746,7 @@ class MTCACrate():
         # Read the current MCH time
         if self.crate_resetting == False:
             try:
-                result = call_ipmitool_command(["sel", "time", "get"])
+                result = self.mch_comms.call_ipmitool_command(["sel", "time", "get"])
 
                 # Check that the result is the expected format
                 if re.match('\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d', result):
@@ -713,7 +783,7 @@ class MTCACrate():
             print("Waiting for queued requests to finish")
             time.sleep(5.0)
             print("Resetting crate now")
-            call_ipmitool_command(["raw", "0x06", "0x03"])
+            self.mch_comms.call_ipmitool_command(["raw", "0x06", "0x03"])
         except CalledProcessError:
             pass
         except TimeoutExpired as e:
@@ -729,7 +799,7 @@ class MTCACrate():
         while crate_up == False and retries < MAX_RETRIES:
             try:
                 print ("Checking comms to MCH, attempt number {}".format(retries+1))
-                result = call_ipmitool_command(["mc", "info"])
+                result = self.mch_comms.call_ipmitool_command(["mc", "info"])
                 # If we don't throw an exception, assume the crate is up
                 crate_up = True
                 self.crate_resetting = False
