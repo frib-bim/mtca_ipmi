@@ -21,6 +21,7 @@ import sys
 import threading
 from devsup.db import IOScanListBlock
 from devsup.hooks import addHook
+from devsup.util import StoppableThread
 
 if os.name == 'posix' and sys.version_info[0] < 3:
     import subproces32 as subprocess
@@ -206,6 +207,8 @@ FAN_ALARMS = {
 
 MCH_START_TIME = datetime.datetime(1970,1,1,0,0,0)
 
+IPMITOOL_SHELL_PROMPT = 'ipmitool>'
+
 def get_crate():
     """
     Find existing crate object, or create new one.
@@ -228,11 +231,12 @@ def stop():
     Cleanup on IOC exit
     """
     
-    print('stop: entering')
     crate = get_crate()
+    # Tell the thread to stop
     crate.mch_comms.stop = True
-    print('stop: set crate.mch_comms.stop to {}'.format(crate.mch_comms.stop))
-    crate.mch_comms.t.join()
+    # Stop the ipmitool shell process
+    crate.mch_comms.ipmitool_shell.terminate()
+    crate.mch_comms.ipmitool_shell.kill()
 
 addHook('AtIocExit', stop)
 
@@ -265,32 +269,20 @@ class MCH_comms():
         finished = False
 
         while not self.stop:
-            for line in iter(out.readline, ''):
-                if not 'ipmitool>' in line.decode('ascii'):
-                    queue.put(line)
-                # Test if we have reached the end of the output
-                if len(line) > 0:
-                    print('enqueue_output: {}'.format(line))
-                else:
-                    time.sleep(0.1)
-                if started and 'ipmitool>' in line.decode('ascii'):
-                    finished = True
-                    print('enqueue_output: finished = {}'.format(finished))
-                if 'ipmitool>' in line.decode('ascii'):
-                    started = True
-                    print('enqueue_output: started = {}'.format(started))
+            line = out.readline()
+            queue.put(line)
+            # Test if we have reached the end of the output
+            if started and IPMITOOL_SHELL_PROMPT in line.decode('ascii'):
+                finished = True
+            if IPMITOOL_SHELL_PROMPT in line.decode('ascii'):
+                started = True
+            if finished and self.comms_lock.locked():
+                self.comms_lock.release()
+                started = False
+                finished = False
 
-                if finished and self.comms_lock.locked():
-                    print('enqueue_output: releasing lock')
-                    self.comms_lock.release()
-                    started = False
-                    finished = False
-
-                if self.stop:
-                    print('enqueue_output: breaking')
-                    break
-
-            time.sleep(0.001)
+            time.sleep(0.01)
+        return
 
     def create_ipmitool_command(self):
         """
@@ -344,15 +336,6 @@ class MCH_comms():
                     args=(self.ipmitool_shell.stdout, q))
             self.t.start()
             self.ipmitool_out_queue = q
-            #time.sleep(1.0)
-
-            # Initial null command to get things started
-            #command = '\n'
-            #self.ipmitool_shell.stdin.write(command.encode('ascii'))
-            #self.ipmitool_shell.stdin.flush()
-            #time.sleep(1.0)
-            #while not self.ipmitool_out_queue.empty():
-                #print('ipmitool_shell_connect: {}'.format(self.ipmitool_out_queue.get_nowait()))
             self.connected = True
 
     def call_ipmitool_command(self, ipmitool_cmd):
@@ -377,6 +360,8 @@ class MCH_comms():
             self.ipmitool_shell_connect()
             self.ipmitool_shell.stdin.write(command.encode('ascii'))
             self.ipmitool_shell.stdin.flush()
+            # Write a null command to get an 'ipmitool>' response
+            # that indicates the end of the data transmission
             self.ipmitool_shell.stdin.write('\n'.encode('ascii'))
             self.ipmitool_shell.stdin.flush()
             #print('call_ipmitool_command: {}'.format(command))
@@ -498,66 +483,67 @@ class FRU():
 
                     for line in result.splitlines():
                         try:
-                            line_strip = [x.strip() for x in line.split('|')]
-                            sensor_name, sensor_id, status, fru_id, val = line_strip
+                            if not IPMITOOL_SHELL_PROMPT in line:
+                                line_strip = [x.strip() for x in line.split('|')]
+                                sensor_name, sensor_id, status, fru_id, val = line_strip
 
-                            # Check if the sensor name is in the list of 
-                            # sensors we know about
-                            if sensor_name in SENSOR_NAMES.keys():
-                                sensor_type = SENSOR_NAMES[sensor_name]
-                                
-                                if sensor_type in DIGITAL_SENSORS:
-                                    egu = ''
-                                    if sensor_type == 'HOT_SWAP':
-                                        if status in HOT_SWAP_NORMAL_STS:
-                                            if status == HOT_SWAP_NO_VALUE_NORMAL_STS:
-                                                value = HOT_SWAP_OK
-                                            else:
-                                                if val in HOT_SWAP_NORMAL_VALUE:
+                                # Check if the sensor name is in the list of 
+                                # sensors we know about
+                                if sensor_name in SENSOR_NAMES.keys():
+                                    sensor_type = SENSOR_NAMES[sensor_name]
+                                    
+                                    if sensor_type in DIGITAL_SENSORS:
+                                        egu = ''
+                                        if sensor_type == 'HOT_SWAP':
+                                            if status in HOT_SWAP_NORMAL_STS:
+                                                if status == HOT_SWAP_NO_VALUE_NORMAL_STS:
                                                     value = HOT_SWAP_OK
                                                 else:
-                                                    value = HOT_SWAP_FAULT
-                                        else:
-                                            value = HOT_SWAP_FAULT
-                                else:
-                                    # If this fails, it will trigger an exception,
-                                    # which we catch and allow to proceed
-                                    value, egu = val.split(' ', 1)
+                                                    if val in HOT_SWAP_NORMAL_VALUE:
+                                                        value = HOT_SWAP_OK
+                                                    else:
+                                                        value = HOT_SWAP_FAULT
+                                            else:
+                                                value = HOT_SWAP_FAULT
+                                    else:
+                                        # If this fails, it will trigger an exception,
+                                        # which we catch and allow to proceed
+                                        value, egu = val.split(' ', 1)
 
-                                # Check if we have already created this sensor
-                                if not sensor_type in self.sensors.keys():
-                                    self.sensors[sensor_type] = Sensor(sensor_name)
-                            
-                                sensor = self.sensors[sensor_type]
+                                    # Check if we have already created this sensor
+                                    if not sensor_type in self.sensors.keys():
+                                        self.sensors[sensor_type] = Sensor(sensor_name)
+                                
+                                    sensor = self.sensors[sensor_type]
 
-                                # Store the value
-                                sensor.value = float(value)
+                                    # Store the value
+                                    sensor.value = float(value)
 
-                                # Get the simplified engineering units
-                                if egu in EGU.keys():
-                                    sensor.egu = EGU[egu]
-                                else:
-                                    sensor.egu = egu
+                                    # Get the simplified engineering units
+                                    if egu in EGU.keys():
+                                        sensor.egu = EGU[egu]
+                                    else:
+                                        sensor.egu = egu
 
-                                # Set the alarm thresholds if we haven't already
-                                if not sensor.alarm_values_read:
-                                    self.set_alarms(sensor_name)
-                                    sensor.alarm_values_read = True
+                                    # Set the alarm thresholds if we haven't already
+                                    if not sensor.alarm_values_read:
+                                        self.set_alarms(sensor_name)
+                                        sensor.alarm_values_read = True
 
-                            # Do the card overall status evaluation
-                            if sensor_name in SENSOR_NAMES.keys():
+                                # Do the card overall status evaluation
+                                if sensor_name in SENSOR_NAMES.keys():
 
-                                # Check the alarm status reported by the device
-                                status = status.strip()
-                                if status in ALARM_LEVELS.keys():
-                                    alarm_level = ALARM_LEVELS[status]
-                                    if alarm_level > max_alarm_level:
-                                        # Special case to ignore normal state of Hot Swap sensor
-                                        if (sensor_name.strip() == 'Hot Swap' 
-                                                and status == 'lnc'):
-                                            pass
-                                        else:
-                                            max_alarm_level = alarm_level
+                                    # Check the alarm status reported by the device
+                                    status = status.strip()
+                                    if status in ALARM_LEVELS.keys():
+                                        alarm_level = ALARM_LEVELS[status]
+                                        if alarm_level > max_alarm_level:
+                                            # Special case to ignore normal state of Hot Swap sensor
+                                            if (sensor_name.strip() == 'Hot Swap' 
+                                                    and status == 'lnc'):
+                                                pass
+                                            else:
+                                                max_alarm_level = alarm_level
 
                         except ValueError as e:
                             print("Caught ValueError: {}".format(e))
@@ -738,20 +724,21 @@ class MTCACrate():
             for line in result.splitlines():
                 #print(line)
                 try:
-                    name, ref, status, id, desc = line.split('|')
-                    
-                    # Get the AMC slot number
-                    bus, slot = id.strip().split('.')
-                    bus, slot = int(bus), int(slot)
-                    
-                    slot -= SLOT_OFFSET
-                    if (bus, slot) not in self.frus.keys():
-                        self.frus[(bus, slot)] = FRU(
-                                name = name.strip(), 
-                                id = id.strip(), 
-                                slot = slot, 
-                                bus = bus,
-                                crate = self)
+                    if not IPMITOOL_SHELL_PROMPT in line:
+                        name, ref, status, id, desc = line.split('|')
+                        
+                        # Get the AMC slot number
+                        bus, slot = id.strip().split('.')
+                        bus, slot = int(bus), int(slot)
+                        
+                        slot -= SLOT_OFFSET
+                        if (bus, slot) not in self.frus.keys():
+                            self.frus[(bus, slot)] = FRU(
+                                    name = name.strip(), 
+                                    id = id.strip(), 
+                                    slot = slot, 
+                                    bus = bus,
+                                    crate = self)
                 except ValueError:
                     print ("Couldn't parse {}".format(line))
             self.frus_inited = True
@@ -833,11 +820,9 @@ class MTCACrate():
             try:
                 result = self.mch_comms.call_ipmitool_command(["sel", "time", "get"])
 
-                print('read_mch_uptime: {}'.format(result))
-                print('read_mch_uptime: {}'.format(result))
                 # Check that the result is the expected format
-                if re.match('\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d', result.strip()):
-                    mch_now = datetime.datetime.strptime(result.strip(), '%m/%d/%Y %H:%M:%S')
+                if re.match('\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d', result.splitlines()[0].strip()):
+                    mch_now = datetime.datetime.strptime(result.splitlines()[0].strip(), '%m/%d/%Y %H:%M:%S')
 
                     # Calculate the uptime
                     mch_uptime_diff = mch_now - MCH_START_TIME
