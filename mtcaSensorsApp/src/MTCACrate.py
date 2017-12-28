@@ -208,6 +208,7 @@ FAN_ALARMS = {
 MCH_START_TIME = datetime.datetime(1970,1,1,0,0,0)
 
 IPMITOOL_SHELL_PROMPT = 'ipmitool>'
+QUEUE_THREAD_SLEEP_TIME = 0.0005
 
 def get_crate():
     """
@@ -281,7 +282,7 @@ class MCH_comms():
                 started = False
                 finished = False
 
-            time.sleep(0.01)
+            time.sleep(QUEUE_THREAD_SLEEP_TIME)
         return
 
     def create_ipmitool_command(self):
