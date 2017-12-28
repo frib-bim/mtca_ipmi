@@ -228,8 +228,11 @@ def stop():
     Cleanup on IOC exit
     """
     
+    print('stop: entering')
     crate = get_crate()
     crate.mch_comms.stop = True
+    print('stop: set crate.mch_comms.stop to {}'.format(crate.mch_comms.stop))
+    crate.mch_comms.t.join()
 
 addHook('AtIocExit', stop)
 
@@ -259,11 +262,35 @@ class MCH_comms():
         """
 
         started = False
+        finished = False
+
         while not self.stop:
             for line in iter(out.readline, ''):
-                queue.put(line)
-                #print('enqueue_output: {}'.format(line))
-            time.sleep(0.1)
+                if not 'ipmitool>' in line.decode('ascii'):
+                    queue.put(line)
+                # Test if we have reached the end of the output
+                if len(line) > 0:
+                    print('enqueue_output: {}'.format(line))
+                else:
+                    time.sleep(0.1)
+                if started and 'ipmitool>' in line.decode('ascii'):
+                    finished = True
+                    print('enqueue_output: finished = {}'.format(finished))
+                if 'ipmitool>' in line.decode('ascii'):
+                    started = True
+                    print('enqueue_output: started = {}'.format(started))
+
+                if finished and self.comms_lock.locked():
+                    print('enqueue_output: releasing lock')
+                    self.comms_lock.release()
+                    started = False
+                    finished = False
+
+                if self.stop:
+                    print('enqueue_output: breaking')
+                    break
+
+            time.sleep(0.001)
 
     def create_ipmitool_command(self):
         """
@@ -310,7 +337,6 @@ class MCH_comms():
                     stdout=subprocess.PIPE, 
                     stderr=subprocess.PIPE)
 
-
             # Set up the queue and thread to monitor the stdout pipe
             q = Queue.Queue()
             self.t = threading.Thread(
@@ -318,14 +344,15 @@ class MCH_comms():
                     args=(self.ipmitool_shell.stdout, q))
             self.t.start()
             self.ipmitool_out_queue = q
-            time.sleep(1.0)
+            #time.sleep(1.0)
 
-            # Initial command to get things started
-            command = 'sdr elist fru\n'
-            self.ipmitool_shell.stdin.write(command.encode('ascii'))
-            self.ipmitool_shell.stdin.flush()
-            while not self.ipmitool_out_queue.empty():
-                self.ipmitool_out_queue.get_nowait()
+            # Initial null command to get things started
+            #command = '\n'
+            #self.ipmitool_shell.stdin.write(command.encode('ascii'))
+            #self.ipmitool_shell.stdin.flush()
+            #time.sleep(1.0)
+            #while not self.ipmitool_out_queue.empty():
+                #print('ipmitool_shell_connect: {}'.format(self.ipmitool_out_queue.get_nowait()))
             self.connected = True
 
     def call_ipmitool_command(self, ipmitool_cmd):
@@ -350,22 +377,25 @@ class MCH_comms():
             self.ipmitool_shell_connect()
             self.ipmitool_shell.stdin.write(command.encode('ascii'))
             self.ipmitool_shell.stdin.flush()
+            self.ipmitool_shell.stdin.write('\n'.encode('ascii'))
+            self.ipmitool_shell.stdin.flush()
             #print('call_ipmitool_command: {}'.format(command))
         
-            # Wait before checking the queue
-            time.sleep(0.2)
-
-            # Wait for some data in the result queue
-            while self.ipmitool_out_queue.empty():
+            # Wait until the thread releases the lock after all data has been received
+            while self.comms_lock.locked():
                 time.sleep(0.1)
 
+            # Wait for some data in the result queue
+            #while self.ipmitool_out_queue.empty():
+                #time.sleep(0.1)
+            
             # pull the data out of the queue
             while not self.ipmitool_out_queue.empty():
                 line = self.ipmitool_out_queue.get_nowait()
                 result_list.append(line.decode('ascii'))
 
             # once we are here, we can release the lock
-            self.comms_lock.release()
+            #self.comms_lock.release()
 
         # Drop the first value, as it is an echo of the command
         return "".join(result_list[1:])
@@ -560,7 +590,7 @@ class FRU():
         else:
             result = ""
             try:
-                result = self.mch_comms.call_ipmitool_command(["sensor", "get", name])
+                result = self.mch_comms.call_ipmitool_command(["sensor", "get", '"'+name+'"'])
             except CalledProcessError as e:
                 # This traps any errors thrown by the call to ipmitool. 
                 # This occurs if all alarm thresholds are not set. 
@@ -803,6 +833,7 @@ class MTCACrate():
             try:
                 result = self.mch_comms.call_ipmitool_command(["sel", "time", "get"])
 
+                print('read_mch_uptime: {}'.format(result))
                 print('read_mch_uptime: {}'.format(result))
                 # Check that the result is the expected format
                 if re.match('\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d', result.strip()):
