@@ -20,6 +20,7 @@ import os
 import sys
 import threading
 from devsup.db import IOScanListBlock
+from devsup.hooks import addHook
 
 if os.name == 'posix' and sys.version_info[0] < 3:
     import subproces32 as subprocess
@@ -221,6 +222,17 @@ def get_crate():
     except:
         pass
 
+# Cleanup on IOC exit
+def stop():
+    """
+    Cleanup on IOC exit
+    """
+    
+    crate = get_crate()
+    crate.mch_comms.stop = True
+
+addHook('AtIocExit', stop)
+
 class MCH_comms():
     """ 
     Class to handle all comms to MCH
@@ -228,27 +240,30 @@ class MCH_comms():
 
     def __init__(self, _crate):
         self.ipmitool_shell = None
-        self.ipmitool_shell_stdin = None
-        self.ipmitool_shell_stdout = None
+        self.ipmitool_out_queue = None
         self.crate = _crate
         self.connected = False
-
-    def connect(self):
-        if not self.connected:
-            self.ipmitool_shell = self.ipmitool_shell_connect()
-            self.ipmitool_shell_stdin = self.ipmitool_shell.stdin
-            q = Queue.Queue()
-            t = threading.Thread(
-                    target=self.enqueue_output, 
-                    args=(self.ipmitool_shell.stdout, q))
-            t.start()
-            self.ipmitool_shell_stdout = q
-            self.connected = True
+        self.stop = False
+        self.comms_lock = threading.Lock()
 
     def enqueue_output(self, out, queue):
-        for line in iter(out.readline, b''):
-            queue.put(line)
-        out.close()
+        """
+        Helper function for queuing piped output from ipmitool shell
+
+        Args:
+            out (pipe): pipe to listen to
+            queue (queue): output queue for results
+
+        Returns:
+            Nothing
+        """
+
+        started = False
+        while not self.stop:
+            for line in iter(out.readline, ''):
+                queue.put(line)
+                #print('enqueue_output: {}'.format(line))
+            time.sleep(0.1)
 
     def create_ipmitool_command(self):
         """
@@ -282,24 +297,36 @@ class MCH_comms():
         Args: 
             None
         Returns:
-            shell (subprocess.Popen): Connection to the ipmitool shell
+            Nothing
         """
 
-        try:
-            self.connect()
+        if not self.connected:
             command = self.create_ipmitool_command()
             command.append("shell")
-        except AttributeError:
-            pass
 
-        try:
-            _shell
-        except NameError:
-            _shell = subprocess.Popen(
+            self.ipmitool_shell = subprocess.Popen(
                     command, 
                     stdin=subprocess.PIPE, 
                     stdout=subprocess.PIPE, 
                     stderr=subprocess.PIPE)
+
+
+            # Set up the queue and thread to monitor the stdout pipe
+            q = Queue.Queue()
+            self.t = threading.Thread(
+                    target=self.enqueue_output, 
+                    args=(self.ipmitool_shell.stdout, q))
+            self.t.start()
+            self.ipmitool_out_queue = q
+            time.sleep(1.0)
+
+            # Initial command to get things started
+            command = 'sdr elist fru\n'
+            self.ipmitool_shell.stdin.write(command.encode('ascii'))
+            self.ipmitool_shell.stdin.flush()
+            while not self.ipmitool_out_queue.empty():
+                self.ipmitool_out_queue.get_nowait()
+            self.connected = True
 
     def call_ipmitool_command(self, ipmitool_cmd):
         """
@@ -314,17 +341,34 @@ class MCH_comms():
 
         command = ' '.join(str(e) for e in ipmitool_cmd)
         command += '\n'
-        print(command)
         
-        self.ipmitool_shell_stdin.write(command.encode('utf-8'))
-        self.ipmitool_shell_stdin.flush()
-        
-        result = ""
-        while not self.ipmitool_shell_stdout.empty():
-            line = self.ipmitool_shell_stdout.get_nowait()
-            result += line.decode('utf-8')
+        result_list = []
 
-        return result
+        #with (yield from self.comms_lock):
+        if not self.comms_lock.locked():
+            self.comms_lock.acquire()
+            self.ipmitool_shell_connect()
+            self.ipmitool_shell.stdin.write(command.encode('ascii'))
+            self.ipmitool_shell.stdin.flush()
+            #print('call_ipmitool_command: {}'.format(command))
+        
+            # Wait before checking the queue
+            time.sleep(0.2)
+
+            # Wait for some data in the result queue
+            while self.ipmitool_out_queue.empty():
+                time.sleep(0.1)
+
+            # pull the data out of the queue
+            while not self.ipmitool_out_queue.empty():
+                line = self.ipmitool_out_queue.get_nowait()
+                result_list.append(line.decode('ascii'))
+
+            # once we are here, we can release the lock
+            self.comms_lock.release()
+
+        # Drop the first value, as it is an echo of the command
+        return "".join(result_list[1:])
 
     def get_ipmitool_version(self):
             # Print ipmitool information
@@ -336,7 +380,7 @@ class MCH_comms():
             return check_output(
                     command, 
                     stderr=ERR_FILE, 
-                    timeout=COMMS_TIMEOUT).decode('utf-8')
+                    timeout=COMMS_TIMEOUT).decode('ascii')
 
 
 class Sensor():
@@ -640,18 +684,29 @@ class MTCACrate():
         self.frus_inited = False
         self.frus = {}
 
+        result = ""
+
         if (self.host != None 
                 and self.user != None 
                 and self.password != None 
                 and self.crate_resetting == False):
-            try:
-                result = self.mch_comms.call_ipmitool_command(["sdr", "elist", "fru"])
-            except CalledProcessError:
-                pass
-            except TimeoutExpired as e:
-                print("populate_fru_list: Caught TimeoutExpired exception: {}".format(e))
-            
+
+            # Need to repeat this until we get a proper reponse to the FRU list
+            while len(result) <= 0:
+                try:
+                    result = self.mch_comms.call_ipmitool_command(["sdr", "elist", "fru"])
+                except CalledProcessError:
+                    pass
+                except TimeoutExpired as e:
+                    print("populate_fru_list: Caught TimeoutExpired exception: {}".format(e))
+                
+                #print('populate_fru_list: {}'.format(result))
+                #print('populate_fru_list: {}'.format(len(result)))
+                # Wait a short whlie before trying again
+                time.sleep(1.0)
+
             for line in result.splitlines():
+                #print(line)
                 try:
                     name, ref, status, id, desc = line.split('|')
                     
@@ -748,8 +803,9 @@ class MTCACrate():
             try:
                 result = self.mch_comms.call_ipmitool_command(["sel", "time", "get"])
 
+                print('read_mch_uptime: {}'.format(result))
                 # Check that the result is the expected format
-                if re.match('\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d', result):
+                if re.match('\d\d\/\d\d\/\d\d\d\d \d\d:\d\d:\d\d', result.strip()):
                     mch_now = datetime.datetime.strptime(result.strip(), '%m/%d/%Y %H:%M:%S')
 
                     # Calculate the uptime
@@ -763,7 +819,6 @@ class MTCACrate():
                 pass
             except TimeoutExpired as e:
                 print("read_mch_uptime: Caught TimeoutExpired exception: {}".format(e))
-
 
     def reset(self):
         """
