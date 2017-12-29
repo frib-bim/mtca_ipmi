@@ -21,7 +21,6 @@ import sys
 import threading
 from devsup.db import IOScanListBlock
 from devsup.hooks import addHook
-from devsup.util import StoppableThread
 
 if os.name == 'posix' and sys.version_info[0] < 3:
     import subproces32 as subprocess
@@ -272,6 +271,7 @@ class MCH_comms():
         while not self.stop:
             line = out.readline()
             queue.put(line)
+            #print('enqueue_output: line = {}'.format(line))
             # Test if we have reached the end of the output
             if started and IPMITOOL_SHELL_PROMPT in line.decode('ascii'):
                 finished = True
@@ -321,6 +321,7 @@ class MCH_comms():
         """
 
         if not self.connected:
+            print('ipmitool_shell_connect: connecting')
             command = self.create_ipmitool_command()
             command.append("shell")
 
@@ -330,13 +331,20 @@ class MCH_comms():
                     stdout=subprocess.PIPE, 
                     stderr=subprocess.PIPE)
 
+            print('ipmitool_shell_connect: shell = {}'.format(self.ipmitool_shell))
             # Set up the queue and thread to monitor the stdout pipe
             q = Queue.Queue()
+            print('ipmitool_shell_connect: q = {}'.format(q))
+
             self.t = threading.Thread(
                     target=self.enqueue_output, 
                     args=(self.ipmitool_shell.stdout, q))
+            print('ipmitool_shell_connect: self.t = {}'.format(self.t))
+            print('ipmitool_shell_connect: self.t.is_alive() = {}'.format(self.t.is_alive()))
             self.t.start()
+            print('ipmitool_shell_connect: self.t.is_alive() = {}'.format(self.t.is_alive()))
             self.ipmitool_out_queue = q
+            print('ipmitool_shell_connect: self.ipmitool_out_queue = {}'.format(self.ipmitool_out_queue))
             self.connected = True
 
     def call_ipmitool_command(self, ipmitool_cmd):
@@ -717,13 +725,10 @@ class MTCACrate():
                 except TimeoutExpired as e:
                     print("populate_fru_list: Caught TimeoutExpired exception: {}".format(e))
                 
-                #print('populate_fru_list: {}'.format(result))
-                #print('populate_fru_list: {}'.format(len(result)))
                 # Wait a short whlie before trying again
                 time.sleep(1.0)
 
             for line in result.splitlines():
-                #print(line)
                 try:
                     if not IPMITOOL_SHELL_PROMPT in line:
                         name, ref, status, id, desc = line.split('|')
@@ -856,6 +861,21 @@ class MTCACrate():
             time.sleep(5.0)
             print("Resetting crate now")
             self.mch_comms.call_ipmitool_command(["raw", "0x06", "0x03"])
+            # Stop the ipmitool session. System will reconnect on restart
+            print('reset: shell = {}'.format(self.mch_comms.ipmitool_shell))
+            self.mch_comms.ipmitool_shell.terminate()
+            time.sleep(2.0)
+            self.mch_comms.ipmitool_shell.kill()
+            self.mch_comms.ipmitool_shell = None
+            self.mch_comms.connected = False
+            
+            # Stop the reader thread
+            self.mch_comms.stop = True
+            # Wait for the thread to stop
+            print('reset: waiting for thread to stop')
+            self.mch_comms.t.join()
+            self.mch_comms.t = None
+
         except CalledProcessError:
             pass
         except TimeoutExpired as e:
@@ -868,29 +888,31 @@ class MTCACrate():
         MAX_RETRIES = 10
 
         # Wait for the crate to come back up
-        while crate_up == False and retries < MAX_RETRIES:
-            try:
-                print ("Checking comms to MCH, attempt number {}".format(retries+1))
-                result = self.mch_comms.call_ipmitool_command(["mc", "info"])
+        print("Waiting after crate reset before rescanning")
+        time.sleep(60.0)
+        #while crate_up == False and retries < MAX_RETRIES:
+            #try:
+                #print ("Checking comms to MCH, attempt number {}".format(retries+1))
+                #result = self.mch_comms.call_ipmitool_command(["mc", "info"])
                 # If we don't throw an exception, assume the crate is up
-                crate_up = True
-                self.crate_resetting = False
+        crate_up = True
+        self.crate_resetting = False
                 # Wait a few seconds
-                print("MCH is up. Short wait (15 s) before updating card list.")
-                time.sleep(15.0)
+        print("MCH is up. Short wait (15 s) before updating card list.")
+        time.sleep(15.0)
                 # Reread the card list
-                print("Updating card list")
-                self.populate_fru_list()
-            except CalledProcessError:
-                retries+=1
-            except TimeoutExpired as e:
+        print("Updating card list")
+        self.populate_fru_list()
+            #except CalledProcessError:
+                #retries+=1
+            #except TimeoutExpired as e:
                 # OK to get timeout exceptions here. Be silent.
-                retries+=1
+                #retries+=1
 
-        if retries >= MAX_RETRIES:
+        #if retries >= MAX_RETRIES:
             # Reset this to allow other comms, even though they may fail
-            self.crate_resetting = False
-            print ("Reached maximum number of retries. Please try resetting crate again.")
+            #self.crate_resetting = False
+            #print ("Reached maximum number of retries. Please try resetting crate again.")
 
 _crate = MTCACrate()
 
