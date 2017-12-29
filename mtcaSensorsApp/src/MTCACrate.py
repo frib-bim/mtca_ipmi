@@ -2,7 +2,7 @@
 # Date: 2017-06-15
 # Author: Wayne Lewis
 #
-# Description: 
+# Description:
 # Get sensor information for microTCA crate using ipmitool command.
 #
 # Changes:
@@ -1122,13 +1122,6 @@ class MTCACrateReader():
                     else:
                         rec.UDF = 1
                         rec.VAL = float('NaN')
-
-                    # Check if we are still communication with the card
-                    #if card.comms_ok:
-                        #rec.UDF = 0
-                    #else:
-                        #rec.UDF = 1
-
                     valid_sensor = True
         if not valid_sensor:
             rec.VAL = float('NaN')
@@ -1245,12 +1238,12 @@ class MTCACrateReader():
 
         # Check if the card exists
         if (self.bus, self.slot) in self.crate.frus.keys():
-            if self.crate.frus[(self.bus, self.slot)].comms_ok:
+            if self.crate.frus[(self.bus, self.slot)].comms_ok and not self.crate.crate_resetting:
                 rec.VAL = COMMS_OK
             else:
                 rec.VAL = COMMS_ERROR
         else:
-            # Set the comms error given that the slot is empty
+            # Set the comms status given that the slot is empty
             rec.VAL = COMMS_NONE
 
         # Make the record defined regardless of value
