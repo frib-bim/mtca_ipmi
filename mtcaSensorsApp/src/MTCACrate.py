@@ -882,8 +882,8 @@ class MTCACrate():
         try:
             self.crate_resetting = True
             # Wait a few seconds to allow any existing ipmitool requests to complete
-            print("Waiting for queued requests to finish")
-            time.sleep(5.0)
+            print("Short wait before resetting (2 s)")
+            time.sleep(2.0)
             print("Resetting crate now")
             self.mch_comms.call_ipmitool_command(["raw", "0x06", "0x03"])
             # Reset the FRU init status to stop attempts to read the sensors
@@ -932,17 +932,19 @@ class MTCACrate():
                 # If we don't throw an exception, assume the crate is up
                 crate_up = True
                 self.crate_resetting = False
-                # Wait a few seconds
-                print("MCH is up. Short wait (15 s) before updating card list.")
+                # Wait a few seconds. This needs to be 15 s to allow the MCH
+                # to populate its sensor lists.
+                print("MCH is up")
+                print("Short wait (15 s) to allow MCH to update sensor list")
                 time.sleep(15.0)
                 # Restart the communications
                 print("Restarting comms to MCH")
                 result = self.mch_comms.call_ipmitool_command(["mc", "info"])
 
                 # Reread the card list
-                print("Updating card list")
+                print("Updating card and sensor list")
                 self.populate_fru_list()
-                print("Card list updated")
+                print("Lists updated, reading data values again")
             except CalledProcessError as e:
                 retries+=1
             except TimeoutExpired as e:
@@ -1121,7 +1123,8 @@ class MTCACrateReader():
                         rec.UDF = 0
                     else:
                         rec.UDF = 1
-                        rec.VAL = float('NaN')
+                        #rec.VAL = float('NaN')
+                        #rec.VAL = 0.0
                     valid_sensor = True
         if not valid_sensor:
             rec.VAL = float('NaN')
