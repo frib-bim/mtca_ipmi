@@ -881,11 +881,11 @@ class MTCACrate():
         # Issue the reset command
         try:
             self.crate_resetting = True
+            # Reset the FRU init status to stop attempts to read the sensors
+            self.frus_inited = False
             # Wait a few seconds to allow any existing ipmitool requests to complete
             print("Short wait before resetting (2 s)")
             time.sleep(2.0)
-            # Reset the FRU init status to stop attempts to read the sensors
-            self.frus_inited = False
             # Force the records to invalid
             print("Force sensor read to set invalid")
             self.read_sensors()
