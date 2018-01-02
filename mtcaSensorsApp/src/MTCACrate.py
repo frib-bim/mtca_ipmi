@@ -884,16 +884,16 @@ class MTCACrate():
             # Wait a few seconds to allow any existing ipmitool requests to complete
             print("Short wait before resetting (2 s)")
             time.sleep(2.0)
-            print("Resetting crate now")
-            self.mch_comms.call_ipmitool_command(["raw", "0x06", "0x03"])
             # Reset the FRU init status to stop attempts to read the sensors
             self.frus_inited = False
             # Force the records to invalid
             print("Force sensor read to set invalid")
             self.read_sensors()
-
             print("Triggering records to scan")
             self.scan_list.interrupt()
+            # Reset the crate
+            print("Resetting crate now")
+            self.mch_comms.call_ipmitool_command(["raw", "0x06", "0x03"])
             # Stop the ipmitool session. System will reconnect on restart
             print("Stopping ipmitool shell process")
             self.mch_comms.ipmitool_shell.terminate()
@@ -944,7 +944,8 @@ class MTCACrate():
                 # Reread the card list
                 print("Updating card and sensor list")
                 self.populate_fru_list()
-                print("Lists updated, reading data values again")
+                print("Lists updated.")
+                print("Reading data values again, this will take a few seconds")
             except CalledProcessError as e:
                 retries+=1
             except TimeoutExpired as e:
