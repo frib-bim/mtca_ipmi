@@ -337,11 +337,13 @@ class MCH_comms():
         """
 
         retries = 0
-        #print('ipmitool_shell_connect: connected = {}'.format(self.connected))
-        if not self.connected:
+        MAX_RETRIES = 10
+        while retries < MAX_RETRIES and not self.connected:
             # Check if we have comms to the crate
             try:
+                print('ipmitool_shell_connect: connection attempt {}'.format(retries+1))
                 result = self.call_ipmitool_direct_command(["mc", "info"])
+                self.connected=True
             except CalledProcessError as e:
                 retries+=1
             except TimeoutExpired as e:
@@ -350,6 +352,7 @@ class MCH_comms():
             except TypeError as e:
                 print('ipmitool_shell_connect: caught TypeError {}'.format(e))
 
+        if retries < MAX_RETRIES:
             command = self.create_ipmitool_command()
             command.append("shell")
 
@@ -368,6 +371,9 @@ class MCH_comms():
             self.t.start()
             self.ipmitool_out_queue = q
             self.connected = True
+        else:
+            print('ipmitool_shell_connect: failed to reconnect to MCH in {} tries'.format(MAX_RETRIES))
+            # TODO: Add runtime exception here
 
     def ipmitool_shell_reconnect(self):
         """
@@ -1022,9 +1028,11 @@ class MTCACrate():
             pass
         except TimeoutExpired as e:
             # Be silent. We expect this command to timeout.
+            print('reset: reset command sent')
             pass
 
         # Reconnect to the crate
+        print('reset: reconnecting')
         self.mch_comms.ipmitool_shell_reconnect()
 
 #        # Wait for the crate to come back up, and then rescan the card list
