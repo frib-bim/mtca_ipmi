@@ -10,5 +10,5 @@ file mch.template
 {
 pattern
 { S, MCH_SLOT }
-{ "MCH01:", 1 }
+{ "MCH01:", 0 }
 }
