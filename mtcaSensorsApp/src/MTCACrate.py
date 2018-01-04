@@ -28,9 +28,9 @@ if os.name == 'posix' and sys.version_info[0] < 3:
     from subprocess32 import check_output
     from subprocess32 import CalledProcessError
     from subprocess32 import TimeoutExpired
-    import Queue 
+    import Queue
 else:
-    import subprocess 
+    import subprocess
     from subprocess import check_output
     from subprocess import CalledProcessError
     from subprocess import TimeoutExpired
@@ -163,7 +163,7 @@ SENSOR_NAMES = {
 
 DIGITAL_SENSORS = [
     'HOT_SWAP'
-] 
+]
 
 ALARMS = {
     'Lower Critical': 'lolo'
@@ -172,7 +172,7 @@ ALARMS = {
     ,'Upper Critical': 'hihi'
 }
 
-EGU = { 
+EGU = {
     'Volts': 'V'
     ,'Amps': 'A'
     ,'degrees C': 'C'
@@ -217,10 +217,10 @@ def get_crate():
     Args:
         None
 
-    Returns: 
+    Returns:
         MTCACrate object
     """
-    
+
     try:
         return _crate
     except:
@@ -231,7 +231,7 @@ def connect():
     """
     Connect to crate on startup
     """
-    
+
     crate = get_crate()
     # Tell the thread to stop
     crate.mch_comms.ipmitool_shell_connect()
@@ -241,7 +241,7 @@ def stop():
     """
     Cleanup on IOC exit
     """
-    
+
     crate = get_crate()
     # Tell the thread to stop
     crate.mch_comms.stop = True
@@ -257,7 +257,7 @@ addHook('AtIocExit', stop)
 addHook('AfterIocRunning', connect)
 
 class MCH_comms():
-    """ 
+    """
     Class to handle all comms to MCH
     """
 
@@ -313,8 +313,8 @@ class MCH_comms():
         """
 
         # Get the path to ipmitool from the EPICS environment
-        ipmitool_path = os.environ['IPMITOOL'] 
-        
+        ipmitool_path = os.environ['IPMITOOL']
+
         # Create the IPMI tool command
         #crate = get_crate()
         command = []
@@ -323,21 +323,24 @@ class MCH_comms():
         command.append(self.crate.host)
         command.append("-A")
         command.append("None")
-        
+
         return command
 
     def ipmitool_shell_connect(self):
         """
         Connect to the ipmitool shell
 
-        Args: 
+        Args:
             None
         Returns:
             Nothing
         """
 
         retries = 0
-        MAX_RETRIES = 1000
+        # Keep this in case we want to limit the retry loop in future.
+        # sys.maxsize will effectively loop forever, waiting for the
+        # crate to come back online.
+        MAX_RETRIES = sys.maxsize
         while retries < MAX_RETRIES and not self.connected:
             # Check if we have comms to the crate
             try:
@@ -357,16 +360,16 @@ class MCH_comms():
             command.append("shell")
 
             self.ipmitool_shell = subprocess.Popen(
-                    command, 
-                    stdin=subprocess.PIPE, 
-                    stdout=subprocess.PIPE, 
+                    command,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
 
             # Set up the queue and thread to monitor the stdout pipe
             q = Queue.Queue()
 
             self.t = threading.Thread(
-                    target=self.enqueue_output, 
+                    target=self.enqueue_output,
                     args=(self.ipmitool_shell.stdout, q))
             self.t.start()
             self.ipmitool_out_queue = q
@@ -379,7 +382,7 @@ class MCH_comms():
         """
         Reconnect to the ipmitool shell
 
-        Args: 
+        Args:
             None
         Returns:
             Nothing
@@ -401,9 +404,9 @@ class MCH_comms():
 
     def ipmitool_shell_disconnect(self):
         """
-        Disconnect and tear down all communications structures 
+        Disconnect and tear down all communications structures
 
-        Args: 
+        Args:
             None
         Returns:
             Nothing
@@ -453,7 +456,7 @@ class MCH_comms():
 
         command = ' '.join(str(e) for e in ipmitool_cmd)
         command += '\n'
-        
+
         result_list = []
 
         #with (yield from self.comms_lock):
@@ -467,7 +470,7 @@ class MCH_comms():
                 # that indicates the end of the data transmission
                 self.ipmitool_shell.stdin.write('\n'.encode('ascii'))
                 self.ipmitool_shell.stdin.flush()
-            
+
                 # Wait until the thread releases the lock after all data has been received
                 # or until we timeout
                 waits = 0
@@ -480,7 +483,7 @@ class MCH_comms():
                     #print('call_ipmitool_command: timed out')
                     self.comms_lock.release()
                     # Assume that we have lost the ipmitool shell connection,
-                    # so disconnect to allow a future reconnection, unless someone had already 
+                    # so disconnect to allow a future reconnection, unless someone had already
                     # set the crate resetting flag
                     if not self.crate.crate_resetting:
                         self.crate.frus_inited = False
@@ -518,7 +521,7 @@ class MCH_comms():
 
         command = self.create_ipmitool_command()
         command.extend(ipmitool_cmd)
-        
+
         return subprocess.check_output(command, timeout = COMMS_TIMEOUT)
 
     def get_ipmitool_version(self):
@@ -529,8 +532,8 @@ class MCH_comms():
             command.append("-V")
 
             return check_output(
-                    command, 
-                    stderr=ERR_FILE, 
+                    command,
+                    stderr=ERR_FILE,
                     timeout=COMMS_TIMEOUT).decode('ascii')
 
 
@@ -565,7 +568,7 @@ class FRU():
             bus(int): MTCA bus number
             crate(obj): reference to crate object
 
-        Returns: 
+        Returns:
             Nothing
         """
         self.id = id
@@ -583,7 +586,7 @@ class FRU():
     def __str__(self):
         """
         FRU class printout
-        
+
         Args:
             None
 
@@ -594,7 +597,7 @@ class FRU():
 
     def read_sensors(self):
         """
-        Read the sensors for this AMC Slot 
+        Read the sensors for this AMC Slot
 
         Args:
             None
@@ -606,7 +609,7 @@ class FRU():
         if not self.crate.crate_resetting:
             try:
                 result = self.mch_comms.call_ipmitool_command(["sdr", "entity", self.id])
-                
+
                 # Check if we got a good response from ipmitool
                 # First test checks for an unplugged card
                 # Second test checks for MCH comms failure
@@ -624,11 +627,11 @@ class FRU():
                                 line_strip = [x.strip() for x in line.split('|')]
                                 sensor_name, sensor_id, status, fru_id, val = line_strip
 
-                                # Check if the sensor name is in the list of 
+                                # Check if the sensor name is in the list of
                                 # sensors we know about
                                 if sensor_name in SENSOR_NAMES.keys():
                                     sensor_type = SENSOR_NAMES[sensor_name]
-                                    
+
                                     if sensor_type in DIGITAL_SENSORS:
                                         egu = ''
                                         if sensor_type == 'HOT_SWAP':
@@ -650,7 +653,7 @@ class FRU():
                                     # Check if we have already created this sensor
                                     if not sensor_type in self.sensors.keys():
                                         self.sensors[sensor_type] = Sensor(sensor_name)
-                                
+
                                     sensor = self.sensors[sensor_type]
 
                                     # Store the value
@@ -677,7 +680,7 @@ class FRU():
                                         alarm_level = ALARM_LEVELS[status]
                                         if alarm_level > max_alarm_level:
                                             # Special case to ignore normal state of Hot Swap sensor
-                                            if (sensor_name.strip() == 'Hot Swap' 
+                                            if (sensor_name.strip() == 'Hot Swap'
                                                     and status == 'lnc'):
                                                 pass
                                             else:
@@ -705,7 +708,7 @@ class FRU():
         """
 
         for sensor_name in self.sensors.keys():
-            self.sensors[sensor_name].valid = False 
+            self.sensors[sensor_name].valid = False
 
     def set_alarms(self, name):
         """
@@ -722,15 +725,15 @@ class FRU():
             for alarm_level in FAN_ALARMS.keys():
                 sensor_type = SENSOR_NAMES[name]
                 setattr(self.sensors[sensor_type], alarm_level, FAN_ALARMS[alarm_level])
-                self.sensors[sensor_type].alarms_valid = True       
+                self.sensors[sensor_type].alarms_valid = True
         # All other sensors
         else:
             result = ""
             try:
                 result = self.mch_comms.call_ipmitool_command(["sensor", "get", '"'+name+'"'])
             except CalledProcessError as e:
-                # This traps any errors thrown by the call to ipmitool. 
-                # This occurs if all alarm thresholds are not set. 
+                # This traps any errors thrown by the call to ipmitool.
+                # This occurs if all alarm thresholds are not set.
                 # See Jira issue DIAG-23
                 # https://jira.frib.msu.edu/projects/DIAG/issues/DIAG-23
                 # Be silent
@@ -745,7 +748,7 @@ class FRU():
                     if description in ALARMS.keys():
                         sensor_type = SENSOR_NAMES[name]
                         setattr(self.sensors[sensor_type], ALARMS[description], float(value))
-                        self.sensors[sensor_type].alarms_valid = True       
+                        self.sensors[sensor_type].alarms_valid = True
                 except ValueError as e:
                     # Traps lines that cannot be split. Be silent.
                     pass
@@ -768,7 +771,7 @@ class FRU():
             pass
         except TimeoutExpired as e:
             print("reset: Caught TimeoutExpired exception: {}".format(e))
-        
+
         # TODO: Add a resetting status here to allow other reads to wait
         # See DIAG-68.
 
@@ -787,7 +790,7 @@ class MTCACrate():
     """
     Class for holding microTCA crate information, including AMC Slot list
     """
-    
+
     def __init__(self):
         """
         Initializer for MTCACrate object.
@@ -822,13 +825,13 @@ class MTCACrate():
 
         # Create link for all comms
         self.mch_comms = MCH_comms(self)
-        
+
         try:
             result = self.mch_comms.get_ipmitool_version()
             #result = check_output(command, stderr=ERR_FILE, timeout=COMMS_TIMEOUT).decode('utf-8')
             print(result)
-            
-            ipmitool_path = os.environ['IPMITOOL'] 
+
+            ipmitool_path = os.environ['IPMITOOL']
             print("ipmitool path = {}".format(ipmitool_path))
         except CalledProcessError:
             pass
@@ -836,10 +839,10 @@ class MTCACrate():
             print("MTCACrate::__init__: Caught TimeoutExpired exception: {}".format(e))
 
     def populate_fru_list(self):
-        """ 
+        """
         Call MCH and get list of AMC slots
 
-        Args:   
+        Args:
             None
 
         Returns:
@@ -855,9 +858,9 @@ class MTCACrate():
 
         #print('populate_fru_list: crate_resetting = {}'.format(self.crate_resetting))
         #print('populate_fru_list: mch_comms.connected = {}'.format(self.mch_comms.connected))
-        if (self.host != None 
-                and self.user != None 
-                and self.password != None 
+        if (self.host != None
+                and self.user != None
+                and self.password != None
                 and not self.crate_resetting
                 and self.mch_comms.connected):
 
@@ -869,24 +872,24 @@ class MTCACrate():
                     pass
                 except TimeoutExpired as e:
                     print("populate_fru_list: Caught TimeoutExpired exception: {}".format(e))
-                
+
                 # Wait a short whlie before trying again
                 time.sleep(1.0)
 
             for line in result.splitlines():
                 try:
                     name, ref, status, id, desc = line.split('|')
-                    
+
                     # Get the AMC slot number
                     bus, slot = id.strip().split('.')
                     bus, slot = int(bus), int(slot)
-                    
+
                     slot -= SLOT_OFFSET
                     if (bus, slot) not in self.frus.keys():
                         self.frus[(bus, slot)] = FRU(
-                                name = name.strip(), 
-                                id = id.strip(), 
-                                slot = slot, 
+                                name = name.strip(),
+                                id = id.strip(),
+                                slot = slot,
                                 bus = bus,
                                 crate = self)
                 except ValueError:
@@ -896,10 +899,10 @@ class MTCACrate():
             self.read_fw_version()
 
     def read_sensors(self):
-        """ 
+        """
         Call read all sensor values
 
-        Args:   
+        Args:
             None
 
         Returns:
@@ -916,23 +919,23 @@ class MTCACrate():
         if self.frus_inited:
             #print('read_sensors: call read_sensors')
             for fru in self.frus:
-                self.frus[fru].read_sensors()   
+                self.frus[fru].read_sensors()
         else:
             #print('read_sensors: call set_sensors_invalid')
             for fru in self.frus:
-                self.frus[fru].set_sensors_invalid()   
+                self.frus[fru].set_sensors_invalid()
 
     def read_fw_version(self):
-        """ 
+        """
         Get MCH firmware version
 
-        Args:   
+        Args:
             None
 
         Returns:
             Nothing
         """
-        
+
         # This function expects the firmware version to be in a line
         # prefixed with 'Product Extra'.
         # At the moment, it takes the form:
@@ -964,10 +967,10 @@ class MTCACrate():
                 print("read_fw_version: Caught TimeoutExpired exception: {}".format(e))
 
     def read_mch_uptime(self):
-        """ 
+        """
         Get MCH uptime
 
-        Args: 
+        Args:
             None
 
         Returns:
@@ -987,7 +990,7 @@ class MTCACrate():
                     mch_uptime_diff = mch_now - MCH_START_TIME
 
                     self.mch_uptime = (
-                            mch_uptime_diff.days + 
+                            mch_uptime_diff.days +
                             mch_uptime_diff.seconds/(24*60*60))
 
             except CalledProcessError:
@@ -1072,8 +1075,8 @@ class MTCACrateReader():
             rec: pyDevSup record object
             fn (str): function to be called
             args (str): arguments from EPICS record
-                bus (str, optional): mtca bus type (see BUS_IDS) 
-                slot (int, optional): amc slot number 
+                bus (str, optional): mtca bus type (see BUS_IDS)
+                slot (int, optional): amc slot number
                 sensor(str, optional): sensor to read
 
         Returns:
@@ -1101,7 +1104,13 @@ class MTCACrateReader():
         self.process = getattr(self, fn)
         # Allow for I/O Intr scanning
         self.allowScan = self.crate.scan_list.add
-        self.slot = int(slot)
+
+        # Allow for the MCH to be called Slot 0
+        if bus == 'mch':
+            self.slot = int(slot) + 1
+        else:
+            self.slot = int(slot)
+
         if bus in BUS_IDS.keys():
             self.bus = BUS_IDS[bus]
         else:
@@ -1143,7 +1152,7 @@ class MTCACrateReader():
 
     def set_password(self, rec, report):
         """
-        Set password 
+        Set password
 
         Args:
             rec: pyDevSup record object
@@ -1197,7 +1206,7 @@ class MTCACrateReader():
 
 
     def get_val(self, rec, report):
-        """ 
+        """
         Get sensor reading
 
         Args:
@@ -1310,7 +1319,11 @@ class MTCACrateReader():
 
         # Check if this card exists
         if (self.bus, self.slot) in self.crate.frus.keys():
-            rec.VAL = self.crate.frus[(self.bus, self.slot)].slot
+            # Offset the MCH slot number
+            if BUS_IDS['mch'] == self.bus:
+                rec.VAL = self.crate.frus[(self.bus, self.slot)].slot - 1
+            else:
+                rec.VAL = self.crate.frus[(self.bus, self.slot)].slot
         else:
             rec.VAL = float('NaN')
         # Make the record defined regardless of value
@@ -1386,7 +1399,7 @@ class MTCACrateReader():
 
     def get_uptime(self, rec, report):
         """
-        Get MCH uptime 
+        Get MCH uptime
 
         Args:
             rec: pyDevSup record object
@@ -1413,7 +1426,7 @@ class MTCACrateReader():
             self.crate.frus[(self.bus, self.slot)].reset()
 
     def crate_reset(self, rec, report):
-        """ 
+        """
         Power cycle crate
 
         Args:
