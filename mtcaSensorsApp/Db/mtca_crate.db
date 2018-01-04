@@ -9,7 +9,7 @@
 record(bo, "$(P)SCANNER") {
     field(DESC, "Master record for scanning values")
     field(DTYP, "Python Device")
-    field(SCAN, "10 second")
+    field(SCAN, "5 second")
     field(OUT,  "@MTCACrate read_sensors")
 
     info(autosaveFields, "SCAN")
