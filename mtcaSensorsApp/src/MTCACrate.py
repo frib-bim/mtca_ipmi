@@ -233,7 +233,6 @@ def connect():
     """
 
     crate = get_crate()
-    # Tell the thread to stop
     crate.mch_comms.ipmitool_shell_connect()
 
 # Cleanup on IOC exit
@@ -254,7 +253,6 @@ def stop():
         pass
 
 addHook('AtIocExit', stop)
-addHook('AfterIocRunning', connect)
 
 class MCH_comms():
     """
@@ -299,7 +297,6 @@ class MCH_comms():
                 finished = False
 
             time.sleep(QUEUE_THREAD_SLEEP_TIME)
-        return
 
     def create_ipmitool_command(self):
         """
@@ -349,9 +346,11 @@ class MCH_comms():
                 self.connected=True
             except CalledProcessError as e:
                 retries+=1
+                time.sleep(5.0)
             except TimeoutExpired as e:
                 # OK to get timeout exceptions here. Be silent.
                 retries+=1
+                time.sleep(5.0)
             except TypeError as e:
                 print('ipmitool_shell_connect: caught TypeError {}'.format(e))
 
@@ -390,12 +389,15 @@ class MCH_comms():
 
         if not self.connected:
             self.ipmitool_shell_connect()
-            if self.crate.crate_resetting:
+            if self.crate.crate_resetting and not self.crate.fru_rescan:
                 print("ipmitool_shell_reconnect: 30 s wait to allow MCH to update sensor list")
                 time.sleep(30.0)
             # Reread the card list
             print("ipmitool_shell_reconnect: Updating card and sensor list")
             self.crate.populate_fru_list()
+            # Reset flags
+            if self.crate.fru_rescan:
+                self.crate.fru_rescan = False
             if self.crate.crate_resetting:
                 self.crate.crate_resetting = False
             print("ipmitool_shell_reconnect: Lists updated")
@@ -440,7 +442,6 @@ class MCH_comms():
                 print('ipmitool_shell_disconnect: releasing lock')
             # Allow the thread to restart
             self.stop = False
-            print('ipmitool_shell_disconnect: exiting')
 
 
     def call_ipmitool_command(self, ipmitool_cmd):
@@ -691,13 +692,11 @@ class FRU():
                             self.comms_ok = False
                             max_alarm_level = ALARM_STATES.index('NON_RECOVERABLE')
                             self.set_sensors_invalid()
-                            #print("Caught ValueError: {}".format(e))
-                            #pass
 
                 self.alarm_level = max_alarm_level
 
             except TimeoutExpired as e:
-                print("read_sensors: Caught TimeoutExpired exception: {}".format(e))
+                print("read_sensors: caught TimeoutExpired exception: {}".format(e))
                 self.comms_ok = False
 
     def set_sensors_invalid(self):
@@ -741,10 +740,10 @@ class FRU():
                 # See Jira issue DIAG-23
                 # https://jira.frib.msu.edu/projects/DIAG/issues/DIAG-23
                 # Be silent
-                print("set_alarms: Caught CalledProcessError exception: {}".format(e))
+                print("set_alarms: caught CalledProcessError exception: {}".format(e))
                 pass
             except TimeoutExpired as e:
-                print("set_alarms: Caught TimeoutExpired exception: {}".format(e))
+                print("set_alarms: caught TimeoutExpired exception: {}".format(e))
 
             for line in result.splitlines():
                 try:
@@ -774,7 +773,7 @@ class FRU():
         except CalledProcessError:
             pass
         except TimeoutExpired as e:
-            print("reset: Caught TimeoutExpired exception: {}".format(e))
+            print("reset: caught TimeoutExpired exception: {}".format(e))
 
         # TODO: Add a resetting status here to allow other reads to wait
         # See DIAG-68.
@@ -788,7 +787,7 @@ class FRU():
         except CalledProcessError:
             pass
         except TimeoutExpired as e:
-            print("reset: Caught TimeoutExpired exception: {}".format(e))
+            print("reset: caught TimeoutExpired exception: {}".format(e))
 
 class MTCACrate():
     """
@@ -827,6 +826,9 @@ class MTCACrate():
         # Flag to indicate whether crate is being reset
         self.crate_resetting = False
 
+        # Flag to indicate if the crate is being rescanned
+        self.fru_rescan = False
+
         # Create link for all comms
         self.mch_comms = MCH_comms(self)
 
@@ -840,7 +842,7 @@ class MTCACrate():
         except CalledProcessError:
             pass
         except TimeoutExpired as e:
-            print("MTCACrate::__init__: Caught TimeoutExpired exception: {}".format(e))
+            print("MTCACrate::__init__: caught TimeoutExpired exception: {}".format(e))
 
     def populate_fru_list(self):
         """
@@ -860,9 +862,9 @@ class MTCACrate():
 
         result = ""
 
-        print('populate_fru_list: frus_inited = {}'.format(self.frus_inited))
-        print('populate_fru_list: crate_resetting = {}'.format(self.crate_resetting))
-        print('populate_fru_list: mch_comms.connected = {}'.format(self.mch_comms.connected))
+        #print('populate_fru_list: frus_inited = {}'.format(self.frus_inited))
+        #print('populate_fru_list: crate_resetting = {}'.format(self.crate_resetting))
+        #print('populate_fru_list: mch_comms.connected = {}'.format(self.mch_comms.connected))
         if (self.host != None 
                 and self.user != None 
                 and self.password != None 
@@ -876,12 +878,12 @@ class MTCACrate():
                 except CalledProcessError:
                     pass
                 except TimeoutExpired as e:
-                    print("populate_fru_list: Caught TimeoutExpired exception: {}".format(e))
+                    print("populate_fru_list: caught TimeoutExpired exception: {}".format(e))
 
                 # Wait a short whlie before trying again
                 time.sleep(1.0)
 
-            print('populate_fru_list: result = {}'.format(result))
+            #print('populate_fru_list: result = {}'.format(result))
 
             for line in result.splitlines():
                 try:
@@ -927,6 +929,7 @@ class MTCACrate():
             if self.frus_inited:
                 #print('read_sensors: call read_sensors')
                 for fru in self.frus:
+                    #print('read_sensors: fru = {}'.format(fru))
                     self.frus[fru].read_sensors()   
             else:
                 #print('read_sensors: call set_sensors_invalid')
@@ -974,7 +977,7 @@ class MTCACrate():
                         self.mch_fw_ver[mch] = "Unknown"
                         self.mch_fw_date[mch] = "Unknown"
             except TimeoutExpired as e:
-                print("read_fw_version: Caught TimeoutExpired exception: {}".format(e))
+                print("read_fw_version: caught TimeoutExpired exception: {}".format(e))
 
     def read_mch_uptime(self):
         """
@@ -1006,10 +1009,10 @@ class MTCACrate():
             except CalledProcessError:
                 pass
             except TimeoutExpired as e:
-                print("read_mch_uptime: Caught TimeoutExpired exception: {}".format(e))
+                print("read_mch_uptime: caught TimeoutExpired exception: {}".format(e))
             except IndexError as e:
                 pass
-                #print("read_mch_uptime: Caught IndexError exception: {}".format(e))
+                #print("read_mch_uptime: caught IndexError exception: {}".format(e))
 
     def reset(self):
         """
@@ -1183,7 +1186,13 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-        self.crate.populate_fru_list()
+        # This requires a connection reset to force the MCH
+        # to update the Sensor Data Record cache for the 
+        # ipmitool shell connection
+        self.crate.fru_rescan = True
+        self.crate.mch_comms.ipmitool_shell_disconnect()
+        self.crate.mch_comms.ipmitool_shell_reconnect()
+        #self.crate.populate_fru_list()
         rec.UDF = 0
 
     def read_sensors(self, rec, report):
@@ -1210,7 +1219,7 @@ class MTCACrateReader():
                 self.crate.scan_list.interrupt()
             except AttributeError as e:
                 # TODO: Work out why we get this exception
-                print ("Caught AttributeError: {}".format(e))
+                print ("caught AttributeError: {}".format(e))
         else:
             self.crate.populate_fru_list()
 
@@ -1296,7 +1305,7 @@ class MTCACrateReader():
 
             self.alarms_set = True
         except KeyError as e:
-            print ("Caught KeyError: {}".format(e))
+            print ("caught KeyError: {}".format(e))
 
     def get_name(self, rec, report):
         """
