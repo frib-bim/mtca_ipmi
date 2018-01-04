@@ -477,14 +477,19 @@ class MCH_comms():
                     waits += 1
 
                 if waits >= MAX_WAITS:
-                    print('call_ipmitool_command: timed out')
+                    #print('call_ipmitool_command: timed out')
                     self.comms_lock.release()
                     # Assume that we have lost the ipmitool shell connection,
-                    # so disconnect to allow a future reconnection
-                    self.ipmitool_shell_disconnect()
-                    self.comms_timeout = True
+                    # so disconnect to allow a future reconnection, unless someone had already 
+                    # set the crate resetting flag
+                    if not self.crate.crate_resetting:
+                        self.crate.frus_inited = False
+                        self.crate.read_sensors()
+                        self.crate.scan_list.interrupt()
+                        self.ipmitool_shell_disconnect()
+                        self.comms_timeout = True
 
-                    print('call_ipmitool_command: returning after timeout')
+                    #print('call_ipmitool_command: returning after timeout')
                     return ""
 
                 # pull the data out of the queue
@@ -848,8 +853,8 @@ class MTCACrate():
 
         result = ""
 
-        print('populate_fru_list: crate_resetting = {}'.format(self.crate_resetting))
-        print('populate_fru_list: mch_comms.connected = {}'.format(self.mch_comms.connected))
+        #print('populate_fru_list: crate_resetting = {}'.format(self.crate_resetting))
+        #print('populate_fru_list: mch_comms.connected = {}'.format(self.mch_comms.connected))
         if (self.host != None 
                 and self.user != None 
                 and self.password != None 
@@ -901,17 +906,19 @@ class MTCACrate():
             Nothing
         """
 
-        print('read_sensors: self.mch_comms.connected = {}'.format(self.mch_comms.connected))
-        print('read_sensors: self.mch_comms.comms_timeout = {}'.format(self.mch_comms.comms_timeout))
+        #print('read_sensors: self.mch_comms.connected = {}'.format(self.mch_comms.connected))
+        #print('read_sensors: self.mch_comms.comms_timeout = {}'.format(self.mch_comms.comms_timeout))
 
         if not self.mch_comms.connected or self.mch_comms.comms_timeout:
-            print('read_sensors: call ipmitool_shell_reconnect')
+            #print('read_sensors: call ipmitool_shell_reconnect')
             self.mch_comms.ipmitool_shell_reconnect()
 
         if self.frus_inited:
+            #print('read_sensors: call read_sensors')
             for fru in self.frus:
                 self.frus[fru].read_sensors()   
         else:
+            #print('read_sensors: call set_sensors_invalid')
             for fru in self.frus:
                 self.frus[fru].set_sensors_invalid()   
 
@@ -1019,19 +1026,19 @@ class MTCACrate():
             # Stop the ipmitool session. System will reconnect on restart
             self.mch_comms.ipmitool_shell.terminate()
             time.sleep(2.0)
-            print("reset: Killing ipmitool shell process")
+            #print("reset: Killing ipmitool shell process")
             self.mch_comms.ipmitool_shell.kill()
             self.mch_comms.ipmitool_shell = None
             # Stop the reader thread
-            print("reset: Stopping thread")
+            #print("reset: Stopping thread")
             self.mch_comms.stop = True
             # Wait for the thread to stop
             self.mch_comms.t.join()
-            print("reset: Thread stopped")
+            #print("reset: Thread stopped")
             self.mch_comms.t = None
             # Allow the thread to restart
             self.mch_comms.stop = False
-            print("reset: Exiting ")
+            #print("reset: Exiting ")
             # Reset the crate
             print("reset: Resetting crate now")
             self.mch_comms.call_ipmitool_direct_command(["raw", "0x06", "0x03"])
@@ -1046,46 +1053,6 @@ class MTCACrate():
         # Reconnect to the crate
         print('reset: reconnecting')
         self.mch_comms.ipmitool_shell_reconnect()
-
-#        # Wait for the crate to come back up, and then rescan the card list
-#        crate_up = False
-#        retries = 0
-#        MAX_RETRIES = 10
-#
-#        # Wait for the crate to come back up
-#        print("Waiting for MCH to come up")
-#        #time.sleep(60.0)
-#        while not crate_up and retries < MAX_RETRIES:
-#            try:
-#                print ("Checking comms to MCH, attempt number {}".format(retries+1))
-#                result = self.mch_comms.call_ipmitool_direct_command(["mc", "info"])
-#                # If we don't throw an exception, assume the crate is up
-#                crate_up = True
-#                # Wait a few seconds. This needs to be 20 s to allow the MCH
-#                # to populate its sensor lists.
-#                print("MCH is up")
-#                print("Short wait (20 s) to allow MCH to update sensor list")
-#                time.sleep(20.0)
-#                # Restart the communications
-#                print("Restarting comms to MCH")
-#                result = self.mch_comms.call_ipmitool_command(["mc", "info"])
-#
-#                # Reread the card list
-#                print("Updating card and sensor list")
-#                self.populate_fru_list()
-#                print("Lists updated.")
-#                self.crate_resetting = False
-#                print("Reading data values again, this will take a few seconds")
-#            except CalledProcessError as e:
-#                retries+=1
-#            except TimeoutExpired as e:
-#                # OK to get timeout exceptions here. Be silent.
-#                retries+=1
-#
-#        if retries >= MAX_RETRIES:
-#            # Reset this to allow other comms, even though they may fail
-#            self.crate_resetting = False
-#            print ("Reached maximum number of retries. Please try resetting crate again.")
 
 _crate = MTCACrate()
 
@@ -1210,10 +1177,10 @@ class MTCACrateReader():
         Returns:
             Nothing
         """
-        print('read_sensors: entering')
-        print('read_sensors: frus_inited = {}'.format(self.crate.frus_inited))
+        #print('read_sensors: entering')
+        #print('read_sensors: frus_inited = {}'.format(self.crate.frus_inited))
 
-        if not self.crate.mch_comms.connected or self.crate.mch_comms.comms_timeout:
+        if self.crate.mch_comms.comms_timeout:
             print('read_sensors: call ipmitool_shell_reconnect')
             self.crate.mch_comms.ipmitool_shell_reconnect()
 
