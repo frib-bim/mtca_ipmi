@@ -860,11 +860,12 @@ class MTCACrate():
 
         result = ""
 
-        #print('populate_fru_list: crate_resetting = {}'.format(self.crate_resetting))
-        #print('populate_fru_list: mch_comms.connected = {}'.format(self.mch_comms.connected))
-        if (self.host != None
-                and self.user != None
-                and self.password != None
+        print('populate_fru_list: frus_inited = {}'.format(self.frus_inited))
+        print('populate_fru_list: crate_resetting = {}'.format(self.crate_resetting))
+        print('populate_fru_list: mch_comms.connected = {}'.format(self.mch_comms.connected))
+        if (self.host != None 
+                and self.user != None 
+                and self.password != None 
                 and not self.crate_resetting
                 and self.mch_comms.connected):
 
@@ -879,6 +880,8 @@ class MTCACrate():
 
                 # Wait a short whlie before trying again
                 time.sleep(1.0)
+
+            print('populate_fru_list: result = {}'.format(result))
 
             for line in result.splitlines():
                 try:
@@ -920,14 +923,17 @@ class MTCACrate():
             #print('read_sensors: call ipmitool_shell_reconnect')
             self.mch_comms.ipmitool_shell_reconnect()
 
-        if self.frus_inited:
-            #print('read_sensors: call read_sensors')
-            for fru in self.frus:
-                self.frus[fru].read_sensors()
-        else:
-            #print('read_sensors: call set_sensors_invalid')
-            for fru in self.frus:
-                self.frus[fru].set_sensors_invalid()
+        try:
+            if self.frus_inited:
+                #print('read_sensors: call read_sensors')
+                for fru in self.frus:
+                    self.frus[fru].read_sensors()   
+            else:
+                #print('read_sensors: call set_sensors_invalid')
+                for fru in self.frus:
+                    self.frus[fru].set_sensors_invalid()   
+        except KeyError as e:
+            print('read_sensors: caught KeyError {}'.format(e))
 
     def read_fw_version(self):
         """
