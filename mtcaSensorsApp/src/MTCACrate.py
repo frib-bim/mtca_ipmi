@@ -687,8 +687,12 @@ class FRU():
                                                 max_alarm_level = alarm_level
 
                         except ValueError as e:
-                            print("Caught ValueError: {}".format(e))
-                            pass
+                            # Assume that this is due to the card being pulled
+                            self.comms_ok = False
+                            max_alarm_level = ALARM_STATES.index('NON_RECOVERABLE')
+                            self.set_sensors_invalid()
+                            #print("Caught ValueError: {}".format(e))
+                            #pass
 
                 self.alarm_level = max_alarm_level
 
