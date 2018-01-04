@@ -476,10 +476,7 @@ class MCH_comms():
                     self.ipmitool_shell_disconnect()
                     self.comms_timeout = True
 
-                    raise TimeoutExpired(
-                            cmd=command,
-                            timeout = 5.0,
-                            output='')
+                    return ""
 
                 # pull the data out of the queue
                 while not self.ipmitool_out_queue.empty():
@@ -893,7 +890,11 @@ class MTCACrate():
             Nothing
         """
 
+        print('read_sensors: self.mch_comms.connected = {}'.format(self.mch_comms.connected))
+        print('read_sensors: self.mch_comms.comms_timeout = {}'.format(self.mch_comms.comms_timeout))
+
         if not self.mch_comms.connected or self.mch_comms.comms_timeout:
+            print('read_sensors: call ipmitool_shell_reconnect')
             self.mch_comms.ipmitool_shell_reconnect()
 
         if self.frus_inited:
