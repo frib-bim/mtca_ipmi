@@ -9,6 +9,6 @@
 file mch.template 
 {
 pattern
-{ S, MCH_SLOT }
-{ "MCH01:", 0 }
+{ S,        MCH_SLOT, PM_CH }
+{ "MCH01:", 0,        "01"}
 }
