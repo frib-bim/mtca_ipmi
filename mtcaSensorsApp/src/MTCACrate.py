@@ -198,12 +198,31 @@ ALARM_STATES = [
     ,'NON_RECOVERABLE'
 ]
 
+# Hard code fan speed alarms
 FAN_ALARMS = {
     'lolo': 500
     ,'low': 1000
     ,'high': 3500
     ,'hihi': 4000
 }
+
+# Hard code power module current channel alarms
+POWER_CHANNEL_ALARMS = {
+    'lolo': 0,
+    'low': 0,
+    'high': 2.9,
+    'hihi': 3.0
+}
+
+POWER_SUM_ALARMS = {
+    'lolo': 0,
+    'low': 0,
+    'high': 20.0,
+    'hihi': 25.0
+}
+
+POWER_CHANNEL_SENSOR_PATTERN = 'Ch[0-9][0-9] Current'
+POWER_SUM_SENSOR_PATTERN = 'Current\(Sum\)'
 
 MCH_START_TIME = datetime.datetime(1970,1,1,0,0,0)
 
@@ -725,10 +744,25 @@ class FRU():
         """
         # Special treatment for fan sensors
         if "Fan" in name:
+            sensor_type = SENSOR_NAMES[name]
             for alarm_level in FAN_ALARMS.keys():
-                sensor_type = SENSOR_NAMES[name]
                 setattr(self.sensors[sensor_type], alarm_level, FAN_ALARMS[alarm_level])
-                self.sensors[sensor_type].alarms_valid = True
+            self.sensors[sensor_type].alarms_valid = True
+
+        # Special treatment for power module current channel sensors
+        elif re.match(POWER_CHANNEL_SENSOR_PATTERN, name):
+            sensor_type = SENSOR_NAMES[name]
+            for alarm_level in POWER_CHANNEL_ALARMS.keys():
+                setattr(self.sensors[sensor_type], alarm_level, POWER_CHANNEL_ALARMS[alarm_level])
+            self.sensors[sensor_type].alarms_valid = True
+
+        # Special treatment for power module total current sensor
+        elif re.match(POWER_SUM_SENSOR_PATTERN, name):
+            sensor_type = SENSOR_NAMES[name]
+            for alarm_level in POWER_SUM_ALARMS.keys():
+                setattr(self.sensors[sensor_type], alarm_level, POWER_SUM_ALARMS[alarm_level])
+            self.sensors[sensor_type].alarms_valid = True
+
         # All other sensors
         else:
             result = ""
