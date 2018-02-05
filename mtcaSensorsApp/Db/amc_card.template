@@ -235,3 +235,11 @@ record(bo, "$(P)$(S)RESET") {
 	field(DTYP, "Python Device")
 	field(OUT,  "@MTCACrate reset amc $(AMC_SLOT)")
 }
+
+record(bi, "$(P)$(S)STS") {
+	field(DESC, "$(S) card status")
+	field(ZNAM, "Off")
+	field(ONAM, "On")
+	field(INP,  "$(P)$(PM)I$(PM_CH)_STS CPP")
+}
+

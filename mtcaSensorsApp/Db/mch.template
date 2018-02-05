@@ -263,3 +263,10 @@ record(ai, "$(P)$(S)UPTIME") {
     field(INP,  "@MTCACrate get_uptime mch $(MCH_SLOT)")
 }
 
+record(bi, "$(P)$(S)STS") {
+	field(DESC, "$(S) card status")
+	field(ZNAM, "Off")
+	field(ONAM, "On")
+	field(INP,  "$(P)$(PM)I$(PM_CH)_STS CPP")
+}
+
