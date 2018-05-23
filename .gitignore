@@ -10,3 +10,6 @@ envPaths
 /python2.7/
 /python3.4/
 as/
+.cproject
+.project
+.settings/
