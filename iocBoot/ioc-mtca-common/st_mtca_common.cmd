@@ -1,6 +1,6 @@
 # Common startup script for MTCA crate monitoring IOC
 # This script should be called from each individual IOC startup
-# using 
+# using
 # < st_mtca_common.cmd
 # after setting the environment variables.
 
@@ -35,6 +35,8 @@ set_pass0_restoreFile("info_settings.sav")
 set_pass1_restoreFile("info_settings.sav")
 
 iocInit()
+iocLogInit()
+caPutLogInit("${EPICS_PUT_LOG_INET}:${EPICS_PUT_LOG_PORT}", 1)
 
 cd $(AS_PATH)/req
 makeAutosaveFiles()

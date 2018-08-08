@@ -18,11 +18,15 @@ mtcaSensors_DBD += base.dbd
 #mtcaSensors_DBD += iocAdmin.dbd
 mtcaSensors_DBD += asSupport.dbd
 mtcaSensors_DBD += pyDevSup.dbd
+mtcaSensors_DBD += reccaster.dbd
+mtcaSensors_DBD += caPutLog.dbd
 
 # Add all the support libraries needed by this IOC
 #mtcaSensors_LIBS += devIocStats
 mtcaSensors_LIBS += autosave
 mtcaSensors_LIBS += pyDevSup$(PY_LD_VER)
+mtcaSensors_LIBS += reccaster
+mtcaSensors_LIBS += caPutLog
 
 # mtcaSensors_registerRecordDeviceDriver.cpp derives from mtcaSensors.dbd
 mtcaSensors_SRCS += mtcaSensors_registerRecordDeviceDriver.cpp
