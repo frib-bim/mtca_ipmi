@@ -15,7 +15,6 @@ DB += amc_cards.db
 DB += cooling_unit.template
 DB += power_modules.db
 DB += mch.db
-DB += $(EPICS_BASE)/db/save_restoreStatus.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
