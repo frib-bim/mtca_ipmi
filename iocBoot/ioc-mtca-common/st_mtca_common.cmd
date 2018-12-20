@@ -20,6 +20,8 @@ dbLoadRecords("db/cooling_unit.template","P=$(CRATE),S=$(CU2=CU02:),UNIT=2")
 dbLoadRecords("db/power_modules.db","P=$(CRATE)")
 dbLoadRecords("db/mch.db","P=$(CRATE),PM=$(PM=PM02:)")
 
+< $(TOP)/iocBoot/archiver_tags.cmd
+
 iocInit()
 
 cd $(TOP)
