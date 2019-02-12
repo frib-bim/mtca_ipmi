@@ -3,7 +3,7 @@
 ## You may have to change mtcaSensors to something else
 ## everywhere it appears in this file
 
-epicsEnvSet("CRATE", "MTCAMCH99:")
+epicsEnvSet("CRATE", "DIAG_MTCA99:MCH_N0099:")
 epicsEnvSet("MCH_HOST", "mtca99-mch")
 epicsEnvSet("CRATE_ID", "MTCA 99")
 epicsEnvSet("RACK_ID", "Dev net")
