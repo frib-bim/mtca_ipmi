@@ -1,3 +1,2 @@
 #RULES.ioc
-include $(DIAGSTD)/configure/RULES_FRIBDIAGSTD.ioc
 include $(CONFIG)/RULES.ioc
