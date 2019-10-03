@@ -76,19 +76,12 @@ record(stringin, "$(P)RACK") {
 }
 
 # Calculate fan speed averages
-record(calcout, "$(P)FAN_FRONT_AVG_CALC") {
-    field(DESC, "Front fan average calculation")
-    field(INPA, "$(P)$(CU1=CU01:)FAN_FRONT_AVG CPP")
-    field(INPB, "$(P)$(CU2=CU02:)FAN_FRONT_AVG CPP")
-    field(CALC, "(A+B)/2")
-    field(OOPT, "On Change")
-    field(DOPT, "Use CALC")
-    field(OUT,  "$(P)FAN_FRONT_AVG PP")
-    field(PINI, "NO")
-}
-
-record(ai, "$(P)FAN_FRONT_AVG") {
+record(calc, "$(P)FAN_FRONT_AVG") {
     field(DESC, "Front fan average")
+    field(INPA, "$(P)$(CU1=CU01:)FAN_FRONT_AVG MSS CPP")
+    field(INPB, "$(P)$(CU2=CU02:)FAN_FRONT_AVG MSS CPP")
+    field(CALC, "(A+B)/2")
+    field(PINI, "NO")
     field(EGU,  "RPM")
     field(PREC, "0")
     field(LOLO, "500")
@@ -101,19 +94,12 @@ record(ai, "$(P)FAN_FRONT_AVG") {
     field(HHSV, "MAJOR")
 }
 
-record(calcout, "$(P)FAN_REAR_AVG_CALC") {
-    field(DESC, "Rear fan average calculation")
-    field(INPA, "$(P)$(CU1=CU01:)FAN_REAR_AVG CPP")
-    field(INPB, "$(P)$(CU2=CU02:)FAN_REAR_AVG CPP")
-    field(CALC, "(A+B)/2")
-    field(OOPT, "On Change")
-    field(DOPT, "Use CALC")
-    field(OUT,  "$(P)FAN_REAR_AVG PP")
-    field(PINI, "NO")
-}
-
-record(ai, "$(P)FAN_REAR_AVG") {
+record(calc, "$(P)FAN_REAR_AVG") {
     field(DESC, "Rear fan average")
+    field(INPA, "$(P)$(CU1=CU01:)FAN_REAR_AVG MSS CPP")
+    field(INPB, "$(P)$(CU2=CU02:)FAN_REAR_AVG MSS CPP")
+    field(CALC, "(A+B)/2")
+    field(PINI, "NO")
     field(EGU,  "RPM")
     field(PREC, "0")
     field(LOLO, "500")
@@ -126,19 +112,12 @@ record(ai, "$(P)FAN_REAR_AVG") {
     field(HHSV, "MAJOR")
 }
 
-record(calcout, "$(P)FAN_AVG_CALC") {
+record(calc, "$(P)FAN_AVG") {
     field(DESC, "Crate fan average calculation")
-    field(INPA, "$(P)$(CU1=CU01:)FAN_AVG CPP")
-    field(INPB, "$(P)$(CU2=CU02:)FAN_AVG CPP")
+    field(INPA, "$(P)$(CU1=CU01:)FAN_AVG MSS CPP")
+    field(INPB, "$(P)$(CU2=CU02:)FAN_AVG MSS CPP")
     field(CALC, "(A+B)/2")
-    field(OOPT, "On Change")
-    field(DOPT, "Use CALC")
-    field(OUT,  "$(P)FAN_AVG PP")
     field(PINI, "NO")
-}
-
-record(ai, "$(P)FAN_AVG") {
-    field(DESC, "Crate fan average")
     field(EGU,  "RPM")
     field(PREC, "0")
     field(LOLO, "500")
@@ -152,24 +131,15 @@ record(ai, "$(P)FAN_AVG") {
 }
 
 # Calculate the average inlet temperature
-record(calcout, "$(P)TEMP_INLET_AVG_CALC") {
-    field(DESC, "Crate average inlet temp calc")
-    field(INPA, "$(P)PM02:TEMP_INLET CPP")
-    field(INPB, "$(P)CU02:TEMP1 CPP")
-    field(INPC, "$(P)CU02:TEMP2 CPP")
-    field(INPD, "$(P)CU01:TEMP1 CPP")
-    field(INPE, "$(P)CU01:TEMP2 CPP")
-    field(CALC, "(A-4+B+C+D+E-1.5)/5")
-    field(OOPT, "On Change")
-    field(DOPT, "Use CALC")
-    field(OUT,  "$(P)TEMP_INLET_AVG PP")
-    field(PINI, "YES")
-}
-
-record(ai, "$(P)TEMP_INLET_AVG") {
+record(calc, "$(P)TEMP_INLET_AVG") {
     field(DESC, "Crate average inlet temp")
+    field(INPA, "$(P)PM02:TEMP_INLET CPP")
+    field(INPB, "$(P)CU02:TEMP1 MSS CPP")
+    field(INPC, "$(P)CU02:TEMP2 MSS CPP")
+    field(INPD, "$(P)CU01:TEMP1 MSS CPP")
+    field(INPE, "$(P)CU01:TEMP2 MSS CPP")
+    field(CALC, "(A-4+B+C+D+E-1.5)/5")
+    field(PINI, "YES")
     field(EGU,  "C")
-    field(PREC, "1")
 }
-
 

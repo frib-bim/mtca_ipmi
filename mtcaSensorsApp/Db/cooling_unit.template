@@ -126,45 +126,13 @@ record(ai, "$(P)$(S)FAN6") {
 }
 
 # Calculate fan speed averages
-record(calcout, "$(P)$(S)FAN_FRONT_AVG_CALC") {
-		field(DESC, "Front fan average calculation")
-		field(INPA, "$(P)$(S)FAN1 CPP")
-		field(INPB, "$(P)$(S)FAN2 CPP")
-		field(INPC, "$(P)$(S)FAN3 CPP")
-		field(CALC, "(A+B+C)/3")
-		field(OOPT, "On Change")
-		field(DOPT, "Use CALC")
-		field(OUT,  "$(P)$(S)FAN_FRONT_AVG PP")
-		field(PINI, "YES")
-}
-
-record(ai, "$(P)$(S)FAN_FRONT_AVG") {
+record(calc, "$(P)$(S)FAN_FRONT_AVG") {
 		field(DESC, "Front fan average")
-		field(EGU,  "RPM")
-		field(LOLO, "500")
-		field(LOW,  "1000")
-		field(HIGH, "3500")
-		field(HIHI, "4000")
-		field(LLSV, "MAJOR")
-		field(LSV,  "MINOR")
-		field(HSV,  "MINOR")
-		field(HHSV, "MAJOR")
-}
-
-record(calcout, "$(P)$(S)FAN_REAR_AVG_CALC") {
-		field(DESC, "Rear fan average calculation")
-		field(INPA, "$(P)$(S)FAN4 CPP")
-		field(INPB, "$(P)$(S)FAN5 CPP")
-		field(INPC, "$(P)$(S)FAN6 CPP")
+		field(INPA, "$(P)$(S)FAN1 MSS CPP")
+		field(INPB, "$(P)$(S)FAN2 MSS CPP")
+		field(INPC, "$(P)$(S)FAN3 MSS CPP")
 		field(CALC, "(A+B+C)/3")
-		field(OOPT, "On Change")
-		field(DOPT, "Use CALC")
-		field(OUT,  "$(P)$(S)FAN_REAR_AVG PP")
 		field(PINI, "YES")
-}
-
-record(ai, "$(P)$(S)FAN_REAR_AVG") {
-		field(DESC, "Rear fan average")
 		field(EGU,  "RPM")
 		field(LOLO, "500")
 		field(LOW,  "1000")
@@ -175,23 +143,35 @@ record(ai, "$(P)$(S)FAN_REAR_AVG") {
 		field(HSV,  "MINOR")
 		field(HHSV, "MAJOR")
 }
+
+record(calc, "$(P)$(S)FAN_REAR_AVG") {
+		field(DESC, "Rear fan average")
+		field(INPA, "$(P)$(S)FAN4 MSS CPP")
+		field(INPB, "$(P)$(S)FAN5 MSS CPP")
+		field(INPC, "$(P)$(S)FAN6 MSS CPP")
+		field(CALC, "(A+B+C)/3")
+		field(PINI, "YES")
+		field(EGU,  "RPM")
+		field(LOLO, "500")
+		field(LOW,  "1000")
+		field(HIGH, "3500")
+		field(HIHI, "4000")
+		field(LLSV, "MAJOR")
+		field(LSV,  "MINOR")
+		field(HSV,  "MINOR")
+		field(HHSV, "MAJOR")
+}
+
 
 # Calculate overall average from front and rear average.
 # No need to PINI this record as it will be triggered by the 
 # other two records on initialization.
-record(calcout, "$(P)$(S)FAN_AVG_CALC") {
-		field(DESC, "All fan average calculation")
-		field(INPA, "$(P)$(S)FAN_FRONT_AVG CPP")
-		field(INPB, "$(P)$(S)FAN_REAR_AVG CPP")
-		field(CALC, "(A+B)/2")
-		field(OOPT, "On Change")
-		field(DOPT, "Use CALC")
-		field(OUT,  "$(P)$(S)FAN_AVG PP")
-		field(PINI, "NO")
-}
-
-record(ai, "$(P)$(S)FAN_AVG") {
+record(calc, "$(P)$(S)FAN_AVG") {
 		field(DESC, "All fan average")
+		field(INPA, "$(P)$(S)FAN_FRONT_AVG MSS CPP")
+		field(INPB, "$(P)$(S)FAN_REAR_AVG MSS CPP")
+		field(CALC, "(A+B)/2")
+		field(PINI, "NO")
 		field(EGU,  "RPM")
 		field(LOLO, "500")
 		field(LOW,  "1000")
