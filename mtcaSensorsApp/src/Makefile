@@ -35,7 +35,6 @@ mtcaSensors_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================
 
-include $(DIAGSTD)/configure/fribdiagstdMakefile
 include $(TOP)/configure/RULES
 include $(PYDEVSUP)/configure/RULES_PY
 #----------------------------------------
