@@ -1,0 +1,1323 @@
+NAT-MCH-MIB DEFINITIONS ::= BEGIN
+
+
+-- ****************************************************************************
+-- ****************************************************************************
+-- *                                                                          *
+-- *     NNNNNN         N                A             TTTTTTT TTTTTTTTTT     *
+-- *     N NNNNN        N               AAA                  T TTTTT          *
+-- *     NN NNNNN       N              AAAAA                 T TTTTT          *
+-- *     N N NNNNN      N             A AAAAA                T TTTTT          *
+-- *     N  N NNNNN     N            A A AAAAA               T TTTTT          *
+-- *     N   N NNNNN    N           A   A AAAAA              T TTTTT          *
+-- *     N    N NNNNN   N          A     A AAAAA             T TTTTT          *
+-- *     N     N NNNNN  N         AAAAAAAAA AAAAA            T TTTTT          *
+-- *     N      N NNNNN N        A         A AAAAA           T TTTTT          *
+-- *     N       N NNNNNN       A           A AAAAA          T TTTTT          *
+-- *     N        N NNNNN  OO  A             A AAAAA  OO     T TTTTT     OO   *
+-- *                       OO                         OO                 OO   *
+-- *                                                                          *
+-- *     Gesellschaft fuer Netzwerk- und Automatisierungstechnologie m.b.H    *
+-- *     Konrad-Zuse Platz 9, D-53227 Bonn , Tel.: ++228/965-846-0            *
+-- *                                                                          *
+-- ****************************************************************************
+-- ****************************************************************************
+-- *
+-- * Module      : NAT-MCH-MIB
+-- *
+-- * Description :
+-- *
+-- * Author      : Anton Lavrov
+-- *
+-- ****************************************************************************
+-- ****************************************************************************
+-- *
+-- *                    Copyright (c) by N.A.T. GmbH
+-- *
+-- *       All rights reserved. Copying, compilation, modification,
+-- *       distribution or any other use whatsoever of this material
+-- *       is strictly prohibited except in accordance with a Software
+-- *       License Agreement with N.A.T. GmbH.
+-- *
+-- ****************************************************************************
+-- ****************************************************************************
+-- *
+-- * Module's revision history:
+-- * ==========================
+-- *
+-- * --------- $Log: NAT-MCH-MIB,v $
+-- * --------- $Revision 1.4  2015/04/07 10:03:47Z  anton
+-- * 150312 al Added commentar from Revision 1.3 to MIB revision history;
+-- * --------- Revision 1.3  2015/04/07 09:55:43Z  anton
+-- * 150312 al Removed subtrees historyBufer and fruInfo - not supported up fw v2.17;
+-- * --------- Revision 1.2  2014/09/03 14:52:47Z  anton
+-- * 140903 al Added node from NAT-GMBH-MIB and changed the sequence of the node descriptions;
+-- * --------- Revision 1.1  2014/09/02 14:31:04Z  anton
+-- * --------- Initial revision
+-- *
+-- ****************************************************************************
+-- ****************************************************************************
+-- 
+-- ----------------------------------------------------------------------------
+-- GENERAL NOTES
+--
+-- MIB objects for NAT-MCH agent module implementations
+--
+--
+-- **********************************************************
+--   |_ itu-t(0)
+--   |_ iso(1)
+--   |_ dod(6)
+--   . |_ internet(1)
+--   .   |_ private(4)
+--   .     |_ enterprise(1)
+--   .       |_ nateurope
+--   .         |_ products(1)
+--   .           |_ natMCH(1)
+--   .           . |_ nmchVerInfo(1)
+--   .             . |_ nmchBaseMdlVer(1)
+--   .             . . |_ nmchBaseFwVer(1)
+--   .             . . |_ nmchBaseFpgaVer(2)
+--   .             . . |_ nmchBaseMcVer(3)
+--   .             . . |_ nmchBaseAssmblOpt(4)
+--   .             . . |_ nmchBaseBrdSn(5)
+--   .             . . |_ nmchBaseBrdRev(6)
+--   .             . | |_ nmchBasePcbVer(7)
+--   .             . |
+--   .             . |_ nmchClkMdlVer(2)
+--   .             . . |_ nmchClkPcbVer(1)
+--   .             . . |_ nmchClkMcVer(2)
+--   .             . . |_ nmchClkFpgaVer(3)
+--   .             . . |_ nmchClkAssmblOpt(4)
+--   .             . . |_ nmchClkBrdSn(5)
+--   .             . | |_ nmchClkBrdRev(6)
+--   .             . |
+--   .             . |_ nmchHubMdlVer(3)
+--   .             . . |_ nmchHubMdlType(1)
+--   .             . . |_ nmchHubPcbVer(2)
+--   .             . . |_ nmchHubFpgaVer(3)
+--   .             . . |_ nmchHubMcVer(4)
+--   .             . . |_ nmchHubUplType(5)
+--   .             . . |_ nmchHubBrdSn(6)
+--   .             | . |_ nmchHubBrdRev(7)
+--   .             |
+--   .             |_ nmchEvents(2)
+--   .             . |_ bnInfo(1)
+--   .             . . |_ mainIP(1)
+--   .             . . |_ primIP(2)
+--   .             | . |_ macAddr(3)
+--   .             |
+--   .             |_ nmchMgnt(3)
+--   .             . |_ fruInfo(1)
+--   .             . . |_ fruNumber(1)
+--   .             . . |_ fruTable(2)
+--   .             . . . |_ fruEntry(1)
+--   .             . . . . |_ fruIndex(1)
+--   .             . . . . |_ fruId(2)
+--   .             . . . . |_ fruState(3)
+--   .             . . . . |_ fruName(4)
+--   .             . . . . |_ fruBoardInfo(5)
+--   .             . . . . . |_ fruManufacturer(1)
+--   .             . . . . . |_ fruBoardName(2)
+--   .             . . . . . |_ fruSerialNumber(3)
+--   .             . . . . . |_ fruPartNumber(4)
+--   .             . . . . . |_ fruFileId(5)
+--   .             . |_ powerModules(2)
+--   .             . . |_ pmNumber(1)
+--   .             . . |_ pmTable(2)
+--   .             . . . |_ pmEntry(1)
+--   .             . . . . |_ pmIndex(1)
+--   .             . . . . |_ pmFruId(2)
+--   .             . . . . |_ pmMode(3)
+--   .             . . . . |_ pmBudget(4)
+--   .             . . . . . |_ pmBudgetAllocated(1)
+--   .             . . . . . |_ pmBudgetAvailable(2)
+--   .             . . . . . |_ pmBudgetTotal(3)
+--   .             . . |_ pmChanNumber(3)
+--   .             . . |_ pmChanTable(4)
+--   .             . . . |_ pmChanEntry(1)
+--   .             . . . . |_ pmChanIndex(1)
+--   .             . . . . |_ pmChanPmIndex(2)
+--   .             . . . . |_ pmChanNr(3)
+--   .             . . . . |_ pmChanFruId(4)
+--   .             . . . . |_ pmChanPS1(5)
+--   .             . . . . |_ pmChanMP(6)
+--   .             . . . . |_ pmChanPP(7)
+--   .             . | . . |_ pmChanAmps(8)
+--   .             . |  
+--   .             . |_ coolingUnits(3)
+--   .             . . |_ cuNumber(1)
+--   .             . . |_ cuTable(2)
+--   .             . . . |_ cuEntry(1)
+--   .             . . . . . |_ cuIndex(1)
+--   .             . . . . . |_ cuSite(2)
+--   .             . . . . . |_ cuFruId(3)
+--   .             . . . . . |_ cuSpeedMin(4)
+--   .             . . . . . |_ cuSpeedNorm(5)
+--   .             . . . . . |_ cuSpeedMax(6)
+--   |             . . . . . |_ cuSpeedLevel(7)
+--   |
+--   |
+--   |
+--   |_ join-iso-itu-t
+--
+--
+--
+-- ----------------------------------------------------------------------------
+
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+          Integer32, Counter32, Gauge32, 
+		  IpAddress                                FROM SNMPv2-SMI
+    DisplayString, PhysAddress                     FROM RFC1213-MIB
+    SnmpAdminString                                FROM SNMP-FRAMEWORK-MIB
+    RowStatus, StorageType                         FROM SNMPv2-TC
+    InetAddressType, InetAddress                   FROM INET-ADDRESS-MIB
+    TRAP-TYPE                                      FROM RFC-1215
+    NOTIFICATION-TYPE                              FROM SNMPv2-SMI
+    enterprises                                    FROM RFC1155-SMI
+    NOTIFICATION-GROUP                             FROM SNMPv2-CONF
+    TEXTUAL-CONVENTION                               FROM SNMPv2-TC
+;
+
+
+-- MODULE IDENTIFICATION
+--  NAT-MCH private MIB MODULE-IDENTITY
+--  LAST-UPDATED "September 3, 2014"
+--  ORGANIZATION "N.A.T. GmbH"
+--  CONTACT-INFO    
+--  "postal:   Helmut Laufkoeter
+--                  Konrad-Zuse-Platz 9
+--                  NRW Bonn 53227
+--                  Germany"
+--
+--        phone:    +49 228 965864 0
+--        fax:      +49 228 965864 10
+--        email:    helau@nateurope.com"
+--  DESCRIPTION
+--  "The private MIB objects of SNMPv1.0 for NAT-MCH  MTCA product"
+--  
+--  REVISION     "201807101000Z"
+--  DESCRIPTION  "Added bootNotification trap with variable bindings v2.20.1e"
+--  
+--  REVISION     "201503111000Z"
+--  DESCRIPTION  "Removed subtrees historyBufer and fruInfo - not supported up fw v2.17"
+--  
+--  REVISION     "201409031000Z"
+--  DESCRIPTION  "Bug fix"
+--
+--  REVISION     "201401061000Z"
+--  DESCRIPTION  "Bug fix"
+-- 
+--  REVISION     "201312191452Z"
+--  DESCRIPTION  "Bug fix"
+--
+--  REVISION     "201312181200Z"
+--  DESCRIPTION  "Initial version, published as RFC2274"
+--
+
+
+
+-- ******************************
+--      top level structure
+-- ******************************
+
+nateurope   OBJECT IDENTIFIER ::= { enterprises 27768 }
+products    OBJECT IDENTIFIER ::= { nateurope 1 }
+natMCH      OBJECT IDENTIFIER ::= { products 1 }
+
+
+-- ******************************************************
+--   1-st level structure: natMCH(1)
+-- ******************************************************
+
+--   .           |_ natMCH(1)
+--   .             |_ VersionInfo(1)
+--   .             |_ nmchEvents(2)
+--   .             |_ nmchMgnt(3)
+
+
+
+nmchVerInfo          OBJECT IDENTIFIER ::= { natMCH 1 }
+nmchEvents           OBJECT IDENTIFIER ::= { natMCH 2 }
+nmchMgnt              OBJECT IDENTIFIER ::= { natMCH 3 }
+
+
+
+
+-- ******************************************************
+--   2nd level structure: natMCH(1).VersionInfo(1)
+-- ******************************************************
+
+--   .             |_ VersionInfo(1)
+--   .             . |_ nmchBaseMdlVer(1)
+--   .             . |_ nmchClkMdlVer(2)
+--   .             . |_ nmchHubMdlVer(3)
+
+nmchBaseMdlVer          OBJECT IDENTIFIER ::= { nmchVerInfo 1 }
+nmchClkMdlVer           OBJECT IDENTIFIER ::= { nmchVerInfo 2 }
+nmchHubMdlVer           OBJECT IDENTIFIER ::= { nmchVerInfo 3 }
+
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).VersionInfo(1).nmchBaseMdlVer(1)
+-- *******************************************************************
+--   |             . |_ nmchBaseMdlVer(1)
+--   .             . . |_ nmchBaseFwVer(1)
+--   .             . . |_ nmchBaseFpgaVer(2)
+--   .             . . |_ nmchBaseMcVer(3)
+--   .             . . |_ nmchBaseAssmblOpt(4)
+--   .             . . |_ nmchBaseBrdSn(5)
+--   .             . . |_ nmchBaseBrdRev(6)
+--   .             . | |_ nmchBasePcbVer(7)
+
+
+nmchBaseFwVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+         "NAT-MCH Frimware Version"
+    ::= {  nmchBaseMdlVer 1 }
+
+
+nmchBaseFpgaVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 2 }
+
+
+nmchBaseMcVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 3 }
+
+
+nmchBaseAssmblOpt OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 4 }
+
+
+nmchBaseBrdSn OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Baord serial Number of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 5 }
+
+nmchBaseBrdRev OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Revision Number of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 6 }
+
+nmchBasePcbVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "PCB bersionNumber of the NAT-MCH base module"
+    DEFVAL { "" }
+    ::= {  nmchBaseMdlVer 7 }
+
+
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).VersionInfo(1).nmchClkMdlVer(2)
+-- *******************************************************************
+--   |             . |_ nmchClkMdlVer(2)
+--   |             . . |_ nmchClkPcbVer(1)
+--   |             . . |_ nmchClkMcVer(2)
+--   |             . . |_ nmchClkFpgaVer(3)
+--   |             . . |_ nmchClkAssmblOpt(4)
+--   |             . . |_ nmchClkBrdSn(5)
+--   |             . . |_ nmchClkBrdRev(6)
+
+
+
+nmchClkPcbVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "PCB version of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 1 }
+
+
+nmchClkMcVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Microcontrolle version of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 2 }
+
+nmchClkFpgaVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 3 }
+
+
+nmchClkAssmblOpt OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Assambly options of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 4 }
+
+
+nmchClkBrdSn OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Serial Number of the NAT-MCH Clock module"
+    DEFVAL { "" }
+    ::= {  nmchClkMdlVer 5 }
+
+
+nmchClkBrdRev OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Revision number of the NAT-MCH Clock module"
+    ::= {  nmchClkMdlVer 6 }
+
+
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).VersionInfo(1).nmchHubMdlVer(3)
+-- *******************************************************************
+--   |             . |_ nmchHubMdlVer(3)
+--   |             . . |_ nmchHubMdlType(1)
+--   |             . . |_ nmchHubPcbVer(2)
+--   |             . . |_ nmchHubFpgaVer(3)
+--   |             . . |_ nmchHubMcVer(4)
+--   |             . . |_ nmchHubUplType(5)
+--   |             . . |_ nmchHubBrdSn(6)
+--   |             . . |_ nmchHubBrdRev(7)
+
+NmchHubType ::= INTEGER{none(1), pcie(2), srio(3), xaui(4)}
+NmchHubUplType ::= INTEGER{none(1), sfp(2), cx4(3)}
+
+nmchHubMdlType OBJECT-TYPE
+    SYNTAX      NmchHubType
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Type of the NAT-MCH Hub module"
+    DEFVAL { 1}
+    ::= {  nmchHubMdlVer 1 }
+
+
+
+nmchHubPcbVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "PCB version of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 2 }
+
+
+nmchHubFpgaVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "FPGA version of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 3 }
+
+
+
+nmchHubMcVer OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Microcontroller version of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 4 }
+
+
+
+nmchHubUplType OBJECT-TYPE
+    SYNTAX      NmchHubUplType
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Uplink Type of the NAT-MCH Hub module"
+    DEFVAL { 1}
+       ::= {  nmchHubMdlVer 5 }
+
+
+
+nmchHubBrdSn OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Board serial number of the NAT-MCH Hub module"
+    ::= {  nmchHubMdlVer 6 }
+
+
+nmchHubBrdRev OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS read-only
+    STATUS      current
+    DESCRIPTION
+    "Revision number of the NAT-MCH Hub module"
+        ::= {  nmchHubMdlVer 7 }
+
+
+-- ******************************************************
+--   2nd level structure: natMCH(1).nmchEvents(2)
+-- ******************************************************
+
+--   .             |_ nmchEvents(2)
+--   .             . |_ bnInfo(1)
+
+bnInfo               OBJECT IDENTIFIER ::= { nmchEvents 1 }
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).nmchEvents(2).bnInfo(1)
+-- *******************************************************************
+--   |             . |_ bnInfo(1)
+--   |             . . |_ mainIP(1)
+--   |             . . |_ primIP(2)
+--   |             . . |_ macAddr(3)
+
+
+mainIP OBJECT-TYPE
+    SYNTAX  IpAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Boot Notification: Main IP Address of MCH"
+    ::= { bnInfo 1 }
+
+primIP OBJECT-TYPE
+    SYNTAX  IpAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Boot Notification: Primary IP Address of MCH"
+    ::= { bnInfo 2 }
+
+
+macAddr OBJECT-TYPE
+    SYNTAX  OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Boot Notification: MAC Address of MCH"
+    ::= { bnInfo 3 }
+
+
+
+-- ******************************************************
+--   2nd level structure: natMCH(1).nmchMgnt(3)
+-- ******************************************************
+
+--   .             |_ nmchMgnt (3)
+--   .             . |_ fruInfo(1)
+--   .             . |_ powerModules(2)
+--   .             . |_ coolingUnits(3)
+
+fruInfo               OBJECT IDENTIFIER ::= { nmchMgnt 1 }
+powerModules        OBJECT IDENTIFIER ::= { nmchMgnt 2 }
+coolingUnits        OBJECT IDENTIFIER ::= { nmchMgnt 3 }
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).nmchMgnt(3).fruInfo(1)          --
+-- *******************************************************************
+--   .             . |_ fruInfo(1)
+--   .             . . |_ fruNumber(1)
+--   .             . . |_ fruTable(2) 
+--   .             . . . |_ fruEntry(1)
+--   .             . . . . |_ fruIndex(1)
+--   .             . . . . |_ fruId(2)
+--   .             . . . . |_ fruState(3)
+--   .             . . . . |_ fruName(4)
+--   .             . . . . |_ fruBoardInfo(5)
+--   .             . . . . . |_ fruManufacturer(1)
+--   .             . . . . . |_ fruBoardName(2)
+--   .             . . . . . |_ fruSerialNumber(3)
+--   .             . . . . . |_ fruPartNumber(4)
+--   .             . . . . . |_ fruFileId(5)
+
+
+fruNumber  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of FRU devices (regardless of their
+            current state) present on this system."
+    ::= { fruInfo 1 }
+
+
+FruIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+
+            "A unique value, greater than zero, for each FRU or
+            FRU sub-layer in the managed system.  It is
+            recommended that values are assigned contiguously starting
+            from 1.  The value for each FRU sub-layer must remain
+            constant at least from one re-initialization of the entity's
+            network management system to the next re-initialization."
+    SYNTAX       Integer32 (1..256)
+
+
+FruId ::= 
+    INTEGER {
+        mch(0), 
+        fruid1(1), fruid2(2),
+        mcmc1(3), mcmc2(4),
+        amc1(5), amc2(6), amc3(7), amc4(8),
+        amc5(9), amc6(10), amc7(11), amc8(12), amc9(13),
+        amc10(14), amc11(15), amc12(16), 
+        fruid17(17),fruid18(18),fruid19(19),fruid20(20),fruid21(21),fruid22(22),fruid23(23),fruid24(24),fruid25(25),fruid26(26), fruid27(27),
+        amc13one(28), amc13two(29),
+        fruid30(30),fruid31(31),fruid32(32),fruid33(33),fruid34(34),fruid35(35),fruid36(36),fruid37(37),fruid38(38),fruid39(39),
+        cu1(40), cu2(41),
+        fruid42(42),fruid43(43),fruid44(44),fruid45(45),fruid46(46),fruid47(47),fruid48(48),fruid49(49),
+        pm1(50),pm2(51), pm3(52), pm4(53), pm5(54), pm6(55), pm7(56), pm8(57), fruid58(58),fruid59(59),
+        clock1(60), hubmod1(61), clock2(62), hubmod2(63),
+        mch1rtm(64), mch2rtm(65), fruid66(66),fruid67(67),
+        mch1ptm(68), mch2ptm(69),
+        fruid70(70),fruid71(71),fruid72(72),fruid73(73),fruid74(74),fruid75(75),fruid76(76),fruid77(77),fruid78(78),fruid79(79),
+        fruid80(80),fruid81(81),fruid82(82),fruid83(83),fruid84(84),fruid85(85),fruid86(86),fruid87(87),fruid88(88),fruid89(89),
+        amc1rtm(90), amc2rtm(91), amc3rtm(92), amc4rtm(93), amc5rtm(94), amc6rtm(95), 
+        amc7rtm(96), amc8rtm(97), amc9rtm(98), amc10rtm(99), amc11rtm(100), amc12rtm(101),
+        ertm13(102), ertm14(103), ertm15(104),
+        fruid105(105), fruid106(106), fruid107(107), fruid108(108), fruid109(109),
+        fruid110(110), fruid111(111), fruid112(112), fruid113(113), fruid114(114), fruid115(115), fruid116(116), fruid117(117), fruid118(118), fruid119(119),
+        fruid120(120), fruid121(121), fruid122(122), fruid123(123), fruid124(124), fruid125(125), fruid126(126), fruid127(127), fruid128(128), fruid129(129),
+        fruid130(130), fruid131(131), fruid132(132), fruid133(133), fruid134(134), fruid135(135), fruid136(136), fruid137(137), fruid138(138), fruid139(139),
+        fruid140(140), fruid141(141), fruid142(142), fruid143(143), fruid144(144), fruid145(145), fruid146(146), fruid147(147), fruid148(148), fruid149(149),
+        fruid150(150), fruid151(151), fruid152(152), fruid153(153), fruid154(154), fruid155(155), fruid156(156), fruid157(157), fruid158(158), fruid159(159),
+        fruid160(160), fruid161(161), fruid162(162), fruid163(163), fruid164(164), fruid165(165), fruid166(166), fruid167(167), fruid168(168), fruid169(169),
+        fruid170(170), fruid171(171), fruid172(172), fruid173(173), fruid174(174), fruid175(175), fruid176(176), fruid177(177), fruid178(178), fruid179(179),
+        fruid180(180), fruid181(181), fruid182(182), fruid183(183), fruid184(184), fruid185(185), fruid186(186), fruid187(187), fruid188(188), fruid189(189),
+        fruid190(190), fruid191(191), fruid192(192), fruid193(193), fruid194(194), fruid195(195), fruid196(196), fruid197(197), fruid198(198), fruid199(199),
+        fruid200(200), fruid201(201), fruid202(202), fruid203(203), fruid204(204), fruid205(205), fruid206(206), fruid207(207), fruid208(208), fruid209(209),
+        fruid210(210), fruid211(211), fruid212(212), fruid213(213), fruid214(214), fruid215(215), fruid216(216), fruid217(217), fruid218(218), fruid219(219),
+        fruid220(220), fruid221(221), fruid222(222), fruid223(223), fruid224(224), fruid225(225), fruid226(226), fruid227(227), fruid228(228), fruid229(229),
+        fruid230(230), fruid231(231), fruid232(232), fruid233(233), fruid234(234), fruid235(235), fruid236(236), fruid237(237), fruid238(238), fruid239(239),
+        fruid240(240), fruid241(241), fruid242(242), fruid243(243), fruid244(244), fruid245(245), fruid246(246), fruid247(247), fruid248(248), fruid249(249),
+        fruid250(250), fruid251(251), fruid252(252),
+        bpfru253(253), shfru254(254)
+    }
+
+
+FruState ::= 
+    INTEGER {
+        mstate0(0), mstate1(1), mstate2(2), mstate3(3),
+        mstate4(4), mstate5(5), mstate6(6), mstate7(7),
+        mstate8(8), mstate9(9), mstate10(10), mstate11(11),
+        mstate12(12), mstate13(13), mstate14(14), mstate15(15)
+    }
+
+FruBoardInfo ::=
+    SEQUENCE {
+        fruManufacturer     DisplayString,
+        fruBoardName        DisplayString,
+        fruSerialNumber     DisplayString,
+        fruPartNumber       DisplayString,
+        fruFileId           DisplayString
+    }
+
+
+
+-- the FRU device table
+
+-- The FRU device table contains information on the entity's
+
+
+-- Table of available FRUs
+
+fruTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FruEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of FRU devices.  The number of entries is
+            given by the value of fruNumber."
+    ::= { fruInfo 2 }
+
+fruEntry OBJECT-TYPE
+    SYNTAX      FruEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular FRU."
+    INDEX   { fruIndex }
+    ::= { fruTable 1 }
+
+FruEntry ::=
+    SEQUENCE {
+        fruIndex             FruIndex,
+        fruId                FruId,
+        fruState             FruState,
+        fruName              DisplayString,
+        fruBoardInfo         FruBoardInfo
+    }
+
+
+fruIndex OBJECT-TYPE
+    SYNTAX      FruIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each FRU device.  It
+            is recommended that values are assigned contiguously
+            starting from 1.  The value for each FRU sub-layer
+            must remain constant at least from one re-initialization of
+            the entity's FRU management system to the next re-
+            initialization."
+    ::= { fruEntry 1 }
+
+
+fruId OBJECT-TYPE
+    SYNTAX      FruId
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each FRU device.  
+          the FRU ID provides internal FRU Identification within managed system."
+    ::= { fruEntry 2 }
+
+
+fruState OBJECT-TYPE
+    SYNTAX      FruState
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The M State of FRU device."
+    ::= { fruEntry 3 }
+
+fruName OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing information about the
+            FRU device.  This string should include the name of the
+            manufacturer, the product name and the version of the
+            device hardware/software."
+    ::= { fruEntry 4 }
+
+
+fruBoardInfo               OBJECT IDENTIFIER ::= { fruEntry 5 }
+-- *******************************************************************
+--   4nd level: natMCH(1).nmchMgnt(3).fruInfo(1).fruBoardInfo(5)    --
+-- *******************************************************************
+--   .             . . . . |_ fruBoardInfo(5)
+--   .             . . . . . |_ fruManufacturer(1)
+--   .             . . . . . |_ fruBoardName(2)
+--   .             . . . . . |_ fruSerialNumber(3)
+--   .             . . . . . |_ fruPartNumber(4)
+--   .             . . . . . |_ fruFileId(5)
+
+
+fruManufacturer  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing information about board
+          manufacturer. Information has been extracted from Board Info Area."
+        ::= { fruBoardInfo 1 }
+
+
+
+fruBoardName  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing information about board
+          name. Information has been extracted from Board Info Area."
+        ::= { fruBoardInfo 2 }
+
+
+fruSerialNumber  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing information about serial number. The Information has been extracted from Board Info Area."
+        ::= { fruBoardInfo 3 }
+
+
+fruPartNumber  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing information about part number. The Information has been extracted from Board Info Area."
+        ::= { fruBoardInfo 4 }
+
+		
+fruFileId  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing information about part number. The Information has been extracted from Board Info Area."
+        ::= { fruBoardInfo 5 }
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).nmchMgnt(3).powerModules(2)     --
+-- *******************************************************************
+--   .             . |_ powerModules(2)
+--   .             . . |_ pmNumber(1)
+--   .             . . |_ pmTable(2)
+--   .             . . . |_ pmEntry(1)
+--   .             . . . . |_ pmIndex(1)
+--   .             . . . . |_ pmFruId(2)
+--   .             . . . . |_ pmMode(3)
+--   .             . . . . |_ pmBudget(4)
+--   .             . . . . . |_ pmBudgetAllocated(1)
+--   .             . . . . . |_ pmBudgetAvailable(2)
+--   .             . . . . . |_ pmBudgetTotal(3)
+
+pmNumber  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Power Module present on this system."
+    ::= { powerModules 1 }
+
+PmIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+
+            "A unique value, greater than zero, for each CU or
+            Pm sub-layer in the managed system.  It is
+            recommended that values are assigned contiguously starting
+            from 1.  The value for each PM sub-layer must remain
+            constant at least from one re-initialization of the entity's
+            system management system to the next re-initialization."
+    SYNTAX       Integer32 (1..8)
+
+-- PmBudgetAmpere ::= TEXTUAL-CONVENTION
+--     DISPLAY-HINT "d-1"
+--     STATUS       current
+--     DESCRIPTION
+--             ""
+--     SYNTAX       Integer32 (1..1280)
+	
+PmBudgetAmpere ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS       current
+    DESCRIPTION
+            ""
+    SYNTAX       Integer32 (1..1280)
+
+-- Table of available power modules
+
+
+PmMode ::= 
+    INTEGER {
+        pmautomode(0), pmnormalmode(1), pmunknownmode(2)
+    }
+PmBudget ::=
+    SEQUENCE {
+        pmBudgetAllocated     DisplayString,
+        pmBudgetAvailable     DisplayString,
+        pmBudgetTotal         DisplayString
+    }
+
+PmEntry ::=
+    SEQUENCE {
+        pmIndex               PmIndex,
+        pmFruId               FruId,
+        pmMode                PmMode,
+        pmBudget              OBJECT IDENTIFIER
+    }
+
+
+pmTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF PmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of power modules.  The number of entries is
+            given by the value of power module."
+    ::= { powerModules 2 }
+
+
+pmEntry OBJECT-TYPE
+    SYNTAX      PmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry power  management information applicable to a
+            particular power module."
+    INDEX   { pmIndex }
+    ::= { pmTable 1 }
+	
+pmIndex OBJECT-TYPE
+    SYNTAX      PmIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each power module. It
+            is recommended that values are assigned contiguously
+            starting from 1."
+    ::= { pmEntry 1 }
+
+
+pmFruId OBJECT-TYPE
+    SYNTAX      FruId
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each Power Module.
+          The FRU ID provides internal FRU Identification within a managed system."
+    ::= { pmEntry 2 }
+
+
+pmMode OBJECT-TYPE
+    SYNTAX      PmMode
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "shows current mode of Power Module {autonomous or normal}"
+    ::= { pmEntry 3 }
+
+
+
+pmBudget               OBJECT IDENTIFIER ::= { pmEntry 4 }
+-- *******************************************************************
+--   4nd level: natMCH(1).nmchMgnt(3).powerModules(2).pmBudget(4)   --
+-- *******************************************************************
+--   .             . . . . |_ pmBudget(4)
+--   .             . . . . . |_ pmBudgetAllocated(1)
+--   .             . . . . . |_ pmBudgetAvailable(2)
+--   .             . . . . . |_ pmBudgetTotal(3)
+
+pmBudgetAllocated  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Allocated power budget on the power module."
+        ::= { pmBudget 1 }
+		
+
+pmBudgetAvailable  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Available power budget on the  power module."
+        ::= { pmBudget 2 }
+
+pmBudgetTotal  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Total power budget on the  power module."
+        ::= { pmBudget 3 }
+
+
+-- *******************************************************************
+--   3nd level: natMCH(1).nmchMgnt(3).powerModules(2).pmChanNumber(3) --
+-- *******************************************************************
+--   .             . . |_ pmChanNumber(3)
+
+pmChanNumber  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Power Module present on this system."
+    ::= { powerModules 3 }
+	
+	
+-- *******************************************************************
+--   3nd level structure: natMCH(1).nmchMgnt(3).powerModules(2).pmChanTable(4)    --
+-- *******************************************************************
+--   .             . |_ powerModules(2)
+--   . . . . . . . . . . . . . . . . . . . . 
+--   .             . . |_ pmChanTable(4)
+--   .             . . . |_ pmChanEntry(1)
+--   .             . . . . |_ pmChanIndex(1)
+--   .             . . . . |_ pmChanPmIndex(2)
+--   .             . . . . |_ pmChanNr(3)
+--   .             . . . . |_ pmChanFruId(4)
+--   .             . . . . |_ pmChanPS1(5)
+--   .             . . . . |_ pmChanMP(5)
+--   .             . . . . |_ pmChanPP(7)
+--   .             . . . . |_ pmChanAmps(8)
+
+PmChanIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+
+            "A unique value, greater than zero, for each Power Channel in 
+			the managed system.  It is recommended that values 
+			are assigned contiguously starting from 1.  The value 
+			for each PM sub-layer must remain constant at least from 
+			one re-initialization of the entity's system management 
+			system to the next re-initialization."
+    SYNTAX       Integer32 (1..8)
+
+PmChanPmIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+
+            " The Power Module on which this entry's equivalence
+            is effective.  The Power Module identified by a
+            particular value of this index is the same
+            Power Module as identified by the same value of
+            pmIndex."
+    SYNTAX       Integer32 (1..8)
+
+
+
+PmChanNr ::= 
+   INTEGER {
+        mch1(1),  mch2(2),  cu1(3), cu2(4),
+        amc1(5),  amc2(6), amc3(7), amc4(8),
+        amc5(9),  amc6(10), amc7(11), amc8(12),
+        amc9(13), amc10(14), amc11(15), amc12(16)
+    }
+
+PmChanPS1 ::= INTEGER {  notpresented(0), presented(1) }
+PmChanMP ::= INTEGER {  nomanagementpower(0), managementpower(1), overcurrent(2) }
+PmChanPP ::= INTEGER {  nopowerpayload(0), powerpayload(1), overcurrent(2) }
+
+PmChanAmps ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS       current
+    DESCRIPTION
+            ""
+    SYNTAX       Integer32 (1..1280)
+
+
+-- Table of available power modules
+
+pmChanTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF PmChanEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of power modules.  The number of entries is
+            given by the value of power module."
+    ::= { powerModules 4 }
+
+
+pmChanEntry OBJECT-TYPE
+    SYNTAX      PmChanEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry power  management information applicable to a
+            particular power module."
+    INDEX   { pmChanIndex }
+    ::= { pmChanTable 1 }
+
+
+
+PmChanEntry ::=
+    SEQUENCE {
+        pmChanIndex        INTERGER,
+        pmChanPmIndex      PmChanPmIndex,
+        pmChanNr           PmChanNr,
+        pmChanFruId        FruId,
+        pmChanPS1          PmChanPS1,
+        pmChanMP           PmChanMP,
+        pmChanPP           PmChanPP,
+        pmChanAmps         DisplayString
+    }
+
+
+pmChanIndex OBJECT-TYPE
+    SYNTAX      INTERGER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each power module. It
+            is recommended that values are assigned contiguously
+            starting from 1."
+    ::= { pmChanEntry 1 }
+
+
+pmChanPmIndex OBJECT-TYPE
+    SYNTAX      PmChanPmIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            " The Power Module on which this entry's equivalence
+            is effective.  The Power Module identified by a
+            particular value of this index is the same
+            Power Module as identified by the same value of
+            pmIndex."
+    ::= { pmChanEntry 2 }	
+
+
+pmChanNr OBJECT-TYPE
+    SYNTAX      PmChanNr
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Power channel number"
+    ::= { pmChanEntry 3 }
+
+
+pmChanFruId OBJECT-TYPE
+    SYNTAX      FruId
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "FRU device located on the power channel"
+    ::= { pmChanEntry 4 }
+
+
+pmChanPS1 OBJECT-TYPE
+    SYNTAX      PmChanPS1
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Device Presence on the power channel."
+    ::= { pmChanEntry 5 }
+
+
+pmChanMP OBJECT-TYPE
+    SYNTAX      PmChanMP
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Device becomes Management Power on the power channel."
+    ::= { pmChanEntry 6 }
+
+
+pmChanPP OBJECT-TYPE
+    SYNTAX      PmChanPP
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Device becomes Payload Power on the power channel."
+    ::= { pmChanEntry 7 }
+
+
+pmChanAmps OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..64))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Device becomes Payload Power on the power channel."
+    ::= { pmChanEntry 8 }
+
+
+
+
+
+
+
+
+-- *******************************************************************
+--   3nd level structure: natMCH(1).nmchMgnt(3).coolingUnits(3)     --
+-- *******************************************************************
+--   .             . |_ coolingUnits(3)
+--   .             . . |_ cuNumber(1)
+--   .             . . |_ cuTable(2)
+--   .             . . . |_ cuEntry(1)
+--   .             . . . . . |_ cuIndex(1)
+--   .             . . . . . |_ cuSite(2)
+--   .             . . . . . |_ cuFruId(3)
+--   .             . . . . . |_ cuSpeedMin(4)
+--   .             . . . . . |_ cuSpeedNorm(5)
+--   .             . . . . . |_ cuSpeedMax(6)
+--   |             . . . . . |_ cuSpeedLevel(7)
+
+cuNumber  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Cooling Units present on this system."
+    ::= { coolingUnits 1 }
+
+
+CuIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+
+            "A unique value, greater than zero, for each CU or
+            CU sub-layer in the managed system.  It is
+            recommended that values are assigned contiguously starting
+            from 1.  The value for each CU sub-layer must remain
+            constant at least from one re-initialization of the entity's
+            system management system to the next re-initialization."
+    SYNTAX       Integer32 (1..8)
+
+CuSite ::= INTEGER{cu1(1), cu2(2), cu3(3), cu4(4)}
+
+
+CuSpeed ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+
+            "CuSpeed defines colling unit speed range."
+    SYNTAX       Integer32 (0..255)
+
+-- Table of available cooling units
+
+cuTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CuEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of cooling units.  The number of entries is
+            given by the value of fruNumber."
+    ::= { coolingUnits 2 }
+
+cuEntry OBJECT-TYPE
+    SYNTAX      CuEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular FRU."
+    INDEX   { cuIndex }
+    ::= { cuTable 1 }
+
+
+CuEntry ::=
+    SEQUENCE {
+        cuIndex             CuIndex,
+        cuSite              CuSite,
+        cuFruId             FruId,
+        cuSpeedMin          CuSpeed,
+        cuSpeedNorm         CuSpeed,
+        cuSpeedMax          CuSpeed,
+        cuSpeedLevel        CuSpeed
+    }
+
+cuIndex OBJECT-TYPE
+    SYNTAX      CuIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each Cooling Unit. It
+            is recommended that values are assigned contiguously
+            starting from 1."
+    ::= { cuEntry 1 }
+
+
+cuSite OBJECT-TYPE
+    SYNTAX      CuSite
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each Cooling Unit.  
+          The cuSite considers Cooling Unit Site within a managed system."
+    ::= { cuEntry 2 }
+
+cuFruId OBJECT-TYPE
+    SYNTAX      FruId
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each FRU device.  
+          The FRU ID provides internal FRU Identification within a managed system."
+    ::= { cuEntry 3 }
+
+cuSpeedMin OBJECT-TYPE
+    SYNTAX      CuSpeed
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Defined minimal speed level of Cooling Unit."
+    ::= { cuEntry 4 }
+
+cuSpeedNorm OBJECT-TYPE
+    SYNTAX      CuSpeed
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Defined normal speed level of Cooling Unit."
+    ::= { cuEntry 5 }
+
+
+cuSpeedMax OBJECT-TYPE
+    SYNTAX      CuSpeed
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Defined maximal speed level of Cooling Unit."
+    ::= { cuEntry 6 }
+
+
+cuSpeedLevel OBJECT-TYPE
+    SYNTAX      CuSpeed
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "Defined current speed level of Cooling Unit."
+    ::= { cuEntry 7 }
+
+
+-- ******************************************************
+--                NAT-MCH Trap                         --
+-- ******************************************************
+
+ bootNotification TRAP-TYPE
+ ENTERPRISE nmchEvents
+ VARIABLES { bnInfo }
+ DESCRIPTION 
+ "Boot Notification: MCH is primary now"
+
+ --#SUMMARY    " mTCA: NAT-MCH Switchover Event Trap"
+ --#ARGUMENTS  {}
+ --#SEVERITY   INFORMATIONAL
+
+ ::= 1001
+
+END
